@@ -31,7 +31,6 @@ class StokMasukController extends Controller
     {
         $user = $this->userAuth();
         $NoTrms = StokMasuk::generateNoTrm();
-        $Id = DetailStokMasuk::generateId();
         // $gudangs = Gudang::where('jenis', 2)->get();
         $barangs = Barang::select('brg_id', 'nm_brg', 'satuan_besar')
             ->where('status', 0)
@@ -39,7 +38,7 @@ class StokMasukController extends Controller
         $suppliers = Supplier::select('supplier_id', 'nama')
             ->where('status', 0)
             ->get();
-        return view('pages.stok-masuk.create', compact('user', 'NoTrms','Id', 'barangs', 'suppliers'));
+        return view('pages.stok-masuk.create', compact('user', 'NoTrms', 'barangs', 'suppliers'));
     }
 
     public function store(Request $request)
