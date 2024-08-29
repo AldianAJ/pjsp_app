@@ -52,7 +52,6 @@ class StokMasukController extends Controller
         'supplier_id' => 'required|exists:m_supplier,supplier_id',
         'tgl' => 'required|date',
         'items' => 'required|array',
-        'items.*.id' => 'required|integer|unique:tr_detail_terima_supplier,id',
         'items.*.brg_id' => 'required|exists:m_brg,brg_id',
         'items.*.qty' => 'required|integer|min:1',
         'items.*.satuan_besar' => 'required|string',
@@ -68,7 +67,6 @@ class StokMasukController extends Controller
 
     foreach ($request->items as $item) {
         DetailStokMasuk::create([
-            'id' => $item->id,
             'no_trm' => $stokMasuk->no_trm,
             'brg_id' => $item['brg_id'],
             'qty' => $item['qty'],
