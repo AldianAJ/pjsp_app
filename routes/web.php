@@ -9,9 +9,8 @@ use App\Http\Controllers\Admin\JenisMesinController;
 use App\Http\Controllers\Admin\SupplierController;
 use App\Http\Controllers\Admin\StokMasukController;
 use App\Http\Controllers\Admin\KinerjaController;
-use App\Http\Controllers\Admin\PermintaanBarangController;
+use App\Http\Controllers\Admin\PermintaanController;
 use App\Http\Controllers\Admin\PengirimanBarangController;
-use App\Models\Admin\JenisMesin;
 
 /*
 |--------------------------------------------------------------------------
@@ -83,29 +82,23 @@ Route::middleware('user')->group(function () {
     });
 
 
-    Route::controller(PermintaanBarangController::class)->group(function () {
-        Route::get('/permintaan-barang', 'index')->name('permintaan-barang');
-        Route::get('/permintaan-barang/create', 'create')->name('permintaan-barang.create');
-        Route::post('/permintaan-barang/store', 'store')->name('permintaan-barang.store');
-        Route::post('/permintaan-barang/detail', 'detail')->name('permintaan-barang.detail');
-        Route::get('/permintaan-barang/detail/{slug}', 'detailByGudang')->name('permintaan-barang.detailByGudang');
-        Route::get('/permintaan-barang/checkminta', 'checkMinta')->name('permintaan-barang.checkMinta');
-        Route::get('/permintaan-barang/persetujuan/{slug}/{id}', 'createPersetujuan')->name('permintaan-barang.persetujuan');
-        Route::post('/permintaan-barang/temp/persetujuan', 'temporaryPersetujuan')->name('permintaan-barang.tmpPersetujuan');
-        Route::get('/permintaan-barang/pengiriman/store/{slug}', 'storePengiriman')->name('permintaan-barang.storePersetujuan');
-        Route::get('/permintaan-barang/history', 'indexHistory')->name('permintaan-barang.history');
-        Route::get('/permintaan-barang/exportPDF/{slug}', 'exportPDF')->name('permintaan-barang.exportPDF');
+    Route::controller(PermintaanController::class)->group(function () {
+        Route::get('/permintaan', 'index')->name('permintaan');
+        Route::get('/permintaan/create', 'create')->name('permintaan.create');
+        Route::get('/permintaan/edit/{no_reqskm}', 'edit')->name('permintaan.edit');
+        Route::post('/permintaan/store', 'store')->name('permintaan.store');
+        Route::post('/permintaan/update/{no_reqskm}', 'update')->name('supplier.update');
     });
 
     Route::controller(PengirimanBarangController::class)->group(function () {
-        Route::get('/pengiriman-barang', 'index')->name('pengiriman-barang');
-        Route::get('/pengiriman-barang/detail/{slug}', 'show')->name('pengiriman-barang.detail');
-        Route::get('/pengiriman-barang/store/penerimaan/{slug}', 'storePenerimaan')->name('pengiriman-barang.penerimaan');
-        Route::get('/pengiriman-barang/keep/barang', 'indexBarangDiambil')->name('pengiriman-barang.barangDiambil');
-        Route::get('/pengiriman-barang/history', 'indexHistory')->name('pengiriman-barang.history');
-        Route::post('/pengiriman-barang/history/detail', 'detailHistory')->name('pengiriman-barang.detailHistory');
-        Route::get('/pengiriman-barang/exportPDF/{slug}', 'exportPDF')->name('pengiriman-barang.exportPDF');
-        Route::get('/pengiriman_barang/update/status/{pengiriman_barang_id}/{barang_id}', 'updateStatus')->name('pengiriman-barang.updateStatus');
+        Route::get('/pengiriman', 'index')->name('pengiriman');
+        Route::get('/pengiriman/detail/{slug}', 'show')->name('pengiriman.detail');
+        Route::get('/pengiriman/store/penerimaan/{slug}', 'storePenerimaan')->name('pengiriman.penerimaan');
+        Route::get('/pengiriman/keep/barang', 'indexBarangDiambil')->name('pengiriman.barangDiambil');
+        Route::get('/pengiriman/history', 'indexHistory')->name('pengiriman.history');
+        Route::post('/pengiriman/history/detail', 'detailHistory')->name('pengiriman.detailHistory');
+        Route::get('/pengiriman/exportPDF/{slug}', 'exportPDF')->name('pengiriman.exportPDF');
+        Route::get('/pengiriman_barang/update/status/{pengiriman_barang_id}/{barang_id}', 'updateStatus')->name('pengiriman.updateStatus');
     });
 
 

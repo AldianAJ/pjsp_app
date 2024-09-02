@@ -7,7 +7,7 @@ use Illuminate\Http\Request;
 use App\Models\Admin\DetailPengirimanCounter;
 use App\Models\Admin\DetailPermintaanCounter;
 use App\Models\Admin\PengirimanCounter;
-use App\Models\Admin\PermintaanBarang;
+use App\Models\Admin\Permintaan;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
@@ -15,7 +15,7 @@ use Yajra\DataTables\DataTables;
 use Illuminate\Support\Str;
 use Barryvdh\DomPDF\Facade\Pdf;
 
-class PermintaanBarangController extends Controller
+class PermintaanController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -31,12 +31,12 @@ class PermintaanBarangController extends Controller
     public function index(Request $request)
 {
     $user = $this->userAuth();
-    $path = 'permintaanBarang';
+    $path = 'permintaan';
 
     if ($request->ajax()) {
-        $permintaanBarangs = PermintaanBarang::all();
+        $permintaans = Permintaan::all();
 
-        return DataTables::of($permintaanBarangs)
+        return DataTables::of($permintaans)
             ->addColumn('action', function ($object) use ($path) {
                 $html = '<a href="' . route($path . "edit", ["brg_id" => $object->brg_id]) . '" class="btn btn-secondary waves-effect waves-light mx-1">'
                     . ' <i class="bx bx-edit align-middle me-2 font-size-18"></i> Edit</a>';

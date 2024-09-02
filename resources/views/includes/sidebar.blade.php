@@ -55,9 +55,9 @@
                         <li class="menu-title" key="t-transactions">Transaksi</li>
 
                         <li>
-                            <a href="{{ route('permintaan-barang') }}" class="waves-effect">
+                            <a href="#" class="waves-effect">
                                 <i class="bx bxs-duplicate"></i>
-                                <span key="t-gudang">Permintaan Barang</span>
+                                <span key="t-gudang">Permintaan</span>
                             </a>
                         </li>
                         <li>
@@ -71,7 +71,7 @@
                         <li>
                             <a href="{{ route('permintaan-barang.history') }}" class="waves-effect">
                                 <i class="bx bx-notepad"></i>
-                                <span key="t-history-minta">Permintaan Barang</span>
+                                <span key="t-history-minta">Permintaan</span>
                             </a>
                         </li>
                         <li>
@@ -112,7 +112,7 @@
                         <li>
                             <a href="#" class="waves-effect">
                                 <i class="bx bxs-duplicate"></i>
-                                <span key="t-minta">Permintaan Barang</span>
+                                <span key="t-minta">Permintaan</span>
                             </a>
                         </li>
 
@@ -120,7 +120,7 @@
                         <li>
                             <a href="#" class="waves-effect">
                                 <i class="bx bx-notepad"></i>
-                                <span key="t-history-minta">Permintaan Barang</span>
+                                <span key="t-history-minta">Permintaan</span>
                             </a>
                         </li>
                     @endif
