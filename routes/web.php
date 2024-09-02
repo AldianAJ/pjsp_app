@@ -79,7 +79,9 @@ Route::middleware('user')->group(function () {
         Route::get('/kinerja-minggu/edit/{supplier_id}', 'edit')->name('kinerja-minggu.edit');
         Route::post('/kinerja-minggu/store', 'store')->name('kinerja-minggu.store');
         Route::post('/kinerj-minggu/update/{supplier_id}', 'update')->name('kinerja.update');
-        Route::get('/kinerja-hari', 'index')->name('kinerja-hari');
+        Route::get('/kinerja-hari', 'indexhari')->name('kinerja-hari');
+        Route::get('/kinerja-hari/create', 'createhari')->name('kinerja-hari.create');
+        Route::post('/kinerja-hari/store', 'storehari')->name('kinerja-hari.store');
         Route::get('/kinerja-shift', 'index')->name('kinerja-shift');
         Route::get('/kinerja-mesin', 'index')->name('kinerja-mesin');
     });
@@ -113,5 +115,4 @@ Route::middleware('user')->group(function () {
         Route::post('/stok-masuk/store', 'store')->name('stok-masuk.store');
         Route::post('/stok-masuk/update/{no_trm}', 'update')->name('stok-masuk.update');
     });
-
 });

@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('title')
-Tambah Target Mingguan
+Tambah Target Harian
 @endsection
 
 @push('after-app-script')
@@ -42,7 +42,7 @@ Tambah Target Mingguan
 <div class="row">
     <div class="col-12">
         <div class="page-title-box d-sm-flex align-items-center justify-content-between">
-            <h4 class="mb-sm-0 font-size-18">Tambah Target Mingguan</h4>
+            <h4 class="mb-sm-0 font-size-18">Tambah Target Harian</h4>
         </div>
     </div>
 </div>
@@ -68,112 +68,24 @@ Tambah Target Mingguan
         <div class="card">
             <div class="card-body">
                 <h5 class="card-title">Data Transaksi</h5>
-                <form action="{{ route('kinerja-minggu.store') }}" method="post" enctype="multipart/form-data">
+                <form action="{{ route('kinerja-hari.store') }}" method="post" enctype="multipart/form-data">
                     @csrf
+                    <input type="hidden" class="form-control" name="week_id" value="{{ $barangs[0]->week_id}}" required
+                        readonly>
                     <div class="form-group mt-3">
-                        <label for="tahun">Tahun</label>
-                        <input type="year" class="form-control" name="tahun"
-                            value="{{ old('tahun', \Carbon\Carbon::now()->format('Y')) }}" required readonly>
+                        <label for="tgl">Tanggal</label>
+                        <input type="date" class="form-control" name="tgl"
+                            value="{{ old('tgl', \Carbon\Carbon::now()->format('Y-m-d')) }}" required readonly>
                     </div>
                     <div class="form-group mt-3">
-                        <label for="minggu">Minggu ke</label>
-                        <select name="minggu" id="minggu" class="form-control select2" required>
-                            @foreach ($mingguList as $minggu)
-                            <option value="{{ $minggu['minggu'] }}" {{ \Carbon\Carbon::now()->format('W') ==
-                                $minggu['minggu'] ? 'selected' : '' }}>
-                                {{ $minggu['minggu'] }}
-                            </option>
-                            @endforeach
-                        </select>
+                        <label for="qty">Jumlah</label>
+                        <input type="text" class="form-control" name="qty" value="{{ old('qty')}}" required>
                     </div>
                     <div id="items-container"></div> <!-- Container for items input fields -->
                     <div class="d-flex justify-content-end mt-3">
                         <button type="submit" class="btn btn-success">Simpan</button>
                     </div>
                 </form>
-            </div>
-        </div>
-    </div>
-</div>
-
-<div class="row">
-    <div class="col-md-6">
-        <!-- Data Barang Table -->
-        <div class="card">
-            <div class="card-body">
-                <h4 class="card-title mb-3">Data Barang</h4>
-                <div class="table-responsive">
-                    <table id="datatable" class="table align-middle table-nowrap">
-                        <thead class="table-light">
-                            <tr>
-                                <th>ID Barang</th>
-                                <th>Nama Barang</th>
-                                <th>Satuan</th>
-                                <th style="text-align: center;">Action</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="col-md-6">
-        <!-- List Persediaan Masuk -->
-        <div class="card">
-            <div class="card-body">
-                <h5 class="card-title">List Target Produksi</h5>
-                <table class="table table-striped" id="selected-items-table">
-                    <thead>
-                        <tr>
-                            <th>No</th>
-                            <th>Nama Barang</th>
-                            <th>Jumlah</th>
-                            <th>Action</th>
-                        </tr>
-                    </thead>
-                    <tbody id="selected-items">
-                        <!-- Selected items will be appended here dynamically -->
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Modal for Input Quantity -->
-<div class="modal fade" id="qtyModal" tabindex="-1" role="dialog" aria-labelledby="qtyModalLabel" aria-hidden="true">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="qtyModalLabel">Input Quantity</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <form id="qtyForm">
-                    <input type="hidden" id="modal-brg-id">
-                    <div class="form-group">
-                        <label for="modal-nm-brg">Nama Barang</label>
-                        <input type="text" class="form-control" id="modal-nm-brg" readonly>
-                    </div>
-                    <div class="form-group mt-3">
-                        <label for="modal-qty">Jumlah</label>
-                        <input type="number" class="form-control" id="modal-qty" required>
-                    </div>
-                    <div class="form-group mt-3">
-                        <label for="modal-satuan-besar">Satuan</label>
-                        <input type="text" class="form-control" id="modal-satuan-besar" readonly>
-                    </div>
-                    <div class="form-group mt-3">
-                        <label for="modal-ket">Keterangan</label>
-                        <input type="text" class="form-control" id="modal-ket">
-                    </div>
-                </form>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-primary" onclick="addItem()">Tambah</button>
             </div>
         </div>
     </div>
