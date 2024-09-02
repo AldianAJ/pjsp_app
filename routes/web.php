@@ -8,6 +8,7 @@ use App\Http\Controllers\Admin\MesinController;
 use App\Http\Controllers\Admin\JenisMesinController;
 use App\Http\Controllers\Admin\SupplierController;
 use App\Http\Controllers\Admin\StokMasukController;
+use App\Http\Controllers\Admin\KinerjaController;
 use App\Http\Controllers\Admin\PermintaanBarangController;
 use App\Http\Controllers\Admin\PengirimanBarangController;
 use App\Models\Admin\JenisMesin;
@@ -70,6 +71,15 @@ Route::middleware('user')->group(function () {
         Route::get('/supplier/edit/{supplier_id}', 'edit')->name('supplier.edit');
         Route::post('/supplier/store', 'store')->name('supplier.store');
         Route::post('/supplier/update/{supplier_id}', 'update')->name('supplier.update');
+    });
+
+
+    Route::controller(KinerjaController::class)->group(function () {
+        Route::get('/kinerja-skm', 'index')->name('kinerja-skm');
+        Route::get('/kinerja-skm/create', 'create')->name('kinerja-skm.create');
+        Route::get('/kinerja-skm/edit/{supplier_id}', 'edit')->name('kinerja-skm.edit');
+        Route::post('/kinerja-skm/store', 'store')->name('kinerja-skm.store');
+        Route::post('/kinerj-skm/update/{supplier_id}', 'update')->name('kinerja.update');
     });
 
 

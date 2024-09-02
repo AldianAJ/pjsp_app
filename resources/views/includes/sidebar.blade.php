@@ -1,4 +1,4 @@
-<div class="vertical-menu">
+    <div class="vertical-menu">
     <div data-simplebar class="h-100">
         <!--- Sidemenu -->
         <div id="sidebar-menu">
@@ -67,11 +67,11 @@
                             </a>
                         </li>
 
-                        <li class="menu-title" key="t-history">Riwayat</li>
+                        <li class="menu-title" key="t-history-minta">Riwayat</li>
                         <li>
                             <a href="{{ route('permintaan-barang.history') }}" class="waves-effect">
                                 <i class="bx bx-notepad"></i>
-                                <span key="t-gudang">Permintaan Barang</span>
+                                <span key="t-history-minta">Permintaan Barang</span>
                             </a>
                         </li>
                         <li>
@@ -83,6 +83,7 @@
                     @endif
 
                     @if ($user->role == 'SKM')
+
                         <li class="menu-title" key="t-menu">Menu</li>
                         <li>
                             <a href="#">
@@ -90,11 +91,36 @@
                                 <span key="t-dashboards">Dashboards</span>
                             </a>
                         </li>
+
                         <li class="menu-title" key="t-apps">Data Master</li>
                         <li>
                             <a href="{{ route('barang') }}" class="waves-effect">
                                 <i class="bx bxs-component"></i>
                                 <span key="t-gudang">Barang</span>
+                            </a>
+                        </li>
+
+                        <li class="menu-title" key="t-apps">Apps</li>
+                        <li>
+                            <a href="{{ route('kinerja-skm') }}" class="waves-effect">
+                                <i class="bx bxs-receipt"></i>
+                                <span key="t-kinerja">Kinerja SKM</span>
+                            </a>
+                        </li>
+
+                        <li class="menu-title" key="t-transactions">Transaksi</li>
+                        <li>
+                            <a href="#" class="waves-effect">
+                                <i class="bx bxs-duplicate"></i>
+                                <span key="t-minta">Permintaan Barang</span>
+                            </a>
+                        </li>
+
+                        <li class="menu-title" key="t-history">Riwayat</li>
+                        <li>
+                            <a href="#" class="waves-effect">
+                                <i class="bx bx-notepad"></i>
+                                <span key="t-history-minta">Permintaan Barang</span>
                             </a>
                         </li>
                     @endif
