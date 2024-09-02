@@ -9,6 +9,43 @@
     <link href="{{ asset('assets/libs/sweetalert2/sweetalert2.min.css') }}" rel="stylesheet" type="text/css" />
 @endpush
 
+@push('after-app-script')
+    <script src="{{ asset('assets/libs/datatables.net/js/jquery.dataTables.min.js') }}"></script>
+    <script src="{{ asset('assets/libs/datatables.net-bs4/js/dataTables.bootstrap4.min.js') }}"></script>
+    <!-- Responsive examples -->
+    <script src="{{ asset('assets/libs/datatables.net-responsive/js/dataTables.responsive.min.js') }}"></script>
+    <script src="{{ asset('assets/libs/datatables.net-responsive-bs4/js/responsive.bootstrap4.min.js') }}"></script>
+    <script src="{{ asset('assets/js/pages/datatables.init.js') }}"></script>
+    <script>
+        $('#datatable').DataTable({
+            ajax: "{{ route('stok-masuk') }}",
+            columns: [{
+                    data: "no_trm"
+                },
+                {
+                    data: "no_sj"
+                },
+                {
+                    data: "supplier_id"
+                },
+                {
+                    data: "tgl",
+                    render: function(data) {
+                        return new Date(data).toLocaleDateString('id-ID', {
+                            day: 'numeric',
+                            month: 'long',
+                            year: 'numeric'
+                        });
+                    }
+                },
+                {
+                    data: "action"
+                }
+            ],
+        });
+    </script>
+@endpush
+
 @section('content')
     <!-- start page title -->
     <div class="row">
@@ -24,40 +61,22 @@
         <div class="col-12">
             <div class="card">
                 <div class="card-body">
-                    <div class="d-flex justify-content-end">
+                    <div class="d-flex justify-content-end mb-2">
                         <a href="{{ route('stok-masuk.create') }}" class="btn btn-primary my-2"><i
                                 class="bx bx-plus-circle align-middle me-2 font-size-18"></i> Tambah</a>
                     </div>
                     <div class="table-responsive">
-                        <table class="table align-middle table-nowrap mb-0">
+                        <table id="datatable" class="table align-middle table-nowrap">
                             <thead class="table-light">
                                 <tr>
                                     <th>No. Dokumen</th>
-                                    <th>No. SJ</th>
+                                    <th>No. SJ Supplier</th>
                                     <th>Nama Supplier</th>
                                     <th>Tanggal Terima</th>
                                     <th>Action</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                @foreach ($stokMasuks as $stokMasuk)
-                                    <tr>
-                                        <td>{{ $stokMasuk->no_trm }}</td>
-                                        <td>{{ $stokMasuk->no_sj }}</td>
-                                        <td>{{ $stokMasuk->supplier_id }}</td>
-                                        <td>{{ $stokMasuk->tgl }}</td>
-                                        <td>
-                                            {{-- <a href="{{ route('stokMasuk.show', ['no_trm' => $stokMasuk->no_trm]) }}"
-                                                class="btn btn-secondary waves-effect waves-light mx-1">
-                                                <i class="bx bx-edit align-middle me-2 font-size-18"></i> Edit
-                                            </a> --}}
-                                            <a href="{{ route('stok-masuk.edit', ['no_trm' => $stokMasuk->no_trm]) }}"
-                                                class="btn btn-secondary waves-effect waves-light mx-1">
-                                                <i class="bx bx-edit align-middle me-2 font-size-18"></i> Edit
-                                            </a>
-                                        </td>
-                                    </tr>
-                                @endforeach
                             </tbody>
                         </table>
                     </div>

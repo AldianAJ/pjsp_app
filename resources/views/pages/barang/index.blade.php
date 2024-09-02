@@ -9,6 +9,48 @@
     <link href="{{ asset('assets/libs/sweetalert2/sweetalert2.min.css') }}" rel="stylesheet" type="text/css" />
 @endpush
 
+@push('after-app-script')
+    <script src="{{ asset('assets/libs/datatables.net/js/jquery.dataTables.min.js') }}"></script>
+    <script src="{{ asset('assets/libs/datatables.net-bs4/js/dataTables.bootstrap4.min.js') }}"></script>
+    <!-- Responsive examples -->
+    <script src="{{ asset('assets/libs/datatables.net-responsive/js/dataTables.responsive.min.js') }}"></script>
+    <script src="{{ asset('assets/libs/datatables.net-responsive-bs4/js/responsive.bootstrap4.min.js') }}"></script>
+    <script src="{{ asset('assets/js/pages/datatables.init.js') }}"></script>
+    <script>
+        $('#datatable').DataTable({
+            ajax: "{{ route('barang') }}",
+            columns: [{
+                    data: "brg_id"
+                },
+                {
+                    data: "nm_brg"
+                },
+                {
+                    data: "satuan_beli"
+                },
+                {
+                    data: "konversi1"
+                },
+                {
+                    data: "satuan_besar"
+                },
+                {
+                    data: "konversi2"
+                },
+                {
+                    data: "satuan_kecil"
+                },
+                {
+                    data: "konversi3"
+                },
+                {
+                    data: "action"
+                }
+            ],
+        });
+    </script>
+@endpush
+
 @section('content')
     <!-- start page title -->
     <div class="row">
@@ -24,12 +66,12 @@
         <div class="col-12">
             <div class="card">
                 <div class="card-body">
-                    <div class="d-flex justify-content-end">
+                    <div class="d-flex justify-content-end mb-2">
                         <a href="{{ route('barang.create') }}" class="btn btn-primary my-2"><i
                                 class="bx bx-plus-circle align-middle me-2 font-size-18"></i> Tambah</a>
                     </div>
                     <div class="table-responsive">
-                        <table class="table align-middle table-nowrap mb-0">
+                        <table id="datatable" class="table align-middle table-nowrap mb-0">
                             <thead class="table-light">
                                 <tr>
                                     <th>ID Barang</th>
@@ -44,24 +86,6 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                @foreach ($barangs as $barang)
-                                    <tr>
-                                        <td>{{ $barang->brg_id }}</td>
-                                        <td>{{ $barang->nm_brg }}</td>
-                                        <td>{{ $barang->satuan_beli }}</td>
-                                        <td>{{ $barang->konversi1 }}</td>
-                                        <td>{{ $barang->satuan_besar }}</td>
-                                        <td>{{ $barang->konversi2 }}</td>
-                                        <td>{{ $barang->satuan_kecil }}</td>
-                                        <td>{{ $barang->konversi3 }}</td>
-                                        <td>
-                                            <a href="{{ route('barang.edit', ['brg_id' => $barang->brg_id]) }}"
-                                                class="btn btn-secondary waves-effect waves-light mx-1">
-                                                <i class="bx bx-edit align-middle me-2 font-size-18"></i> Edit
-                                            </a>
-                                        </td>
-                                    </tr>
-                                @endforeach
                             </tbody>
                         </table>
                     </div>

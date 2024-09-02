@@ -1,9 +1,7 @@
 <!doctype html>
 <html lang="en">
 
-
 <head>
-
     <meta charset="utf-8" />
     <title>PT. Putera Jaya Sakti Perkasa - Admin</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -19,6 +17,44 @@
     <!-- App Css-->
     <link href="{{ asset('assets/css/app.min.css') }}" id="app-style" rel="stylesheet" type="text/css" />
 
+    <style>
+        /* Responsive adjustments */
+        .account-pages {
+            padding-top: 1rem;
+        }
+
+        .card {
+            margin-top: 2rem;
+            box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.5);
+        }
+
+        /* Mobile styles */
+        @media (max-width: 575.98px) {
+            .card-body {
+                padding: 1rem;
+            }
+
+        }
+
+        /* Tablet styles */
+        @media (min-width: 576px) and (max-width: 991.98px) {
+            .card-body {
+                padding: 2rem;
+            }
+
+            .fw-bold.fs-4.ms-2 {
+                font-size: 1.5rem;
+            }
+        }
+
+        /* Desktop styles */
+        @media (min-width: 992px) {
+            .card-body {
+                padding: 2.5rem;
+            }
+
+        }
+    </style>
 </head>
 
 <body>
@@ -26,7 +62,7 @@
         <div class="container">
             <div class="row justify-content-center mt-5">
                 <div class="col-md-8 col-lg-6 col-xl-5">
-                    <div class="card overflow-hidden" style="box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.5);">
+                    <div class="card overflow-hidden">
                         <div class="row">
                             @if (session()->has('msg'))
                                 <div class="alert alert-warning alert-dismissible fade show" role="alert">
@@ -92,6 +128,5 @@
     <!-- App js -->
     <script src="{{ asset('assets/js/app.js') }}"></script>
 </body>
-
 
 </html>

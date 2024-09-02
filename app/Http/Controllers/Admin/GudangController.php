@@ -6,7 +6,6 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Admin\Gudang;
 use App\Models\Admin\Mesin;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
 
 class GudangController extends Controller
@@ -29,9 +28,7 @@ class GudangController extends Controller
         $user = $this->userAuth();
         $mesin_id = null;
         $gudang_id = Gudang::generateGudangId();
-        $Mesins = Mesin::select('mesin_id', 'nama')
-            ->where('status', 1)
-            ->get();
+        $Mesins = Mesin::where('status', 1)->get();
 
         return view('pages.gudang.create', compact('gudang_id', 'mesin_id', 'user', 'Mesins'));
     }

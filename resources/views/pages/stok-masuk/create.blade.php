@@ -4,6 +4,39 @@
     Tambah Persediaan Masuk
 @endsection
 
+@push('after-app-script')
+    <script src="{{ asset('assets/libs/datatables.net/js/jquery.dataTables.min.js') }}"></script>
+    <script src="{{ asset('assets/libs/datatables.net-bs4/js/dataTables.bootstrap4.min.js') }}"></script>
+    <!-- Responsive examples -->
+    <script src="{{ asset('assets/libs/datatables.net-responsive/js/dataTables.responsive.min.js') }}"></script>
+    <script src="{{ asset('assets/libs/datatables.net-responsive-bs4/js/responsive.bootstrap4.min.js') }}"></script>
+    <script src="{{ asset('assets/js/pages/datatables.init.js') }}"></script>
+    <script>
+        $('#datatable').DataTable({
+            ajax: "{{ route('stok-masuk.create') }}",
+            lengthMenu: [5],
+            columns: [{
+                    data: "brg_id"
+                },
+                {
+                    data: "nm_brg"
+                },
+                {
+                    data: "satuan_besar"
+                },
+                {
+                    data: null,
+                    render: function(data, type, row) {
+                        return `<button type="button" class="btn btn-primary btn-sm" onclick="showModal('${row.brg_id}', '${row.nm_brg}', '${row.satuan_besar}')">
+                            <i class="fas fa-plus"></i>
+                        </button>`;
+                    },
+                }
+            ],
+        });
+    </script>
+@endpush
+
 @section('content')
     <!-- Page Title -->
     <div class="row">
@@ -16,36 +49,81 @@
 
     <!-- Main Form -->
     <div class="row">
+        <div class="col-md-12">
+            <!-- Display validation errors -->
+            @if ($errors->any())
+                <div class="alert alert-danger">
+                    <ul>
+                        @foreach ($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+            @endif
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Data Transaksi</h5>
+                    <form action="{{ route('stok-masuk.store') }}" method="post" enctype="multipart/form-data">
+                        @csrf
+                        {{-- <div class="form-group mt-3">
+                            <label for="no_trm">No. Dokumen</label>
+                            <input type="text" class="form-control" name="no_trm" value="{{ old('no_trm', $no_trm) }}"
+                                required>
+                        </div> --}}
+                        <div class="form-group mt-3">
+                            <label for="no_sj">No. SJ Supplier</label>
+                            <input type="text" class="form-control" name="no_sj" value="{{ old('no_sj') }}" required>
+                        </div>
+                        <div class="form-group mt-3">
+                            <label for="supplier_id">Nama Supplier</label>
+                            <select name="supplier_id" id="supplier_id" class="form-control select2" required>
+                                @foreach ($suppliers as $supplier)
+                                    <option value="{{ $supplier->supplier_id }}">
+                                        {{ $supplier->nama }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="form-group mt-3">
+                            <label for="tgl">Tanggal</label>
+                            <input type="date" class="form-control" name="tgl"
+                                value="{{ old('tgl', \Carbon\Carbon::now()->format('Y-m-d')) }}" required readonly>
+                        </div>
+                        <div id="items-container"></div> <!-- Container for items input fields -->
+                        <div class="d-flex justify-content-end mt-3">
+                            <button type="submit" class="btn btn-success">Simpan</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
         <div class="col-md-6">
             <!-- Data Barang Table -->
             <div class="card">
                 <div class="card-body">
-                    <h5 class="card-title">Data Barang</h5>
-                    <table class="table table-striped">
-                        <thead>
-                            <tr>
-                                <th>ID Barang</th>
-                                <th>Nama Barang</th>
-                                <th>Satuan</th>
-                                <th>Action</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach ($barangs as $barang)
+                    <h4 class="card-title mb-3">Data Barang</h4>
+                    <div class="table-responsive">
+                        <table id="datatable" class="table align-middle table-nowrap">
+                            <thead class="table-light">
                                 <tr>
-                                    <td>{{ $barang->brg_id }}</td>
-                                    <td>{{ $barang->nm_brg }}</td>
-                                    <td>{{ $barang->satuan_besar }}</td>
-                                    <td>
-                                        <button type="button" class="btn btn-primary btn-sm font-size-14"
-                                            onclick="showModal('{{ $barang->brg_id }}', '{{ $barang->nm_brg }}', '{{ $barang->satuan_besar }}')">
-                                            <i class="fas fa-plus"></i>
-                                        </button>
-                                    </td>
+                                    <th>ID Barang</th>
+                                    <th>Nama Barang</th>
+                                    <th>Satuan</th>
+                                    <th style="text-align: center;">Action</th>
                                 </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
+                            </thead>
+                            <tbody>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>
@@ -90,7 +168,7 @@
                         </div>
                         <div class="form-group mt-3">
                             <label for="modal-qty">Jumlah</label>
-                            <input type="number" class="form-control" id="modal-qty">
+                            <input type="number" class="form-control" id="modal-qty" required>
                         </div>
                         <div class="form-group mt-3">
                             <label for="modal-satuan-besar">Satuan</label>
@@ -109,64 +187,31 @@
         </div>
     </div>
 
-    <!-- Form for Document Details -->
-    <div class="row mt-3">
-        <div class="col-md-12">
-            <div class="card">
-                <div class="card-body">
-                    <h5 class="card-title">Data Transaksi</h5>
-                    <form action="{{ route('stok-masuk.store') }}" method="post" enctype="multipart/form-data">
-                        @csrf
-                        <div class="form-group mt-3">
-                            <label for="no_trm">No. Dokumen</label>
-                            <input type="text" class="form-control" name="no_trm" value="{{ $NoTrms }}" required>
-                        </div>
-                        <div class="form-group mt-3">
-                            <label for="no_sj">No. SJ</label>
-                            <input type="text" class="form-control" name="no_sj" value="{{ old('no_sj') }}" required>
-                        </div>
-                        <div class="form-group mt-3">
-                            <label for="supplier_id">Nama Supplier</label>
-                            <select name="supplier_id" class="form-control" required>
-                                @foreach ($suppliers as $supplier)
-                                    <option value="{{ $supplier->supplier_id }}">{{ $supplier->nama }}</option>
-                                @endforeach
-                            </select>
-                        </div>
-                        <div class="form-group mt-3">
-                            <label for="tgl">Tanggal</label>
-                            <input type="text" class="form-control" name="tgl"
-                                value="{{ \Carbon\Carbon::now()->locale('id')->isoFormat('D MMMM YYYY') }}" readonly>
-                        </div>
-                        <input type="hidden" name="items" id="items-input">
-                        <div class="d-flex justify-content-end mt-3">
-                            <button type="submit" class="btn btn-success"
-                                onclick="prepareFormSubmission()">Simpan</button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
 
     <script>
         let selectedItems = [];
 
         function showModal(brg_id, nm_brg, satuan_besar) {
+            const modal = document.getElementById('qtyModal');
             document.getElementById('modal-brg-id').value = brg_id;
             document.getElementById('modal-nm-brg').value = nm_brg;
             document.getElementById('modal-satuan-besar').value = satuan_besar;
             document.getElementById('modal-qty').value = '';
             document.getElementById('modal-ket').value = '';
-            new bootstrap.Modal(document.getElementById('qtyModal')).show();
+            new bootstrap.Modal(modal).show();
         }
 
         function addItem() {
             const brg_id = document.getElementById('modal-brg-id').value;
             const nm_brg = document.getElementById('modal-nm-brg').value;
-            const qty = document.getElementById('modal-qty').value;
+            const qty = parseFloat(document.getElementById('modal-qty').value);
             const satuan_besar = document.getElementById('modal-satuan-besar').value;
             const ket = document.getElementById('modal-ket').value;
+
+            if (qty <= 0) {
+                alert('Jumlah harus lebih dari 0');
+                return;
+            }
 
             selectedItems.push({
                 brg_id,
@@ -175,37 +220,39 @@
                 satuan_besar,
                 ket
             });
-
-            renderItems();
-            bootstrap.Modal.getInstance(document.getElementById('qtyModal')).hide();
+            updateItems();
         }
 
         function removeItem(index) {
             selectedItems.splice(index, 1);
-            renderItems();
+            updateItems();
         }
 
-        function renderItems() {
-            document.getElementById('selected-items').innerHTML = '';
-            selectedItems.forEach((item, index) => {
-                const itemHTML = `
-                    <tr>
-                        <td>${index + 1}</td>
-                        <td>${item.nm_brg}</td>
-                        <td>${item.qty} ${item.satuan_besar}</td>
-                        <td>
-                            <button type="button" class="btn btn-danger btn-sm" onclick="removeItem(${index})">
-                                <i class="fas fa-trash"></i>
-                            </button>
-                        </td>
-                    </tr>
-                `;
-                document.getElementById('selected-items').insertAdjacentHTML('beforeend', itemHTML);
-            });
-        }
+        function updateItems() {
+            const itemsTable = document.getElementById('selected-items');
+            const itemsContainer = document.getElementById('items-container');
 
-        function prepareFormSubmission() {
-            document.getElementById('items-input').value = JSON.stringify(selectedItems);
+            itemsTable.innerHTML = selectedItems.map((item, index) => `
+                <tr>
+                    <td>${index + 1}</td>
+                    <td>${item.nm_brg}</td>
+                    <td>${item.qty}</td>
+                    <td>
+                        <button type="button" class="btn btn-danger btn-sm" onclick="removeItem(${index})">
+                            <i class="fas fa-trash-alt"></i>
+                        </button>
+                    </td>
+                </tr>
+            `).join('');
+
+            itemsContainer.innerHTML = selectedItems.map((item, index) => `
+                <input type="hidden" name="items[${index}][brg_id]" value="${item.brg_id}">
+                <input type="hidden" name="items[${index}][qty]" value="${item.qty}">
+                <input type="hidden" name="items[${index}][satuan_besar]" value="${item.satuan_besar}">
+                <input type="hidden" name="items[${index}][ket]" value="${item.ket}">
+            `).join('');
         }
     </script>
+
+
 @endsection

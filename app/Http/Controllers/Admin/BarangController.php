@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Admin\Barang;
 use App\Models\Admin\Supplier;
 use Illuminate\Http\Request;
+use Yajra\DataTables\DataTables;
 use Illuminate\Support\Facades\Auth;
 
 class BarangController extends Controller
@@ -22,8 +23,19 @@ class BarangController extends Controller
     public function index(Request $request)
     {
         $user = $this->userAuth();
-        $barangs = Barang::where('status', 0)->get();
-        return view('pages.barang.index', compact('user', 'barangs'));
+        $path = 'barang.';
+        if($request->ajax()) {
+            $barangs = Barang::where('status', 0)->get();
+            return DataTables::of($barangs)
+            ->addColumn('action', function ($object) use ($path) {
+                $html = '<a href="' . route($path . "edit", ["brg_id" => $object->brg_id]) . '" class="btn btn-secondary waves-effect waves-light">'
+                    . ' <i class="bx bx-edit align-middle me-2 font-size-18"></i> Edit</a>';
+                return $html;
+            })
+            ->rawColumns(['action'])
+            ->make(true);
+        }
+        return view('pages.barang.index', compact('user'));
     }
 
     /**
@@ -33,9 +45,7 @@ class BarangController extends Controller
     {
         $user = $this->userAuth();
         $barang_id = Barang::generateBarangId();
-        $suppliers = Supplier::select('supplier_id', 'nama')
-            ->where('status', 0)
-            ->get();
+        $suppliers = Supplier::where('status', 0)->get();
         return view('pages.barang.create', compact('barang_id', 'user', 'suppliers'));
     }
 
@@ -85,9 +95,7 @@ class BarangController extends Controller
     public function edit(string $brg_id)
     {
         $data = Barang::where('brg_id', $brg_id)->first();
-        $suppliers = Supplier::select('supplier_id', 'nama')
-            ->where('status', 1)
-            ->get();
+        $suppliers = Supplier::where('status', 0)->get();
         return view('pages.barang.edit', compact('data', 'suppliers', 'brg_id'));
     }
 
