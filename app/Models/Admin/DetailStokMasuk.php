@@ -9,7 +9,7 @@ class DetailStokMasuk extends Model
 {
     use HasFactory;
 
-    protected $table = 'tr_detail_terima_supplier';
+    protected $table = 'tr_trmsup_detail';
     protected $primaryKey = 'no_trm';
     protected $fillable = [
         'id',

@@ -25,16 +25,16 @@ class StokMasukController extends Controller
     {
         $user = $this->userAuth();
         $path = 'stok-masuk.';
-        if($request->ajax()) {
-            $stokMasuks = StokMasuk::where('status',0)->get();
+        if ($request->ajax()) {
+            $stokMasuks = StokMasuk::where('status', 0)->get();
             return DataTables::of($stokMasuks)
-            ->addColumn('action', function ($object) use ($path) {
-                $html = '<a href="' . route($path . "edit", ["no_trm" => $object->no_trm]) . '" class="btn btn-secondary waves-effect waves-light">'
-                    . ' <i class="bx bx-edit align-middle me-2 font-size-18"></i> Edit</a>';
-                return $html;
-            })
-            ->rawColumns(['action'])
-            ->make(true);
+                ->addColumn('action', function ($object) use ($path) {
+                    $html = '<a href="' . route($path . "edit", ["no_trm" => $object->no_trm]) . '" class="btn btn-secondary waves-effect waves-light">'
+                        . ' <i class="bx bx-edit align-middle me-2 font-size-18"></i> Edit</a>';
+                    return $html;
+                })
+                ->rawColumns(['action'])
+                ->make(true);
         }
         return view('pages.stok-masuk.index', compact('user'));
     }
@@ -50,41 +50,41 @@ class StokMasukController extends Controller
         if ($request->ajax()) {
             $barangs = Barang::where('status', 0)->get();
             return DataTables::of($barangs)
-            ->addColumn('action', function ($object) use ($path) {
-                // $html = '<div class="d-flex justify-content-center"><button class="btn btn-primary waves-effect waves-light btn-add" data-bs-toggle="modal"' .
-                //         'data-bs-target="#qtyModal"><i class="bx bx-plus-circle align-middle font-size-18"></i></button></div>';
-                //     return $html;
-            })
+                ->addColumn('action', function ($object) use ($path) {
+                    // $html = '<div class="d-flex justify-content-center"><button class="btn btn-primary waves-effect waves-light btn-add" data-bs-toggle="modal"' .
+                    //         'data-bs-target="#qtyModal"><i class="bx bx-plus-circle align-middle font-size-18"></i></button></div>';
+                    //     return $html;
+                })
                 ->rawColumns(['action'])
                 ->make(true);
         }
-        return view('pages.stok-masuk.create', compact('user',   'suppliers'));
+        return view('pages.stok-masuk.create', compact('user', 'suppliers'));
     }
 
     public function store(Request $request)
-{
+    {
 
-    $no_trm = 'RCV/GU' . '/' . date('y/m/' . str_pad(StokMasuk::count() + 1, 3,'0', STR_PAD_LEFT));
+        $no_trm = 'RCV/GU' . '/' . date('y/m/' . str_pad(StokMasuk::count() + 1, 3, '0', STR_PAD_LEFT));
 
-    $stokMasuk = StokMasuk::create([
-        'no_trm' => $no_trm,
-        'no_sj' => $request->no_sj,
-        'supplier_id' => $request->supplier_id,
-        'tgl' => $request->tgl,
-    ]);
-
-    foreach ($request->items as $item) {
-        DetailStokMasuk::create([
+        $stokMasuk = StokMasuk::create([
             'no_trm' => $no_trm,
-            'brg_id' => $item['brg_id'],
-            'qty' => $item['qty'],
-            'satuan_besar' => $item['satuan_besar'],
-            'ket' => $item['ket'],
+            'no_sj' => $request->no_sj,
+            'supplier_id' => $request->supplier_id,
+            'tgl' => $request->tgl,
         ]);
-    }
 
-    return redirect()->route('stok-masuk')->with('success', 'Data stok masuk berhasil ditambahkan.');
-}
+        foreach ($request->items as $item) {
+            DetailStokMasuk::create([
+                'no_trm' => $no_trm,
+                'brg_id' => $item['brg_id'],
+                'qty' => $item['qty'],
+                'satuan_beli' => $item['satuan_beli'],
+                'ket' => $item['ket'],
+            ]);
+        }
+
+        return redirect()->route('stok-masuk')->with('success', 'Data stok masuk berhasil ditambahkan.');
+    }
 
 
 

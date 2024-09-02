@@ -71,7 +71,7 @@
                                 class="bx bx-plus-circle align-middle me-2 font-size-18"></i> Tambah</a>
                     </div>
                     <div class="table-responsive">
-                        <table id="datatable" class="table align-middle table-nowrap mb-0">
+                        <table id="datatable" class="table align-middle table-nowrap">
                             <thead class="table-light">
                                 <tr>
                                     <th>ID Barang</th>

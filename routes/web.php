@@ -10,7 +10,7 @@ use App\Http\Controllers\Admin\SupplierController;
 use App\Http\Controllers\Admin\StokMasukController;
 use App\Http\Controllers\Admin\KinerjaController;
 use App\Http\Controllers\Admin\PermintaanController;
-use App\Http\Controllers\Admin\PengirimanBarangController;
+use App\Http\Controllers\Admin\PengirimanController;
 
 /*
 |--------------------------------------------------------------------------
@@ -74,11 +74,14 @@ Route::middleware('user')->group(function () {
 
 
     Route::controller(KinerjaController::class)->group(function () {
-        Route::get('/kinerja-skm', 'index')->name('kinerja-skm');
-        Route::get('/kinerja-skm/create', 'create')->name('kinerja-skm.create');
-        Route::get('/kinerja-skm/edit/{supplier_id}', 'edit')->name('kinerja-skm.edit');
-        Route::post('/kinerja-skm/store', 'store')->name('kinerja-skm.store');
-        Route::post('/kinerj-skm/update/{supplier_id}', 'update')->name('kinerja.update');
+        Route::get('/kinerja-minggu', 'index')->name('kinerja-minggu');
+        Route::get('/kinerja-minggu/create', 'create')->name('kinerja-minggu.create');
+        Route::get('/kinerja-minggu/edit/{supplier_id}', 'edit')->name('kinerja-minggu.edit');
+        Route::post('/kinerja-minggu/store', 'store')->name('kinerja-minggu.store');
+        Route::post('/kinerj-minggu/update/{supplier_id}', 'update')->name('kinerja.update');
+        Route::get('/kinerja-hari', 'index')->name('kinerja-hari');
+        Route::get('/kinerja-shift', 'index')->name('kinerja-shift');
+        Route::get('/kinerja-mesin', 'index')->name('kinerja-mesin');
     });
 
 
@@ -90,7 +93,7 @@ Route::middleware('user')->group(function () {
         Route::post('/permintaan/update/{no_reqskm}', 'update')->name('supplier.update');
     });
 
-    Route::controller(PengirimanBarangController::class)->group(function () {
+    Route::controller(PengirimanController::class)->group(function () {
         Route::get('/pengiriman', 'index')->name('pengiriman');
         Route::get('/pengiriman/detail/{slug}', 'show')->name('pengiriman.detail');
         Route::get('/pengiriman/store/penerimaan/{slug}', 'storePenerimaan')->name('pengiriman.penerimaan');

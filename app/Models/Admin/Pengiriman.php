@@ -5,16 +5,18 @@ namespace App\Models\Admin;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Permintaan extends Model
+class Pengiriman extends Model
 {
     use HasFactory;
 
-    protected $table = 'tr_reqskm';
-    protected $primaryKey = 'no_reqskm';
+    protected $table = 'tr_krmskm';
+    protected $primaryKey = 'no_krmskm';
     public $incrementing = false;
 
     protected $fillable = [
-        'no_reqskm', 'tgl'
+        'no_krmskm', 'tgl'
     ];
 
+    
 }
+

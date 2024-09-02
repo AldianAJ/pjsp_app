@@ -9,7 +9,7 @@ class StokMasuk extends Model
 {
     use HasFactory;
 
-    protected $table = 'tr_terima_supplier';
+    protected $table = 'tr_trmsup';
     protected $primaryKey = 'no_trm';
     protected $fillable = [
         'no_trm',

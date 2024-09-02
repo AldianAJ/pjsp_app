@@ -22,12 +22,12 @@
                     data: "nm_brg"
                 },
                 {
-                    data: "satuan_besar"
+                    data: "satuan_beli"
                 },
                 {
                     data: null,
                     render: function(data, type, row) {
-                        return `<button type="button" class="btn btn-primary btn-sm" onclick="showModal('${row.brg_id}', '${row.nm_brg}', '${row.satuan_besar}')">
+                        return `<button type="button" class="btn btn-primary btn-sm" onclick="showModal('${row.brg_id}', '${row.nm_brg}', '${row.satuan_beli}')">
                             <i class="fas fa-plus"></i>
                         </button>`;
                     },
@@ -191,11 +191,11 @@
     <script>
         let selectedItems = [];
 
-        function showModal(brg_id, nm_brg, satuan_besar) {
+        function showModal(brg_id, nm_brg, satuan_beli) {
             const modal = document.getElementById('qtyModal');
             document.getElementById('modal-brg-id').value = brg_id;
             document.getElementById('modal-nm-brg').value = nm_brg;
-            document.getElementById('modal-satuan-besar').value = satuan_besar;
+            document.getElementById('modal-satuan-besar').value = satuan_beli;
             document.getElementById('modal-qty').value = '';
             document.getElementById('modal-ket').value = '';
             new bootstrap.Modal(modal).show();
@@ -205,7 +205,7 @@
             const brg_id = document.getElementById('modal-brg-id').value;
             const nm_brg = document.getElementById('modal-nm-brg').value;
             const qty = parseFloat(document.getElementById('modal-qty').value);
-            const satuan_besar = document.getElementById('modal-satuan-besar').value;
+            const satuan_beli = document.getElementById('modal-satuan-besar').value;
             const ket = document.getElementById('modal-ket').value;
 
             if (qty <= 0) {
@@ -217,7 +217,7 @@
                 brg_id,
                 nm_brg,
                 qty,
-                satuan_besar,
+                satuan_beli,
                 ket
             });
             updateItems();
@@ -248,7 +248,7 @@
             itemsContainer.innerHTML = selectedItems.map((item, index) => `
                 <input type="hidden" name="items[${index}][brg_id]" value="${item.brg_id}">
                 <input type="hidden" name="items[${index}][qty]" value="${item.qty}">
-                <input type="hidden" name="items[${index}][satuan_besar]" value="${item.satuan_besar}">
+                <input type="hidden" name="items[${index}][satuan_beli]" value="${item.satuan_beli}">
                 <input type="hidden" name="items[${index}][ket]" value="${item.ket}">
             `).join('');
         }
