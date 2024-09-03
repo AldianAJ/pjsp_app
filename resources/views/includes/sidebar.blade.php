@@ -55,7 +55,7 @@
                             <li class="menu-title" key="t-transactions">Transaksi</li>
 
                             <li>
-                                <a href="#" class="waves-effect">
+                                <a href="{{ route('pengiriman') }}" class="waves-effect">
                                     <i class="bx bxs-duplicate"></i>
                                     <span key="t-gudang">Permintaan</span>
                                 </a>

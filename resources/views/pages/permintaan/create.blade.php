@@ -128,7 +128,6 @@
                             </tr>
                         </thead>
                         <tbody id="selected-items">
-                            <!-- Selected items will be appended here dynamically -->
                         </tbody>
                     </table>
                 </div>
@@ -162,7 +161,7 @@
                     </form>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-primary" onclick="addItem()">Tambah</button>
+                    <button type="button" class="btn btn-primary" data-bs-dismiss="modal" onclick="addItem()">Tambah</button>
                 </div>
             </div>
         </div>

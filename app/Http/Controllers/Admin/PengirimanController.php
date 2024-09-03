@@ -3,9 +3,11 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\Admin\DetailPengirimanCounter;
 use Illuminate\Http\Request;
 use App\Models\Admin\Pengiriman;
+use App\Models\Admin\DetailPengiriman;
+use App\Models\Admin\Permintaan;
+use App\Models\Admin\DetailPermintaan;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
@@ -18,33 +20,35 @@ class PengirimanController extends Controller
      * Display a listing of the resource.
      */
 
-     public function userAuth()
+    public function userAuth()
     {
         $user = Auth::guard('user')->user();
         return $user;
     }
     public function index(Request $request)
-{
-    $user = $this->userAuth();
-    $path = 'pengiriman';
+    {
+        $user = $this->userAuth();
+        $path = 'pengiriman.';
 
-    if ($request->ajax()) {
-        $pengirimans = Pengiriman::all();
+        if ($request->ajax()) {
+            $permintaans = DB::table('tr_reqskm as a')
+                ->leftJoin('tr_krmskm_detail as b', 'a.no_reqskm', '=', 'b.no_reqskm')
+                ->leftJoin('tr_krmskm as c', 'b.no_krmskm', '=', 'c.no_krmskm')
+                ->select('a.no_reqskm', 'a.tgl as tgl_minta', 'c.tgl as tgl_kirim')
+                ->where('a.status', 0)
+                ->get();
+            return DataTables::of($permintaans)
+                ->addColumn('action', function ($object) use ($path) {
+                    $html = '<a href="' . route($path . "detail", ["no_reqskm" => $object->no_reqskm]) . '" class="btn btn-secondary waves-effect waves-light mx-1">'
+                        . ' <i class="bx bx-edit align-middle me-2 font-size-18"></i> Proses</a>';
+                    return $html;
+                })
+                ->rawColumns(['action'])
+                ->make(true);
+        }
 
-        return DataTables::of($pengirimans)
-            ->addColumn('action', function ($object) use ($path) {
-                $html = '<a href="' . route($path . "edit", ["brg_id" => $object->brg_id]) . '" class="btn btn-secondary waves-effect waves-light mx-1">'
-                    . ' <i class="bx bx-edit align-middle me-2 font-size-18"></i> Edit</a>';
-                $html .= '<button class="btn btn-danger waves-effect waves-light mx-1 btn-delete">'
-                    . ' <i class="bx bx-trash align-middle me-2 font-size-18" ></i> Hapus</button>';
-                return $html;
-            })
-            ->rawColumns(['action'])
-            ->make(true);
+        return view('pages.pengiriman.index', compact('user'));
     }
-
-    return view('pages.pengiriman.index', compact('user'));
-}
 
     /**
      * Show the form for creating a new resource.

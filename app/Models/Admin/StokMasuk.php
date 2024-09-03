@@ -11,6 +11,7 @@ class StokMasuk extends Model
 
     protected $table = 'tr_trmsup';
     protected $primaryKey = 'no_trm';
+    public $incrementing = false;
     protected $fillable = [
         'no_trm',
         'no_sj',

@@ -90,15 +90,17 @@ Route::middleware('user')->group(function () {
 
     Route::controller(PermintaanController::class)->group(function () {
         Route::get('/permintaan', 'index')->name('permintaan');
+        Route::post('/permintaan', 'indexDetail')->name('permintaan.indexDetail');
         Route::get('/permintaan/create', 'create')->name('permintaan.create');
         Route::get('/permintaan/edit/{no_reqskm}', 'edit')->name('permintaan.edit');
         Route::post('/permintaan/store', 'store')->name('permintaan.store');
         Route::post('/permintaan/update/{no_reqskm}', 'update')->name('supplier.update');
+        
     });
 
     Route::controller(PengirimanController::class)->group(function () {
         Route::get('/pengiriman', 'index')->name('pengiriman');
-        Route::get('/pengiriman/detail/{slug}', 'show')->name('pengiriman.detail');
+        Route::get('/pengiriman/detail/{no_reqskm}', 'detail')->name('pengiriman.detail');
         Route::get('/pengiriman/store/penerimaan/{slug}', 'storePenerimaan')->name('pengiriman.penerimaan');
         Route::get('/pengiriman/keep/barang', 'indexBarangDiambil')->name('pengiriman.barangDiambil');
         Route::get('/pengiriman/history', 'indexHistory')->name('pengiriman.history');

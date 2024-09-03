@@ -11,6 +11,8 @@
     <script src="{{ asset('assets/libs/datatables.net-responsive/js/dataTables.responsive.min.js') }}"></script>
     <script src="{{ asset('assets/libs/datatables.net-responsive-bs4/js/responsive.bootstrap4.min.js') }}"></script>
     <script src="{{ asset('assets/js/pages/datatables.init.js') }}"></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     <script>
         $('#datatable').DataTable({
             ajax: "{{ route('stok-masuk.create') }}",
@@ -181,7 +183,8 @@
                     </form>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-primary" onclick="addItem()">Tambah</button>
+                    <button type="button" class="btn btn-primary" data-bs-dismiss="modal"
+                        onclick="addItem()">Tambah</button>
                 </div>
             </div>
         </div>
@@ -189,6 +192,13 @@
 
 
     <script>
+        $(document).ready(function() {
+            $('.select2').select2({
+                placeholder: 'Pilih Supplier',
+                allowClear: true
+            });
+        });
+
         let selectedItems = [];
 
         function showModal(brg_id, nm_brg, satuan_beli) {

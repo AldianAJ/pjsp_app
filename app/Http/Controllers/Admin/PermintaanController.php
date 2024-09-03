@@ -28,25 +28,27 @@ class PermintaanController extends Controller
      * Display a listing of the resource.
      */
     public function index(Request $request)
-{
-    $user = $this->userAuth();
-    $path = 'permintaan.';
+    {
+        $user = $this->userAuth();
+        $path = 'permintaan.';
 
-    if ($request->ajax()) {
-        $permintaans = Permintaan::all();
+        if ($request->ajax()) {
+            $permintaans = Permintaan::all();
 
-        return DataTables::of($permintaans)
-            ->addColumn('action', function ($object) use ($path) {
-                $html = '<a href="' . route($path . "edit", ["no_reqskm" => $object->no_reqskm]) . '" class="btn btn-secondary waves-effect waves-light mx-1">'
-                    . ' <i class="bx bx-edit align-middle me-2 font-size-18"></i> Edit</a>';
-                return $html;
-            })
-            ->rawColumns(['action'])
-            ->make(true);
+            return DataTables::of($permintaans)
+                ->addColumn('action', function ($object) use ($path) {
+                    $html = '<a href="' . route($path . "edit", ["no_reqskm" => $object->no_reqskm]) . '" class="btn btn-secondary waves-effect waves-light mx-1">'
+                        . ' <i class="bx bx-edit align-middle me-2 font-size-18"></i> Edit</a>';
+                    $html = '<div class="d-flex justify-content-center"><button class="btn btn-primary waves-effect waves-light btn-add" data-bs-toggle="modal"' .
+                        'data-bs-target="#detailModal">Detail</button></div>';
+                    return $html;
+                })
+                ->rawColumns(['action'])
+                ->make(true);
+        }
+
+        return view('pages.permintaan.index', compact('user'));
     }
-
-    return view('pages.permintaan.index', compact('user'));
-}
 
     /**
      * Show the form for creating a new resource.
@@ -59,11 +61,11 @@ class PermintaanController extends Controller
         if ($request->ajax()) {
             $barangs = Barang::where('status', 0)->get();
             return DataTables::of($barangs)
-            ->addColumn('action', function ($object) use ($path) {
-                // $html = '<div class="d-flex justify-content-center"><button class="btn btn-primary waves-effect waves-light btn-add" data-bs-toggle="modal"' .
-                //         'data-bs-target="#qtyModal"><i class="bx bx-plus-circle align-middle font-size-18"></i></button></div>';
-                //     return $html;
-            })
+                ->addColumn('action', function ($object) use ($path) {
+                    // $html = '<div class="d-flex justify-content-center"><button class="btn btn-primary waves-effect waves-light btn-add" data-bs-toggle="modal"' .
+                    //         'data-bs-target="#qtyModal"><i class="bx bx-plus-circle align-middle font-size-18"></i></button></div>';
+                    //     return $html;
+                })
                 ->rawColumns(['action'])
                 ->make(true);
         }
@@ -78,12 +80,12 @@ class PermintaanController extends Controller
 
         $no_reqskm = 'FPB/SKM' . '/' . date('y/m/' . str_pad(Permintaan::count() + 1, 3, '0', STR_PAD_LEFT));
 
-        $gudang_id = $request->input('gudang_id'); 
+        $gudang_id = $request->input('gudang_id');
 
         $reqSKM = Permintaan::create([
             'no_reqskm' => $no_reqskm,
             'tgl' => $request->tgl,
-            'gudang_id' =>  $gudangs->first(),
+            'gudang_id' => $gudangs->first(),
         ]);
 
         foreach ($request->items as $item) {
@@ -101,9 +103,14 @@ class PermintaanController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show()
+    public function indexDetail(Request $request)
     {
-        //
+        $no_reqskm = $request->no_reqskm;
+        $details = DB::table('tr_reqskm_detail')
+            ->where('no_reqskm', $no_reqskm)
+            ->get();
+
+        return DataTables::of($details)->toJson();
     }
 
     /**

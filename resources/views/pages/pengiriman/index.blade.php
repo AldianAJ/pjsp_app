@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('title')
-    Permintaan
+    Persetujuan Permintaan
 @endsection
 
 @push('after-style')
@@ -18,13 +18,26 @@
     <script src="{{ asset('assets/js/pages/datatables.init.js') }}"></script>
     <script>
         $('#datatable').DataTable({
-            ajax: "{{ route('permintaan') }}",
+            ajax: "{{ route('pengiriman') }}",
             columns: [{
                     data: "no_reqskm"
                 },
                 {
-                    data: "tgl",
+                    data: "tgl_minta",
                     render: function(data) {
+                        return new Date(data).toLocaleDateString('id-ID', {
+                            day: 'numeric',
+                            month: 'long',
+                            year: 'numeric'
+                        });
+                    }
+                },
+                {
+                    data: "tgl_kirim",
+                    render: function(data) {
+                        if (!data) {
+                            return '-';
+                        }
                         return new Date(data).toLocaleDateString('id-ID', {
                             day: 'numeric',
                             month: 'long',
@@ -37,38 +50,6 @@
                 }
             ],
         });
-
-
-        $('#datatable-detail').on('click', '.btn-detail', function() {
-            let selectedData = '';
-            let no_reqskm = '';
-            let indexRow = mainTable.rows().nodes().to$().index($(this).closest('tr'));
-            selectedData = mainTable.row(indexRow).data();
-            no_reqskm = selectedData.no_reqskm;
-            $("#no_reqskm").text(selectedData.no_reqskm);
-            $('#detail-datatable').DataTable().clear().destroy();
-            $('#detail-datatable').DataTable({
-                ajax: {
-                    "type": "POST",
-                    "url": "{{ route('permintaan.indexDetail') }}",
-                    "data": {
-                        '_token': "{{ csrf_token() }}",
-                        'no_reqskm': no_reqskm
-                    }
-                },
-                lengthMenu: [5],
-                columns: [{
-                        data: "brg_id",
-                    },
-                    {
-                        data: "qty",
-                    },
-                    {
-                        data: "satuan_besar",
-                    },
-                ],
-            });
-        });
     </script>
 @endpush
 
@@ -77,7 +58,7 @@
     <div class="row">
         <div class="col-12">
             <div class="page-title-box d-sm-flex align-items-center justify-content-between">
-                <h4 class="mb-sm-0 font-size-18">Permintaan</h4>
+                <h4 class="mb-sm-0 font-size-18">Persetujuan Permintaan</h4>
             </div>
         </div>
     </div>
@@ -87,16 +68,13 @@
         <div class="col-12">
             <div class="card">
                 <div class="card-body">
-                    <div class="d-flex justify-content-end mb-2">
-                        <a href="{{ route('permintaan.create') }}" class="btn btn-primary my-2"><i
-                                class="bx bx-plus-circle align-middle me-2 font-size-18"></i> Tambah</a>
-                    </div>
                     <div class="table-responsive">
                         <table id="datatable" class="table align-middle table-nowrap">
                             <thead class="table-light">
                                 <tr>
                                     <th>No. Dokumen</th>
                                     <th>Tanggal Permintaan</th>
+                                    <th>Tanggal Pengiriman</th>
                                     <th>Action</th>
                                 </tr>
                             </thead>
@@ -104,33 +82,6 @@
                             </tbody>
                         </table>
                     </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="modal modal-lg fade" id="detailModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalLabel">Detail <span id="no_reqskm"></span></h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <table class="table table-bordered dt-responsive nowrap w-100" id="detail-datatable">
-                        <thead class="table-light">
-                            <tr>
-                                <th>Nama Barang</th>
-                                <th>Qty</th>
-                                <th>Satuan</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                        </tbody>
-                    </table>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
                 </div>
             </div>
         </div>
