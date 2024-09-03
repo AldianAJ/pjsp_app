@@ -19,4 +19,9 @@ class Harian extends Model
         'qty',
         'tgl'
     ];
+
+    public function targetWeek()
+    {
+        return $this->belongsTo(Mingguan::class, 'week_id');
+    }
 }

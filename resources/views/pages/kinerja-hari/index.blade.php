@@ -29,7 +29,7 @@ Target Mingguan
                     data: "WEEK"
                 },
                 {
-                    data: "brg_id"
+                    data: "barang.nm_brg"
                 },
                 {
                     data: "qty"
@@ -91,6 +91,29 @@ Target Mingguan
                     position: 'bottom-right',
                     icon: 'success',
                     title: '{{ session('success') }}',
+                    showConfirmButton: false,
+                    timer: 5000,
+                    didOpen: (toast) => {
+                        toast.addEventListener('mouseenter', Swal.stopTimer)
+                        toast.addEventListener('mouseleave', Swal.resumeTimer)
+                    },
+                    customClass: {
+                        popup: 'colored-toast'
+                    },
+                    showCloseButton: true
+                });
+            });
+</script>
+@endif
+@if (session()->has('error'))
+<script src="{{ asset('assets/libs/sweetalert2/sweetalert2.min.js') }}"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+                Swal.fire({
+                    toast: true,
+                    position: 'bottom-right',
+                    icon: 'error',
+                    title: '{{ session('error') }}',
                     showConfirmButton: false,
                     timer: 5000,
                     didOpen: (toast) => {

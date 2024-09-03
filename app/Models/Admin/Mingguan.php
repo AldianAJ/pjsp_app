@@ -2,8 +2,8 @@
 
 namespace App\Models\Admin;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Mingguan extends Model
 {
@@ -20,4 +20,14 @@ class Mingguan extends Model
         'week',
         'qty',
     ];
+
+    public function barang()
+    {
+        return $this->belongsTo(Barang::class, 'brg_id');
+    }
+
+    public function targetHari()
+    {
+        return $this->hasMany(Harian::class, 'week_id');
+    }
 }

@@ -88,6 +88,7 @@ Tambah Target Mingguan
                     </div>
                     <div id="items-container"></div> <!-- Container for items input fields -->
                     <div class="d-flex justify-content-end mt-3">
+                        <a href="{{ route('kinerja-minggu') }}" class="btn btn-info me-1">Kembali</a>
                         <button type="submit" class="btn btn-success">Simpan</button>
                     </div>
                 </form>
@@ -173,7 +174,8 @@ Tambah Target Mingguan
                 </form>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-primary" onclick="addItem()">Tambah</button>
+                <button type="button" class="btn btn-primary" data-bs-dismiss="modal"
+                    onclick="addItem()">Tambah</button>
             </div>
         </div>
     </div>

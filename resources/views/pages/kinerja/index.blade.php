@@ -26,7 +26,7 @@ Target Mingguan
                     data: "WEEK"
                 },
                 {
-                    data: "brg_id"
+                    data: "barang.nm_brg"
                 },
                 {
                     data: "qty"

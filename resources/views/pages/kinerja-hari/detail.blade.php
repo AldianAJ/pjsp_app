@@ -17,8 +17,12 @@ Target Mingguan
 <script src="{{ asset('assets/libs/datatables.net-responsive-bs4/js/responsive.bootstrap4.min.js') }}"></script>
 <script src="{{ asset('assets/js/pages/datatables.init.js') }}"></script>
 <script>
-    $('#datatable').DataTable({
-            ajax: "{{ route('kinerja-hari.detail') }}",
+    $('#datatableDetail').DataTable({
+            ajax:{
+                    url: "{{ route('kinerja-hari.detail') }}",
+                    type: "GET",
+                    data: {week_id: '{{ $_GET['week_id'] }}'}
+                },
             columns: [{
                     data: "harian_id"
                 },
@@ -58,12 +62,11 @@ Target Mingguan
     <div class="col-12">
         <div class="card">
             <div class="card-body">
-                {{-- <div class="d-flex justify-content-end mb-2">
-                    <a href="{{ route('kinerja-hari.create') }}" class="btn btn-primary my-2"><i
-                            class="bx bx-plus-circle align-middle me-2 font-size-18"></i> Tambah</a>
-                </div> --}}
+                <div class="d-flex justify-content-end mb-2">
+                    <a href="{{ route('kinerja-hari') }}" class="btn btn-info my-2">Kembali</a>
+                </div>
                 <div class="table-responsive">
-                    <table id="datatable" class="table align-middle table-nowrap">
+                    <table id="datatableDetail" class="table align-middle table-nowrap">
                         <thead class="table-light">
                             <tr>
                                 <th>Id</th>
