@@ -11,6 +11,7 @@ class Harian extends Model
 
     protected $table = 'tr_target_harian';
     protected $primaryKey = 'harian_id';
+    public $incrementing = false;
 
     protected $fillable = [
         'harian_id',

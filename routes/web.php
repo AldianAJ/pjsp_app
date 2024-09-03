@@ -82,6 +82,7 @@ Route::middleware('user')->group(function () {
         Route::get('/kinerja-hari', 'indexhari')->name('kinerja-hari');
         Route::get('/kinerja-hari/create', 'createhari')->name('kinerja-hari.create');
         Route::post('/kinerja-hari/store', 'storehari')->name('kinerja-hari.store');
+        Route::get('/kinerja-hari/detail/', 'detailhari')->name('kinerja-hari.detail');
         Route::get('/kinerja-shift', 'index')->name('kinerja-shift');
         Route::get('/kinerja-mesin', 'index')->name('kinerja-mesin');
     });

@@ -102,13 +102,27 @@ class KinerjaController extends Controller
             return DataTables::of($targetMinggu)
                 ->addColumn('action', function ($object) use ($path) {
                     $html = '<a href="' . route($path . "create", ["week_id" => $object->week_id]) . '" class="btn btn-secondary waves-effect waves-light">'
-                        . ' <i class="bx bx-edit align-middle me-2 font-size-18"></i> Proses</a>';
+                        . ' <i class="bx bx-edit align-middle me-2 font-size-18"></i> Proses</a>'
+                        . '<a href="' . route($path . "detail", ["week_id" => $object->week_id]) . '" class="btn btn-secondary waves-effect waves-light">'
+                        . ' <i class="bx bx-edit align-middle me-2 font-size-18"></i> Detail</a>';
                     return $html;
                 })
                 ->rawColumns(['action'])
                 ->make(true);
         }
         return view('pages.kinerja-hari.index', compact('user'));
+    }
+
+    public function detailhari(Request $request)
+    {
+        $user = $this->userAuth();
+        if ($request->ajax()) {
+            // $targetHari = Harian::where('week_id', $request->week_id)->get();
+            $targetHari = Harian::where('week_id', 'like', $request->week_id . '%')->get();
+            return DataTables::of($targetHari)
+                ->make(true);
+        }
+        return view('pages.kinerja-hari.detail', compact('user'));
     }
 
     /**

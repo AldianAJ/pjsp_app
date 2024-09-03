@@ -18,24 +18,25 @@ Target Mingguan
 <script src="{{ asset('assets/js/pages/datatables.init.js') }}"></script>
 <script>
     $('#datatable').DataTable({
-            ajax: "{{ route('kinerja-hari') }}",
+            ajax: "{{ route('kinerja-hari.detail') }}",
             columns: [{
+                    data: "harian_id"
+                },
+                {
                     data: "week_id"
                 },
                 {
-                    data: "tahun"
-                },
-                {
-                    data: "WEEK"
-                },
-                {
-                    data: "brg_id"
+                    data: "tgl",
+                    render: function(data) {
+                        return new Date(data).toLocaleDateString('id-ID', {
+                            day: 'numeric',
+                            month: 'long',
+                            year: 'numeric'
+                        });
+                    }
                 },
                 {
                     data: "qty"
-                },
-                {
-                    data: "action"
                 }
             ],
         });
@@ -66,11 +67,9 @@ Target Mingguan
                         <thead class="table-light">
                             <tr>
                                 <th>Id</th>
-                                <th>Tahun</th>
-                                <th>Minggu</th>
-                                <th>Barang</th>
+                                <th>Week Id</th>
+                                <th>Tanggal</th>
                                 <th>Jumlah</th>
-                                <th>Action</th>
                             </tr>
                         </thead>
                         <tbody>
