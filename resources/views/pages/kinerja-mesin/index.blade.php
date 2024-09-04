@@ -18,7 +18,7 @@ Target Mingguan
 <script src="{{ asset('assets/js/pages/datatables.init.js') }}"></script>
 <script>
     $('#datatable').DataTable({
-            ajax: "{{ route('kinerja-minggu') }}",
+            ajax: "{{ route('kinerja-hari') }}",
             columns: [{
                     data: "week_id"
                 },
@@ -32,17 +32,12 @@ Target Mingguan
                     data: "barang.nm_brg"
                 },
                 {
-                    data: "qty", className: 'editable'
+                    data: "qty"
                 },
                 {
                     data: "action"
                 }
             ],
-        });
-
-        // Activate an inline edit on click of a table cell
-        table.on('click', 'tbody td.editable', function (e) {
-            editor.inline(this);
         });
 </script>
 @endpush
@@ -62,10 +57,10 @@ Target Mingguan
     <div class="col-12">
         <div class="card">
             <div class="card-body">
-                <div class="d-flex justify-content-end mb-2">
-                    <a href="{{ route('kinerja-minggu.create') }}" class="btn btn-primary my-2"><i
+                {{-- <div class="d-flex justify-content-end mb-2">
+                    <a href="{{ route('kinerja-hari.create') }}" class="btn btn-primary my-2"><i
                             class="bx bx-plus-circle align-middle me-2 font-size-18"></i> Tambah</a>
-                </div>
+                </div> --}}
                 <div class="table-responsive">
                     <table id="datatable" class="table align-middle table-nowrap">
                         <thead class="table-light">
@@ -96,6 +91,29 @@ Target Mingguan
                     position: 'bottom-right',
                     icon: 'success',
                     title: '{{ session('success') }}',
+                    showConfirmButton: false,
+                    timer: 5000,
+                    didOpen: (toast) => {
+                        toast.addEventListener('mouseenter', Swal.stopTimer)
+                        toast.addEventListener('mouseleave', Swal.resumeTimer)
+                    },
+                    customClass: {
+                        popup: 'colored-toast'
+                    },
+                    showCloseButton: true
+                });
+            });
+</script>
+@endif
+@if (session()->has('error'))
+<script src="{{ asset('assets/libs/sweetalert2/sweetalert2.min.js') }}"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+                Swal.fire({
+                    toast: true,
+                    position: 'bottom-right',
+                    icon: 'error',
+                    title: '{{ session('error') }}',
                     showConfirmButton: false,
                     timer: 5000,
                     didOpen: (toast) => {
