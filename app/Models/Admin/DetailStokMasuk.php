@@ -18,10 +18,10 @@ class DetailStokMasuk extends Model
         'qty',
         'satuan_besar',
         'ket'
-    ] ;
+    ];
 
     public function stok_masuk()
-{
-    return $this->belongsTo(StokMasuk::class, 'no_trm', 'no_trm');
-}
+    {
+        return $this->belongsTo(StokMasuk::class, 'no_trm', 'no_trm');
+    }
 }

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use App\Models\Admin\Barang;
 use App\Models\Admin\Pengiriman;
 use App\Models\Admin\DetailPengiriman;
 use App\Models\Admin\Permintaan;
@@ -39,7 +40,8 @@ class PengirimanController extends Controller
                 ->get();
             return DataTables::of($permintaans)
                 ->addColumn('action', function ($object) use ($path) {
-                    $html = '<a href="' . route($path . "detail", ["no_reqskm" => $object->no_reqskm]) . '" class="btn btn-secondary waves-effect waves-light mx-1">'
+                    $no = str_replace('/','-', $object->no_reqskm);
+                    $html = '<a href="' . route($path . "create", ["no_reqskm" => $no]) . '" class="btn btn-secondary waves-effect waves-light mx-1">'
                         . ' <i class="bx bx-edit align-middle me-2 font-size-18"></i> Proses</a>';
                     return $html;
                 })
@@ -53,17 +55,47 @@ class PengirimanController extends Controller
     /**
      * Show the form for creating a new resource.
      */
-    public function create()
+    public function create(string $no_reqskm, Request $request)
     {
-        //
+        $user = $this->userAuth();
+        $no = str_replace('-','/', $no_reqskm);
+        $datas = DetailPermintaan::with('barang')->where('no_reqskm', $no)->get();
+        $path = 'pengiriman.create.';
+        if ($request->ajax()) {
+            $barangs = Barang::where('status', 0)->get();
+            return DataTables::of($barangs)
+                ->make(true);
+        }
+        return view('pages.pengiriman.create', compact('user', 'datas', 'no_reqskm'));
+
     }
+
+
 
     /**
      * Store a newly created resource in storage.
      */
     public function store(Request $request)
     {
-        //
+
+        $no_krmskm = 'SJ/GU' . '/' . date('y/m/' . str_pad(Pengiriman::count() + 1, 3, '0', STR_PAD_LEFT));
+
+        $krmSKM = Pengiriman::create([
+            'no_krmskm' => $no_krmskm,
+            'tgl' => $request->tgl,
+
+        ]);
+
+        foreach ($request->items as $item) {
+            DetailPengiriman::create([
+                'no_krmskm' => $no_krmskm,
+                'brg_id' => $item['brg_id'],
+                'qty' => $item['qty'],
+                'satuan_besar' => $item['satuan_besar'],
+            ]);
+        }
+
+        return redirect()->route('pengiriman')->with('success', 'Data pengiriman berhasil ditambahkan.');
     }
 
     /**
@@ -98,13 +130,5 @@ class PengirimanController extends Controller
         //
     }
 
-    public function indexHistory(Request $request)
-    {
-        $user = $this->userAuth();
-        $path = "pengiriman-";
 
-
-
-        return view('pages.history.pengiriman-', compact('user'));
-    }
 }
