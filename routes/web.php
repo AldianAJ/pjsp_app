@@ -90,7 +90,7 @@ Route::middleware('user')->group(function () {
 
     Route::controller(PermintaanController::class)->group(function () {
         Route::get('/permintaan', 'index')->name('permintaan');
-        Route::post('/permintaan', 'indexDetail')->name('permintaan.indexDetail');
+        Route::get('/permintaan/detail/{no_reqskm}', 'indexDetail')->name('permintaan.indexDetail');
         Route::get('/permintaan/create', 'create')->name('permintaan.create');
         Route::get('/permintaan/edit/{no_reqskm}', 'edit')->name('permintaan.edit');
         Route::post('/permintaan/store', 'store')->name('permintaan.store');

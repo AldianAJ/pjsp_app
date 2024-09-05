@@ -39,35 +39,33 @@
         });
 
 
-        $('#datatable-detail').on('click', '.btn-detail', function() {
-            let selectedData = '';
-            let no_reqskm = '';
-            let indexRow = mainTable.rows().nodes().to$().index($(this).closest('tr'));
-            selectedData = mainTable.row(indexRow).data();
-            no_reqskm = selectedData.no_reqskm;
-            $("#no_reqskm").text(selectedData.no_reqskm);
-            $('#detail-datatable').DataTable().clear().destroy();
-            $('#detail-datatable').DataTable({
-                ajax: {
-                    "type": "POST",
-                    "url": "{{ route('permintaan.indexDetail') }}",
-                    "data": {
-                        '_token': "{{ csrf_token() }}",
-                        'no_reqskm': no_reqskm
-                    }
-                },
-                lengthMenu: [5],
-                columns: [{
-                        data: "brg_id",
-                    },
-                    {
-                        data: "qty",
-                    },
-                    {
-                        data: "satuan_besar",
-                    },
-                ],
-            });
+        $("datatable").on("click", ".btn-detail", function() {
+            let selectData = detailDatatable.row($(this).parents('tr')).data();
+            let no_reqskm = selectData.no_reqskm;
+            $.ajax({
+                url: '/permintaan/detail/' + no_reqskm,
+                method: 'GET',
+                success: function(data) {
+                    $('detailModal .modal-body').html(
+                        `<table class="table table-bordered">
+            <thead class="table-light">
+                <tr>
+                    <th>Nama Barang</th>
+                    <th>Qty</th>
+                    <th>Satuan Besar</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>${data.nm_brg}</td>
+                    <td>${data.qty}</td>
+                    <td>${data.satuan_besar}</td>
+                </tr>
+            </tbody></table>`
+                    );
+                    $('#detailModal').modal('show')
+                }
+            })
         });
     </script>
 @endpush
@@ -109,32 +107,21 @@
         </div>
     </div>
 
-    <div class="modal modal-lg fade" id="detailModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal modal-md fade" id="detailModal" tabindex="-1" aria-labelledby="detailModalLabel" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalLabel">Detail <span id="no_reqskm"></span></h5>
+                    <h5 class="modal-title" id="detailModalLabel">Detail Permintaan</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <div class="modal-body">
-                    <table class="table table-bordered dt-responsive nowrap w-100" id="detail-datatable">
-                        <thead class="table-light">
-                            <tr>
-                                <th>Nama Barang</th>
-                                <th>Qty</th>
-                                <th>Satuan</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                        </tbody>
-                    </table>
-                </div>
+                <div class="modal-body"></div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                 </div>
             </div>
         </div>
     </div>
+
 
     @if (session()->has('success'))
         <script src="{{ asset('assets/libs/sweetalert2/sweetalert2.min.js') }}"></script>
