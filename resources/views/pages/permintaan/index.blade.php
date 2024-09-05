@@ -7,6 +7,11 @@
 @push('after-style')
     <!-- Sweet Alert-->
     <link href="{{ asset('assets/libs/sweetalert2/sweetalert2.min.css') }}" rel="stylesheet" type="text/css" />
+    <style>
+        .colored-toast {
+            background-color: #28a745 !important;
+        }
+    </style>
 @endpush
 
 @push('after-app-script')
@@ -130,7 +135,7 @@
                 Swal.fire({
                     toast: true,
                     position: 'bottom-right',
-                    icon: 'success',
+                    icon: 'light',
                     title: '{{ session('success') }}',
                     showConfirmButton: false,
                     timer: 5000,

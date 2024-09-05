@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Admin\Barang;
+use App\Models\Admin\Gudang;
 use App\Models\Admin\Pengiriman;
 use App\Models\Admin\DetailPengiriman;
 use App\Models\Admin\Permintaan;
@@ -40,9 +41,9 @@ class PengirimanController extends Controller
                 ->get();
             return DataTables::of($permintaans)
                 ->addColumn('action', function ($object) use ($path) {
-                    $no = str_replace('/','-', $object->no_reqskm);
-                    $html = '<a href="' . route($path . "create", ["no_reqskm" => $no]) . '" class="btn btn-secondary waves-effect waves-light mx-1">'
-                        . ' <i class="bx bx-edit align-middle me-2 font-size-18"></i> Proses</a>';
+                    $no = str_replace('/', '-', $object->no_reqskm);
+                    $html = '<a href="' . route($path . "create", ["no_reqskm" => $no]) . '" class="btn btn-primary waves-effect waves-light mx-1">'
+                        . ' <i class="bx bx-transfer-alt align-middle me-2 font-size-18"></i> Proses</a>';
                     return $html;
                 })
                 ->rawColumns(['action'])
@@ -58,15 +59,16 @@ class PengirimanController extends Controller
     public function create(string $no_reqskm, Request $request)
     {
         $user = $this->userAuth();
-        $no = str_replace('-','/', $no_reqskm);
-        $datas = DetailPermintaan::with('barang')->where('no_reqskm', $no)->get();
+        $no_req = str_replace('-', '/', $no_reqskm);
+        $datas = DetailPermintaan::with('barang')->where('no_reqskm', $no_req)->get();
+        $gudang_id = Gudang::where('jenis', 2)->value('gudang_id');
         $path = 'pengiriman.create.';
         if ($request->ajax()) {
             $barangs = Barang::where('status', 0)->get();
             return DataTables::of($barangs)
                 ->make(true);
         }
-        return view('pages.pengiriman.create', compact('user', 'datas', 'no_reqskm'));
+        return view('pages.pengiriman.create', compact('user', 'datas', 'no_reqskm', 'no_req'));
 
     }
 
@@ -80,15 +82,21 @@ class PengirimanController extends Controller
 
         $no_krmskm = 'SJ/GU' . '/' . date('y/m/' . str_pad(Pengiriman::count() + 1, 3, '0', STR_PAD_LEFT));
 
+        $gudang_id = $request->gudang_id;
+
+        $no_reqskm = $request->no_reqskm;
+
         $krmSKM = Pengiriman::create([
             'no_krmskm' => $no_krmskm,
             'tgl' => $request->tgl,
+            'gudang_id' => $gudang_id,
 
         ]);
 
         foreach ($request->items as $item) {
             DetailPengiriman::create([
                 'no_krmskm' => $no_krmskm,
+                'no_reqskm' => $no_reqskm,
                 'brg_id' => $item['brg_id'],
                 'qty' => $item['qty'],
                 'satuan_besar' => $item['satuan_besar'],

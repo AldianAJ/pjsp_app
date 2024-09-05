@@ -126,6 +126,12 @@
                                     <span key="t-minta">Permintaan</span>
                                 </a>
                             </li>
+                            <li>
+                                <a href="{{ route('permintaan') }}" class="waves-effect">
+                                    <i class="bx bxs-duplicate"></i>
+                                    <span key="t-minta">Terima Barang</span>
+                                </a>
+                            </li>
 
                             <li class="menu-title" key="t-history">Riwayat</li>
                             <li>

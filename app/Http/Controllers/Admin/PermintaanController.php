@@ -33,14 +33,13 @@ class PermintaanController extends Controller
         $path = 'permintaan.';
 
         if ($request->ajax()) {
-            $permintaans = Permintaan::all();
+            $permintaans = Permintaan::where('status', 0)->get();
             return DataTables::of($permintaans)
                 ->addColumn('action', function ($object) use ($path) {
                     $html = '<a href="' . route($path . "edit", ["no_reqskm" => $object->no_reqskm]) . '" class="btn btn-secondary waves-effect waves-light mx-1">'
                         . ' <i class="bx bx-edit align-middle me-2 font-size-18"></i> Edit</a>';
                     $html .= '<button class="btn btn-primary waves-effect waves-light mx-1 btn-detail" data-no_reqskm="' . $object->no_reqskm . '">' .
                         '<i class="bx bx-show align-middle font-size-18"></i> Detail</button>';
-
                     return $html;
                 })
                 ->rawColumns(['action'])

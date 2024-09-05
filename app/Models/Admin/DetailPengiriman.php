@@ -11,4 +11,9 @@ class DetailPengiriman extends Model
 
     protected $table = 'tr_krmskm_detail';
     protected $guarded = [];
+
+    public function pengiriman()
+    {
+        return $this->belongsTo(Pengiriman::class, 'no_krmskm', 'no_krmskm');
+    }
 }

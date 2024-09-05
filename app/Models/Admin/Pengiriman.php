@@ -14,7 +14,7 @@ class Pengiriman extends Model
     public $incrementing = false;
 
     protected $fillable = [
-        'no_krmskm', 'tgl'
+        'no_krmskm', 'tgl', 'gudang_id'
     ];
 
     

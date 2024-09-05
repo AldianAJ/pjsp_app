@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('title')
-Persetujuan Permintaan
+    Persetujuan Permintaan
 @endsection
 
 @push('after-app-script')
@@ -81,12 +81,12 @@ Persetujuan Permintaan
                             </thead>
                             <tbody>
                                 @foreach ($datas as $data)
-                                <tr>
-                                    <td>{{ $data->barang->nm_brg }}</td>
-                                    <td>{{ $data->qty }}</td>
-                                    <td>{{ $data->satuan_besar }}</td>
-                                </tr>
-                            @endforeach
+                                    <tr>
+                                        <td>{{ $data->barang->nm_brg }}</td>
+                                        <td>{{ $data->qty }}</td>
+                                        <td>{{ $data->satuan_besar }}</td>
+                                    </tr>
+                                @endforeach
                             </tbody>
                         </table>
                     </div>
@@ -104,6 +104,11 @@ Persetujuan Permintaan
                             <input type="text" class="form-control" name="no_trm" value="{{ old('no_trm', $no_trm) }}"
                                 required>
                         </div> --}}
+                        <div class="form-group mt-3">
+                            <label for="tgl">No. Dokumen Permintaan SKM</label>
+                            <input type="text" name="no_reqskm" id="no_reqskm" class="form-control"
+                                value="{{ $no_req }}" readonly>
+                        </div>
                         <div class="form-group mt-3">
                             <label for="tgl">Tanggal</label>
                             <input type="date" class="form-control" name="tgl"
@@ -190,7 +195,8 @@ Persetujuan Permintaan
                     </form>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-primary" data-bs-dismiss="modal" onclick="addItem()">Tambah</button>
+                    <button type="button" class="btn btn-primary" data-bs-dismiss="modal"
+                        onclick="addItem()">Tambah</button>
                 </div>
             </div>
         </div>
