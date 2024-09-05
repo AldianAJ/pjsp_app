@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('title')
-Tambah Target Harian
+Tambah Target Shift
 @endsection
 
 @section('content')
@@ -53,7 +53,7 @@ Tambah Target Harian
                     </div>
                     <div id="items-container"></div> <!-- Container for items input fields -->
                     <div class="d-flex justify-content-end mt-3">
-                        <a href="{{ route('kinerja-hari') }}" class="btn btn-info me-1">Kembali</a>
+                        <a href="{{ route('kinerja-shift') }}" class="btn btn-info me-1">Kembali</a>
                         <button type="submit" class="btn btn-success">Simpan</button>
                     </div>
                 </form>

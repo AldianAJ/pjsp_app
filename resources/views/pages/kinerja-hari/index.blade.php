@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('title')
-Target Mingguan
+Target Harian
 @endsection
 
 @push('after-style')
@@ -38,6 +38,21 @@ Target Mingguan
                     data: "action"
                 }
             ],
+            "dom": '<"wrapper"l<"toolbar">>ftp',
+            initComplete: function () {
+                this.api().columns([0]).every( function () {  // columns[0] sets the filter dropdown to only the rider type
+                    var column = this;
+                    var select = $('<select id="col3" class="form-control input-sm"><option value="">ID TARGET</option></select>').appendTo( ".toolbar" )
+                    .on( 'change', function () {
+                        var val = $.fn.dataTable.util.escapeRegex($(this).val());
+                        column.search( val ? '^'+val+'$' : '', true, false ).draw();
+                    } );
+                    column.data().unique().sort().each( function ( d, j ) {
+                        select.append( '<option value="'+d+'">'+d+'</option>' );
+                    } );
+                } );
+            },
+
         });
 </script>
 @endpush
@@ -47,7 +62,7 @@ Target Mingguan
 <div class="row">
     <div class="col-12">
         <div class="page-title-box d-sm-flex align-items-center justify-content-between">
-            <h4 class="mb-sm-0 font-size-18">Target Mingguan</h4>
+            <h4 class="mb-sm-0 font-size-18">Target Harian</h4>
         </div>
     </div>
 </div>

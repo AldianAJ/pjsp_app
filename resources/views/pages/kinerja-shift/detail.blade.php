@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('title')
-Target Mingguan
+Target Shift
 @endsection
 
 @push('after-style')
@@ -19,30 +19,38 @@ Target Mingguan
 <script>
     $('#datatableDetail').DataTable({
             ajax:{
-                    url: "{{ route('kinerja-hari.detail') }}",
+                    url: "{{ route('kinerja-shift.detail') }}",
                     type: "GET",
-                    data: {week_id: '{{ $_GET['week_id'] }}'}
+                    data: {harian_id: '{{ $_GET['harian_id'] }}'}
                 },
             columns: [{
-                    data: "harian_id"
+                    data: "shift_id"
                 },
                 {
-                    data: "week_id"
+                    data: "target_hari.target_week.barang.nm_brg"
                 },
                 {
-                    data: "tgl",
-                    render: function(data) {
-                        return new Date(data).toLocaleDateString('id-ID', {
-                            day: 'numeric',
-                            month: 'long',
-                            year: 'numeric'
-                        });
-                    }
+                    data: "shift"
                 },
                 {
                     data: "qty"
                 }
             ],
+            "dom": '<"wrapper"l<"toolbar">>ftp',
+            initComplete: function () {
+                this.api().columns([0]).every( function () {  // columns[0] sets the filter dropdown to only the rider type
+                    var column = this;
+                    var select = $('<select id="col3" class="form-control input-sm"><option value="">ID TARGET</option></select>').appendTo( ".toolbar" )
+                    .on( 'change', function () {
+                        var val = $.fn.dataTable.util.escapeRegex($(this).val());
+                        column.search( val ? '^'+val+'$' : '', true, false ).draw();
+                    } );
+                    column.data().unique().sort().each( function ( d, j ) {
+                        select.append( '<option value="'+d+'">'+d+'</option>' );
+                    } );
+                } );
+            },
+
         });
 </script>
 @endpush
@@ -52,7 +60,7 @@ Target Mingguan
 <div class="row">
     <div class="col-12">
         <div class="page-title-box d-sm-flex align-items-center justify-content-between">
-            <h4 class="mb-sm-0 font-size-18">Target Mingguan</h4>
+            <h4 class="mb-sm-0 font-size-18">Target Shift</h4>
         </div>
     </div>
 </div>
@@ -63,15 +71,15 @@ Target Mingguan
         <div class="card">
             <div class="card-body">
                 <div class="d-flex justify-content-end mb-2">
-                    <a href="{{ route('kinerja-hari') }}" class="btn btn-info my-2">Kembali</a>
+                    <a href="{{ route('kinerja-shift') }}" class="btn btn-info my-2">Kembali</a>
                 </div>
                 <div class="table-responsive">
                     <table id="datatableDetail" class="table align-middle table-nowrap">
                         <thead class="table-light">
                             <tr>
                                 <th>Id</th>
-                                <th>Week Id</th>
-                                <th>Tanggal</th>
+                                <th>Barang</th>
+                                <th>Shift</th>
                                 <th>Jumlah</th>
                             </tr>
                         </thead>

@@ -24,4 +24,9 @@ class Shift extends Model
     {
         return $this->belongsTo(Harian::class, 'harian_id');
     }
+
+    public function targetMesin()
+    {
+        return $this->hasMany(Mesin::class, 'shift_id');
+    }
 }

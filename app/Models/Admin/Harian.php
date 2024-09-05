@@ -24,4 +24,9 @@ class Harian extends Model
     {
         return $this->belongsTo(Mingguan::class, 'week_id');
     }
+
+    public function targetShift()
+    {
+        return $this->hasMany(Shift::class, 'harian_id');
+    }
 }
