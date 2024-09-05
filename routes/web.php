@@ -79,12 +79,21 @@ Route::middleware('user')->group(function () {
         Route::get('/kinerja-minggu/edit/{supplier_id}', 'edit')->name('kinerja-minggu.edit');
         Route::post('/kinerja-minggu/store', 'store')->name('kinerja-minggu.store');
         Route::post('/kinerj-minggu/update/{supplier_id}', 'update')->name('kinerja.update');
+
         Route::get('/kinerja-hari', 'indexhari')->name('kinerja-hari');
         Route::get('/kinerja-hari/create', 'createhari')->name('kinerja-hari.create');
         Route::post('/kinerja-hari/store', 'storehari')->name('kinerja-hari.store');
         Route::get('/kinerja-hari/detail/', 'detailhari')->name('kinerja-hari.detail');
-        Route::get('/kinerja-shift', 'index')->name('kinerja-shift');
-        Route::get('/kinerja-mesin', 'index')->name('kinerja-mesin');
+
+        Route::get('/kinerja-shift', 'indexshift')->name('kinerja-shift');
+        Route::get('/kinerja-shift/create', 'createshift')->name('kinerja-shift.create');
+        Route::post('/kinerja-shift/store', 'storeshift')->name('kinerja-shift.store');
+        Route::get('/kinerja-shift/detail/', 'detailshift')->name('kinerja-shift.detail');
+
+        Route::get('/kinerja-mesin', 'indexmesin')->name('kinerja-mesin');
+        Route::get('/kinerja-mesin/create', 'createmesin')->name('kinerja-mesin.create');
+        Route::post('/kinerja-mesin/store', 'storemesin')->name('kinerja-mesin.store');
+        Route::get('/kinerja-mesin/detail/', 'detailmesin')->name('kinerja-mesin.detail');
     });
 
 
@@ -95,7 +104,6 @@ Route::middleware('user')->group(function () {
         Route::get('/permintaan/edit/{no_reqskm}', 'edit')->name('permintaan.edit');
         Route::post('/permintaan/store', 'store')->name('permintaan.store');
         Route::post('/permintaan/update/{no_reqskm}', 'update')->name('supplier.update');
-        
     });
 
     Route::controller(PengirimanController::class)->group(function () {
