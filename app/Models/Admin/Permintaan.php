@@ -14,7 +14,7 @@ class Permintaan extends Model
     public $incrementing = false;
 
     protected $fillable = [
-        'no_reqskm', 'tgl', 'gudang_id'
+        'no_reqskm', 'tgl', 'gudang_id', 'status'
     ];
 
 }

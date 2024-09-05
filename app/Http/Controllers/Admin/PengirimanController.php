@@ -39,6 +39,8 @@ class PengirimanController extends Controller
                 ->select('a.no_reqskm', 'a.tgl as tgl_minta', 'c.tgl as tgl_kirim')
                 ->where('a.status', 0)
                 ->get();
+
+            $pengirimans = DB::table('')
             return DataTables::of($permintaans)
                 ->addColumn('action', function ($object) use ($path) {
                     $no = str_replace('/', '-', $object->no_reqskm);
@@ -60,17 +62,40 @@ class PengirimanController extends Controller
     {
         $user = $this->userAuth();
         $no_req = str_replace('-', '/', $no_reqskm);
-        $datas = DetailPermintaan::with('barang')->where('no_reqskm', $no_req)->get();
+
+        // Ambil data detail permintaan dengan status 0
+        $datas = DetailPermintaan::with('barang')
+            ->where('no_reqskm', $no_req)
+            ->where('status', 0)
+            ->get();
+
+        // Ambil gudang ID
         $gudang_id = Gudang::where('jenis', 2)->value('gudang_id');
         $path = 'pengiriman.create.';
+
+        // Jika ada request AJAX untuk mengambil barang
         if ($request->ajax()) {
             $barangs = Barang::where('status', 0)->get();
-            return DataTables::of($barangs)
-                ->make(true);
+            return DataTables::of($barangs)->make(true);
         }
-        return view('pages.pengiriman.create', compact('user', 'datas', 'no_reqskm', 'no_req'));
 
+        // Logika penyimpanan data atau pengubahan status
+        if ($request->isMethod('post')) {
+            // Proses penyimpanan atau pengiriman barang
+
+            Permintaan::where('no_reqskm', $no_req)
+                ->where('status', 0)
+                ->update(['status' => 1]);
+            // Setelah proses, ubah status dari 0 menjadi 1
+            DetailPermintaan::where('no_reqskm', $no_req)
+                ->where('status', 0)
+                ->update(['status' => 1]);
+
+        }
+
+        return view('pages.pengiriman.create', compact('user', 'datas', 'no_reqskm', 'no_req'));
     }
+
 
 
 
