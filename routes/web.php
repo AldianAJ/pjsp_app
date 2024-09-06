@@ -23,14 +23,13 @@ use App\Http\Controllers\Admin\PengirimanController;
 |
 */
 
-// Rute untuk UserController
+
 Route::controller(UserController::class)->group(function () {
     Route::get('/auth', 'index')->name('auth');
     Route::post('/auth/login', 'login')->name('auth.login');
     Route::get('/auth/logout', 'logout')->name('auth.logout');
 });
 
-// Rute yang memerlukan autentikasi
 Route::middleware('user')->group(function () {
     Route::controller(BarangController::class)->group(function () {
         Route::get('/barang', 'index')->name('barang');
@@ -104,6 +103,14 @@ Route::middleware('user')->group(function () {
         Route::get('/permintaan/edit/{no_reqskm}', 'edit')->name('permintaan.edit');
         Route::post('/permintaan/store', 'store')->name('permintaan.store');
         Route::post('/permintaan/update/{no_reqskm}', 'update')->name('supplier.update');
+
+        Route::get('/penerimaan-barang', 'index')->name('penerimaan-barang');
+        Route::get('/penerimaan-barang/detail/{no_reqskm}', 'indexDetail')->name('penerimaan-barang.indexDetail');
+        Route::get('/permintaan-barang/create', 'create')->name('penerimaan-barang.create');
+        Route::get('/penerimaan-barang/edit/{no_reqskm}', 'edit')->name('penerimaan-barang.edit');
+        Route::post('/penerimaan-barang/store', 'store')->name('penerimaan-barang.store');
+        Route::post('/penerimaan-barang/update/{no_reqskm}', 'update')->name('penerimaan-barang.update');
+
     });
 
     Route::controller(PengirimanController::class)->group(function () {

@@ -8,6 +8,7 @@ use App\Models\Admin\Barang;
 use App\Models\Admin\Permintaan;
 use App\Models\Admin\Gudang;
 use App\Models\Admin\DetailPermintaan;
+use App\Models\Admin\Pengiriman;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Yajra\DataTables\DataTables;
@@ -133,5 +134,26 @@ class PermintaanController extends Controller
     public function destroy()
     {
         //
+    }
+
+    public function indexTerima(Request $request)
+    {
+        $user = $this->userAuth();
+        $path = 'pengiriman.';
+
+        if ($request->ajax()) {
+            $pengirimans = Pengiriman::select('no_krmskm as id')->where('status', 0)->get();
+            return DataTables::of($pengirimans)
+                ->addColumn('action', function ($object) use ($path) {
+                    $no = str_replace('/', '-', $object->id);
+                        return '<a href="' . route($path . "create", ["no_krmskm" => $no]) . '" class="btn btn-primary waves-effect waves-light mx-1">'
+                            . '<i class="bx bx-transfer-alt align-middle me-2 font-size-18"></i> Proses</a>';
+                    
+                })
+                ->rawColumns(['action'])
+                ->make(true);
+        }
+
+        return view('pages.terima-barang-skm.index', compact('user'));
     }
 }

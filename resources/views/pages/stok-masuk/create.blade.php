@@ -7,13 +7,19 @@
 @push('after-app-script')
     <script src="{{ asset('assets/libs/datatables.net/js/jquery.dataTables.min.js') }}"></script>
     <script src="{{ asset('assets/libs/datatables.net-bs4/js/dataTables.bootstrap4.min.js') }}"></script>
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     <!-- Responsive examples -->
     <script src="{{ asset('assets/libs/datatables.net-responsive/js/dataTables.responsive.min.js') }}"></script>
     <script src="{{ asset('assets/libs/datatables.net-responsive-bs4/js/responsive.bootstrap4.min.js') }}"></script>
     <script src="{{ asset('assets/js/pages/datatables.init.js') }}"></script>
-    <script src="https://code.jquery.com/jquery-3.7.1.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     <script>
+        $(document).ready(function() {
+            $('#supplier_id').select2({
+                width: 'resolve'
+            });
+        });
+
         $('#datatable').DataTable({
             ajax: "{{ route('stok-masuk.create') }}",
             lengthMenu: [5],
@@ -83,7 +89,8 @@
                         </div>
                         <div class="form-group mt-3">
                             <label for="supplier_id">Nama Supplier</label>
-                            <select name="supplier_id" id="supplier_id" class="form-control select2" required>
+                            <select name="supplier_id" id="supplier_id" class="form-control" style="width: 100%;" required>
+                                <option selected="selected">-- Pilih Supplier --</option>
                                 @foreach ($suppliers as $supplier)
                                     <option value="{{ $supplier->supplier_id }}">
                                         {{ $supplier->nama }}
@@ -173,8 +180,8 @@
                             <input type="number" class="form-control" id="modal-qty" required>
                         </div>
                         <div class="form-group mt-3">
-                            <label for="modal-satuan-besar">Satuan</label>
-                            <input type="text" class="form-control" id="modal-satuan-besar" readonly>
+                            <label for="modal-satuan-beli">Satuan</label>
+                            <input type="text" class="form-control" id="modal-satuan-beli" readonly>
                         </div>
                         <div class="form-group mt-3">
                             <label for="modal-ket">Keterangan</label>
@@ -192,20 +199,13 @@
 
 
     <script>
-        $(document).ready(function() {
-            $('.select2').select2({
-                placeholder: 'Pilih Supplier',
-                allowClear: true
-            });
-        });
-
         let selectedItems = [];
 
         function showModal(brg_id, nm_brg, satuan_beli) {
             const modal = document.getElementById('qtyModal');
             document.getElementById('modal-brg-id').value = brg_id;
             document.getElementById('modal-nm-brg').value = nm_brg;
-            document.getElementById('modal-satuan-besar').value = satuan_beli;
+            document.getElementById('modal-satuan-beli').value = satuan_beli;
             document.getElementById('modal-qty').value = '';
             document.getElementById('modal-ket').value = '';
             new bootstrap.Modal(modal).show();
@@ -215,7 +215,7 @@
             const brg_id = document.getElementById('modal-brg-id').value;
             const nm_brg = document.getElementById('modal-nm-brg').value;
             const qty = parseFloat(document.getElementById('modal-qty').value);
-            const satuan_beli = document.getElementById('modal-satuan-besar').value;
+            const satuan_beli = document.getElementById('modal-satuan-beli').value;
             const ket = document.getElementById('modal-ket').value;
 
             if (qty <= 0) {

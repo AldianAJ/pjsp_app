@@ -105,17 +105,15 @@
                                 required>
                         </div> --}}
                         <div class="form-group mt-3">
-                            <label for="no_reqskm">No. Dokumen Permintaan SKM</label>
+                            <label for="tgl">No. Dokumen Permintaan SKM</label>
                             <input type="text" name="no_reqskm" id="no_reqskm" class="form-control"
                                 value="{{ $no_req }}" readonly>
                         </div>
                         <div class="form-group mt-3">
-                            <label for="tgl_krm">Tanggal</label>
-                            <input type="date" class="form-control" name="tgl_krm"
-                                value="{{ old('tgl_krm', \Carbon\Carbon::now()->format('Y-m-d')) }}" required readonly>
+                            <label for="tgl">Tanggal</label>
+                            <input type="date" class="form-control" name="tgl"
+                                value="{{ old('tgl', \Carbon\Carbon::now()->format('Y-m-d')) }}" required readonly>
                         </div>
-                        <input type="hidden" name="gudang_id" id="gudang_id"
-                            value="{{ old('gudang_id', $gudang_id ?? '') }}">
                         <div id="items-container"></div> <!-- Container for items input fields -->
                         <div class="d-flex justify-content-end mt-3">
                             <button type="submit" class="btn btn-success">Simpan</button>

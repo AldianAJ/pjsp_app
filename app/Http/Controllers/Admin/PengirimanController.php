@@ -33,31 +33,32 @@ class PengirimanController extends Controller
         $user = $this->userAuth();
         $path = 'pengiriman.';
 
+        $permintaans = DB::table('tr_reqskm as a')
+            ->leftJoin('tr_krmskm_detail as b', 'a.no_reqskm', '=', 'b.no_reqskm')
+            ->leftJoin('tr_krmskm as c', 'b.no_krmskm', '=', 'c.no_krmskm')
+            ->select('a.no_reqskm as id', 'a.tgl as tgl_minta', 'c.tgl_krm')
+            ->where('a.status', 0)
+            ->get();
+
+        $pengirimans = DB::table('tr_krmskm as a')
+            ->leftJoin('tr_krmskm_detail as b', 'a.no_krmskm', '=', 'b.no_krmskm')
+            ->leftJoin('tr_reqskm as c', 'b.no_reqskm', '=', 'c.no_reqskm')
+            ->select('a.no_krmskm as id', 'c.tgl as tgl_minta', 'a.tgl_krm')
+            ->where('a.status', 0)
+            ->get();
+
+        $activeVariable = !$permintaans->isEmpty() && !$pengirimans->isEmpty()
+            ? $permintaans->merge($pengirimans)
+            : (!$permintaans->isEmpty()
+                ? $permintaans
+                : $pengirimans);
+
+
         if ($request->ajax()) {
-            $permintaans = DB::table('tr_reqskm as a')
-                ->leftJoin('tr_krmskm_detail as b', 'a.no_reqskm', '=', 'b.no_reqskm')
-                ->leftJoin('tr_krmskm as c', 'b.no_krmskm', '=', 'c.no_krmskm')
-                ->select('a.no_reqskm as id', 'a.tgl as tgl_minta', 'c.tgl as tgl_kirim')
-                ->where('a.status', 0)
-                ->get();
-
-            $pengirimans = DB::table('tr_krmskm as a')
-                ->leftJoin('tr_krmskm_detail as b', 'a.no_krmskm', '=', 'b.no_krmskm')
-                ->leftJoin('tr_reqskm as c', 'b.no_reqskm', '=', 'c.no_reqskm')
-                ->select('a.no_krmskm as id', 'a.tgl as tgl_minta', 'c.tgl as tgl_kirim')
-                ->where('a.status', 0)
-                ->get();
-
-            $activeVariable = !$permintaans->isEmpty() && !$pengirimans->isEmpty()
-                ? $permintaans->merge($pengirimans)
-                : (!$permintaans->isEmpty()
-                    ? $permintaans
-                    : $pengirimans);
-
             return DataTables::of($activeVariable)
                 ->addColumn('action', function ($object) use ($path) {
                     $no = str_replace('/', '-', $object->id);
-                    if (is_null($object->tgl_kirim)) {
+                    if (is_null($object->tgl_krm)) {
                         return '<a href="' . route($path . "create", ["no_reqskm" => $no]) . '" class="btn btn-primary waves-effect waves-light mx-1">'
                             . '<i class="bx bx-transfer-alt align-middle me-2 font-size-18"></i> Proses</a>';
                     } else {
@@ -94,7 +95,7 @@ class PengirimanController extends Controller
         }
 
 
-        return view('pages.pengiriman.create', compact('user', 'datas', 'no_reqskm', 'no_req'));
+        return view('pages.pengiriman.create', compact('user', 'datas', 'no_reqskm', 'no_req', 'gudang_id'));
     }
 
 
@@ -104,7 +105,6 @@ class PengirimanController extends Controller
      */
     public function store(Request $request)
     {
-
         $no_krmskm = 'SJ/GU' . '/' . date('y/m/' . str_pad(Pengiriman::count() + 1, 3, '0', STR_PAD_LEFT));
 
         $gudang_id = $request->gudang_id;
@@ -113,21 +113,12 @@ class PengirimanController extends Controller
 
         $krmSKM = Pengiriman::create([
             'no_krmskm' => $no_krmskm,
-            'tgl' => $request->tgl,
+            'tgl_krm' => $request->tgl_krm,
             'gudang_id' => $gudang_id,
-
         ]);
 
         foreach ($request->items as $item) {
             DetailPengiriman::create([
-                'no_krmskm' => $no_krmskm,
-                'no_reqskm' => $no_reqskm,
-                'brg_id' => $item['brg_id'],
-                'qty' => $item['qty'],
-                'satuan_besar' => $item['satuan_besar'],
-            ]);
-
-            Log::info('Item successfully processed', [
                 'no_krmskm' => $no_krmskm,
                 'no_reqskm' => $no_reqskm,
                 'brg_id' => $item['brg_id'],

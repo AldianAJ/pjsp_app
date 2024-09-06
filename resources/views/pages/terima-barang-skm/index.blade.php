@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('title')
-    Persetujuan Permintaan
+    Penerimaan Barang
 @endsection
 
 @push('after-style')
@@ -18,12 +18,12 @@
     <script src="{{ asset('assets/js/pages/datatables.init.js') }}"></script>
     <script>
         $('#datatable').DataTable({
-            ajax: "{{ route('pengiriman') }}",
+            ajax: "{{ route('penerimaan-barang') }}",
             columns: [{
                     data: "id"
                 },
                 {
-                    data: "tgl_minta",
+                    data: "tgl_krm",
                     render: function(data) {
                         return new Date(data).toLocaleDateString('id-ID', {
                             day: 'numeric',
@@ -33,9 +33,9 @@
                     }
                 },
                 {
-                    data: "tgl_krm",
+                    data: "tgl_trm",
                     render: function(data) {
-                        if (!data) {
+                      if (!data) {
                             return '-';
                         }
                         return new Date(data).toLocaleDateString('id-ID', {
@@ -58,7 +58,7 @@
     <div class="row">
         <div class="col-12">
             <div class="page-title-box d-sm-flex align-items-center justify-content-between">
-                <h4 class="mb-sm-0 font-size-18">Persetujuan Permintaan</h4>
+                <h4 class="mb-sm-0 font-size-18">Penerimaan Barang</h4>
             </div>
         </div>
     </div>
@@ -73,8 +73,8 @@
                             <thead class="table-light">
                                 <tr>
                                     <th>No. Dokumen</th>
-                                    <th>Tanggal Permintaan</th>
                                     <th>Tanggal Pengiriman</th>
+                                    <th>Tanggal Penerimaan</th>
                                     <th>Action</th>
                                 </tr>
                             </thead>
