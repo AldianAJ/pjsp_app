@@ -20,7 +20,7 @@
         $('#datatable').DataTable({
             ajax: "{{ route('pengiriman') }}",
             columns: [{
-                    data: "no_reqskm"
+                    data: "id"
                 },
                 {
                     data: "tgl_minta",
@@ -50,7 +50,6 @@
                 }
             ],
         });
-
     </script>
 @endpush
 

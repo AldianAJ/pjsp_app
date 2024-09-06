@@ -15,6 +15,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Yajra\DataTables\DataTables;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Support\Facades\Log;
 
 class PengirimanController extends Controller
 {
@@ -36,17 +37,33 @@ class PengirimanController extends Controller
             $permintaans = DB::table('tr_reqskm as a')
                 ->leftJoin('tr_krmskm_detail as b', 'a.no_reqskm', '=', 'b.no_reqskm')
                 ->leftJoin('tr_krmskm as c', 'b.no_krmskm', '=', 'c.no_krmskm')
-                ->select('a.no_reqskm', 'a.tgl as tgl_minta', 'c.tgl as tgl_kirim')
+                ->select('a.no_reqskm as id', 'a.tgl as tgl_minta', 'c.tgl as tgl_kirim')
                 ->where('a.status', 0)
                 ->get();
 
-            $pengirimans = DB::table('')
-            return DataTables::of($permintaans)
+            $pengirimans = DB::table('tr_krmskm as a')
+                ->leftJoin('tr_krmskm_detail as b', 'a.no_krmskm', '=', 'b.no_krmskm')
+                ->leftJoin('tr_reqskm as c', 'b.no_reqskm', '=', 'c.no_reqskm')
+                ->select('a.no_krmskm as id', 'a.tgl as tgl_minta', 'c.tgl as tgl_kirim')
+                ->where('a.status', 0)
+                ->get();
+
+            $activeVariable = !$permintaans->isEmpty() && !$pengirimans->isEmpty()
+                ? $permintaans->merge($pengirimans)
+                : (!$permintaans->isEmpty()
+                    ? $permintaans
+                    : $pengirimans);
+
+            return DataTables::of($activeVariable)
                 ->addColumn('action', function ($object) use ($path) {
-                    $no = str_replace('/', '-', $object->no_reqskm);
-                    $html = '<a href="' . route($path . "create", ["no_reqskm" => $no]) . '" class="btn btn-primary waves-effect waves-light mx-1">'
-                        . ' <i class="bx bx-transfer-alt align-middle me-2 font-size-18"></i> Proses</a>';
-                    return $html;
+                    $no = str_replace('/', '-', $object->id);
+                    if (is_null($object->tgl_kirim)) {
+                        return '<a href="' . route($path . "create", ["no_reqskm" => $no]) . '" class="btn btn-primary waves-effect waves-light mx-1">'
+                            . '<i class="bx bx-transfer-alt align-middle me-2 font-size-18"></i> Proses</a>';
+                    } else {
+                        return '<a href="' . route($path . "detailKRM", ["no_krmskm" => $no]) . '" class="btn btn-primary waves-effect waves-light mx-1">'
+                            . '<i class="bx bx-show align-middle me-2 font-size-18"></i> Detail</a>';
+                    }
                 })
                 ->rawColumns(['action'])
                 ->make(true);
@@ -63,39 +80,22 @@ class PengirimanController extends Controller
         $user = $this->userAuth();
         $no_req = str_replace('-', '/', $no_reqskm);
 
-        // Ambil data detail permintaan dengan status 0
         $datas = DetailPermintaan::with('barang')
             ->where('no_reqskm', $no_req)
             ->where('status', 0)
             ->get();
 
-        // Ambil gudang ID
         $gudang_id = Gudang::where('jenis', 2)->value('gudang_id');
         $path = 'pengiriman.create.';
 
-        // Jika ada request AJAX untuk mengambil barang
         if ($request->ajax()) {
             $barangs = Barang::where('status', 0)->get();
             return DataTables::of($barangs)->make(true);
         }
 
-        // Logika penyimpanan data atau pengubahan status
-        if ($request->isMethod('post')) {
-            // Proses penyimpanan atau pengiriman barang
-
-            Permintaan::where('no_reqskm', $no_req)
-                ->where('status', 0)
-                ->update(['status' => 1]);
-            // Setelah proses, ubah status dari 0 menjadi 1
-            DetailPermintaan::where('no_reqskm', $no_req)
-                ->where('status', 0)
-                ->update(['status' => 1]);
-
-        }
 
         return view('pages.pengiriman.create', compact('user', 'datas', 'no_reqskm', 'no_req'));
     }
-
 
 
 
@@ -126,7 +126,26 @@ class PengirimanController extends Controller
                 'qty' => $item['qty'],
                 'satuan_besar' => $item['satuan_besar'],
             ]);
+
+            Log::info('Item successfully processed', [
+                'no_krmskm' => $no_krmskm,
+                'no_reqskm' => $no_reqskm,
+                'brg_id' => $item['brg_id'],
+                'qty' => $item['qty'],
+                'satuan_besar' => $item['satuan_besar'],
+            ]);
         }
+
+        $permintaan = Permintaan::where('status', 0)->first();
+        if ($permintaan) {
+            $permintaan->update([
+                'status' => 1,
+            ]);
+        }
+
+        DetailPermintaan::where('status', 0)->update([
+            'status' => 1,
+        ]);
 
         return redirect()->route('pengiriman')->with('success', 'Data pengiriman berhasil ditambahkan.');
     }
@@ -137,6 +156,11 @@ class PengirimanController extends Controller
     public function show()
     {
         //
+    }
+
+    public function detailKRM()
+    {
+        return view('pages.pengiriman.detail');
     }
 
     /**

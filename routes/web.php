@@ -110,7 +110,8 @@ Route::middleware('user')->group(function () {
         Route::get('/pengiriman', 'index')->name('pengiriman');
         Route::get('/pengiriman/create/{no_reqskm}', 'create')->name('pengiriman.create');
         Route::post('/pengiriman/store', 'store')->name('pengiriman.store');
-        Route::get('/pengiriman/detail/{no_reqskm}', 'detail')->name('pengiriman.detail');
+        Route::get('/pengiriman/detail/{no_reqskm}', 'detailREQ')->name('pengiriman.detailREQ');
+        Route::get('/pengiriman/detail/{no_krmskm}', 'detailKRM')->name('pengiriman.detailKRM');
         Route::get('/pengiriman/store/penerimaan/{slug}', 'storePenerimaan')->name('pengiriman.penerimaan');
         Route::get('/pengiriman/keep/barang', 'indexBarangDiambil')->name('pengiriman.barangDiambil');
         Route::get('/pengiriman/history', 'indexHistory')->name('pengiriman.history');
