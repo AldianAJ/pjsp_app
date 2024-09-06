@@ -38,20 +38,6 @@ Target Harian
                     data: "action"
                 }
             ],
-            "dom": '<"wrapper"l<"toolbar">>ftp',
-            initComplete: function () {
-                this.api().columns([0]).every( function () {  // columns[0] sets the filter dropdown to only the rider type
-                    var column = this;
-                    var select = $('<select id="col3" class="form-control input-sm"><option value="">ID TARGET</option></select>').appendTo( ".toolbar" )
-                    .on( 'change', function () {
-                        var val = $.fn.dataTable.util.escapeRegex($(this).val());
-                        column.search( val ? '^'+val+'$' : '', true, false ).draw();
-                    } );
-                    column.data().unique().sort().each( function ( d, j ) {
-                        select.append( '<option value="'+d+'">'+d+'</option>' );
-                    } );
-                } );
-            },
 
         });
 </script>

@@ -5,6 +5,9 @@ Tambah Target Mingguan
 @endsection
 
 @push('after-app-script')
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
 <script src="{{ asset('assets/libs/datatables.net/js/jquery.dataTables.min.js') }}"></script>
 <script src="{{ asset('assets/libs/datatables.net-bs4/js/dataTables.bootstrap4.min.js') }}"></script>
 <!-- Responsive examples -->
@@ -12,6 +15,12 @@ Tambah Target Mingguan
 <script src="{{ asset('assets/libs/datatables.net-responsive-bs4/js/responsive.bootstrap4.min.js') }}"></script>
 <script src="{{ asset('assets/js/pages/datatables.init.js') }}"></script>
 <script>
+    $(document).ready(function() {
+        $('#minggu').select2({
+            width: 'resolve' // need to override the changed default
+        });
+    });
+
     $('#datatable').DataTable({
             ajax: "{{ route('kinerja-minggu.create') }}",
             lengthMenu: [5],
@@ -77,7 +86,7 @@ Tambah Target Mingguan
                     </div>
                     <div class="form-group mt-3">
                         <label for="minggu">Minggu ke</label>
-                        <select name="minggu" id="minggu" class="form-control select2" required>
+                        <select name="minggu" id="minggu" class="form-control" style="width: 100%" required>
                             @foreach ($mingguList as $minggu)
                             <option value="{{ $minggu['minggu'] }}" {{ \Carbon\Carbon::now()->format('W') ==
                                 $minggu['minggu'] ? 'selected' : '' }}>
@@ -174,8 +183,7 @@ Tambah Target Mingguan
                 </form>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-primary" data-bs-dismiss="modal"
-                    onclick="addItem()">Tambah</button>
+                <button type="button" class="btn btn-primary" onclick="addItem()">Tambah</button>
             </div>
         </div>
     </div>
@@ -202,7 +210,7 @@ Tambah Target Mingguan
             const satuan_besar = document.getElementById('modal-satuan-besar').value;
             const ket = document.getElementById('modal-ket').value;
 
-            if (qty <= 0) {
+            if (qty <= 0 || isNaN(qty)) {
                 alert('Jumlah harus lebih dari 0');
                 return;
             }
@@ -215,6 +223,8 @@ Tambah Target Mingguan
                 ket
             });
             updateItems();
+            bootstrap.Modal.getInstance(document.getElementById("qtyModal")).hide();
+
         }
 
         function removeItem(index) {
