@@ -11,7 +11,7 @@
                             $user = auth()->user();
                         @endphp
 
-                        @if ($user->role == 'GDB')
+                        @if ($user->role == 'gdb')
                             <li class="menu-title" key="t-menu">Menu</li>
                             <li>
                                 <a href="#">
@@ -82,7 +82,7 @@
                             </li>
                         @endif
 
-                        @if ($user->role == 'SKM')
+                        @if ($user->role == 'skm')
                             <li class="menu-title" key="t-menu">Menu</li>
                             <li>
                                 <a href="#">

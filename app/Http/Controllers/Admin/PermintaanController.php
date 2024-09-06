@@ -4,11 +4,13 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use App\Models\Admin\user;
 use App\Models\Admin\Barang;
 use App\Models\Admin\Permintaan;
 use App\Models\Admin\Gudang;
 use App\Models\Admin\DetailPermintaan;
 use App\Models\Admin\Pengiriman;
+use App\Models\Admin\DetailPengiriman;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Yajra\DataTables\DataTables;
@@ -56,15 +58,15 @@ class PermintaanController extends Controller
     public function create(Request $request)
     {
         $user = $this->userAuth();
-        $gudang_id = Gudang::where('jenis', 2)->value('gudang_id'); 
+        $gudang_id = Gudang::where('jenis', 2)->value('gudang_id');
         $path = 'permintaan.create.';
         if ($request->ajax()) {
             $barangs = Barang::where('status', 0)->get();
             return DataTables::of($barangs)
                 ->addColumn('action', function ($object) use ($path) {
                     $html = '<div class="d-flex justify-content-center"><button class="btn btn-primary waves-effect waves-light btn-add" data-bs-toggle="modal"' .
-                            'data-bs-target="#qtyModal"><i class="bx bx-plus-circle align-middle font-size-18"></i></button></div>';
-                        return $html;
+                        'data-bs-target="#qtyModal"><i class="bx bx-plus-circle align-middle font-size-18"></i></button></div>';
+                    return $html;
                 })
                 ->rawColumns(['action'])
                 ->make(true);
@@ -86,7 +88,7 @@ class PermintaanController extends Controller
             'no_reqskm' => $no_reqskm,
             'tgl' => $request->tgl,
             'gudang_id' => $gudang_id,
-            
+
         ]);
 
         foreach ($request->items as $item) {
@@ -108,8 +110,6 @@ class PermintaanController extends Controller
     {
         $details = DetailPermintaan::where('no_reqskm', $no_reqskm)->first();
         return response()->json($details);
-
-        
     }
 
     /**
@@ -139,21 +139,50 @@ class PermintaanController extends Controller
     public function indexTerima(Request $request)
     {
         $user = $this->userAuth();
-        $path = 'pengiriman.';
+        $path = 'penerimaan-barang.';
 
         if ($request->ajax()) {
-            $pengirimans = Pengiriman::select('no_krmskm as id')->where('status', 0)->get();
+            $pengirimans = Pengiriman::where('status', 0)->get();
             return DataTables::of($pengirimans)
                 ->addColumn('action', function ($object) use ($path) {
                     $no = str_replace('/', '-', $object->id);
-                        return '<a href="' . route($path . "create", ["no_krmskm" => $no]) . '" class="btn btn-primary waves-effect waves-light mx-1">'
-                            . '<i class="bx bx-transfer-alt align-middle me-2 font-size-18"></i> Proses</a>';
-                    
+                    return '<a href="' . route($path . "create", ["no_krmskm" => $no]) . '" class="btn btn-primary waves-effect waves-light mx-1">'
+                        . '<i class="bx bx-transfer-alt align-middle me-2 font-size-18"></i> Proses</a>';
                 })
                 ->rawColumns(['action'])
                 ->make(true);
         }
 
         return view('pages.terima-barang-skm.index', compact('user'));
+    }
+
+    public function createTerima(string $no_krmskm, Request $request)
+    {
+        $user = $this->userAuth();
+        $no_krm = str_replace('-', '/', $no_krmskm);
+        $no_req = Permintaan::select('no_reqskm')->where('status', 0)->get();
+
+        $data_krms = DetailPengiriman::with('barang')
+            ->where('no_krmskm', $no_krm)
+            ->where('status', 0)
+            ->get();
+
+        $data_reqs = DetailPermintaan::with('barang')
+            ->where('no_reqskm')
+            ->where('status', 0)
+            ->get();
+
+        $user_id = User::where('role', 'skm')->where('status', 0)->get();
+
+        $gudang_id = Gudang::where('jenis', 2)->value('gudang_id');
+        $path = 'penerimaan-barang.create.';
+
+        if ($request->ajax()) {
+            $barangs = Barang::where('status', 0)->get();
+            return DataTables::of($barangs)->make(true);
+        }
+
+
+        return view('pages.terima-barang-skm.create', compact('user', 'datas', 'no_reqskm', 'no_req', 'gudang_id'));
     }
 }

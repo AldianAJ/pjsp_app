@@ -104,9 +104,9 @@ Route::middleware('user')->group(function () {
         Route::post('/permintaan/store', 'store')->name('permintaan.store');
         Route::post('/permintaan/update/{no_reqskm}', 'update')->name('supplier.update');
 
-        Route::get('/penerimaan-barang', 'index')->name('penerimaan-barang');
+        Route::get('/penerimaan-barang', 'indexTerima')->name('penerimaan-barang');
+        Route::get('/penerimaan-barang/create/{no_krmskm}', 'createTerima')->name('penerimaan-barang.create');
         Route::get('/penerimaan-barang/detail/{no_reqskm}', 'indexDetail')->name('penerimaan-barang.indexDetail');
-        Route::get('/permintaan-barang/create', 'create')->name('penerimaan-barang.create');
         Route::get('/penerimaan-barang/edit/{no_reqskm}', 'edit')->name('penerimaan-barang.edit');
         Route::post('/penerimaan-barang/store', 'store')->name('penerimaan-barang.store');
         Route::post('/penerimaan-barang/update/{no_reqskm}', 'update')->name('penerimaan-barang.update');

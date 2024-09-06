@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('title')
-    Persetujuan Permintaan
+    Penerimaan Barang
 @endsection
 
 @push('after-app-script')
@@ -12,10 +12,10 @@
     <script src="{{ asset('assets/libs/datatables.net-responsive-bs4/js/responsive.bootstrap4.min.js') }}"></script>
     <script src="{{ asset('assets/js/pages/datatables.init.js') }}"></script>
     <script>
-        var no_reqskm = "{{ $no_reqskm }}";
+        var no_krmskm = "{{ $no_krmskm }}";
 
         $('#datatable').DataTable({
-            ajax: "{{ url('pengiriman/create') }}/" + no_reqskm,
+            ajax: "{{ url('penerimaan-barang/create') }}/" + no_krmskm,
             lengthMenu: [5],
             columns: [{
                     data: "brg_id"
@@ -44,7 +44,7 @@
     <div class="row">
         <div class="col-12">
             <div class="page-title-box d-sm-flex align-items-center justify-content-between">
-                <h4 class="mb-sm-0 font-size-18">Tambah Pengiriman</h4>
+                <h4 class="mb-sm-0 font-size-18">Penerimaan Barang</h4>
             </div>
         </div>
     </div>
@@ -80,7 +80,34 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                @foreach ($datas as $data)
+                                @foreach ($data_reqs as $data)
+                                    <tr>
+                                        <td>{{ $data->barang->nm_brg }}</td>
+                                        <td>{{ $data->qty }}</td>
+                                        <td>{{ $data->satuan_besar }}</td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-body">
+                    <h4 class="card-title mb-3">Data Pengiriman</h4>
+                    <div class="table-responsive">
+                        <table class="table align-middle table-nowrap">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Nama Barang</th>
+                                    <th>Qty</th>
+                                    <th>Satuan</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach ($data_krms as $data)
                                     <tr>
                                         <td>{{ $data->barang->nm_brg }}</td>
                                         <td>{{ $data->qty }}</td>
@@ -97,7 +124,7 @@
             <div class="card">
                 <div class="card-body">
                     <h5 class="card-title">Data Transaksi</h5>
-                    <form action="{{ route('pengiriman.store') }}" method="post" enctype="multipart/form-data">
+                    <form action="{{ route('penerimaan-barang.store') }}" method="post" enctype="multipart/form-data">
                         @csrf
                         {{-- <div class="form-group mt-3">
                             <label for="no_trm">No. Dokumen</label>
@@ -105,7 +132,12 @@
                                 required>
                         </div> --}}
                         <div class="form-group mt-3">
-                            <label for="tgl">No. Dokumen Permintaan SKM</label>
+                            <label for="no_krmskm">No. Dokumen Pengiriman Gudang Besar</label>
+                            <input type="text" name="no_krmskm" id="no_krmskm" class="form-control"
+                                value="{{ $no_krm }}" readonly>
+                        </div>
+                        <div class="form-group mt-3">
+                            <label for="no_reqskm">No. Dokumen Permintaan SKM</label>
                             <input type="text" name="no_reqskm" id="no_reqskm" class="form-control"
                                 value="{{ $no_req }}" readonly>
                         </div>

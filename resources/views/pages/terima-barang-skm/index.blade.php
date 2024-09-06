@@ -20,7 +20,7 @@
         $('#datatable').DataTable({
             ajax: "{{ route('penerimaan-barang') }}",
             columns: [{
-                    data: "id"
+                    data: "no_krmskm"
                 },
                 {
                     data: "tgl_krm",
@@ -35,7 +35,7 @@
                 {
                     data: "tgl_trm",
                     render: function(data) {
-                      if (!data) {
+                        if (!data) {
                             return '-';
                         }
                         return new Date(data).toLocaleDateString('id-ID', {
