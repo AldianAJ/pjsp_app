@@ -15,6 +15,12 @@ class DetailPengiriman extends Model
 
     public function pengiriman()
     {
-        return $this->belongsTo(Pengiriman::class, 'no_krmskm', 'no_krmskm');
+        return $this->belongsTo(Pengiriman::class, 'no_krmskm');
     }
+
+    public function barang()
+    {
+        return $this->belongsTo(Barang::class, 'brg_id');
+    }
+
 }

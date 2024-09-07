@@ -41,9 +41,6 @@
                     data: "satuan_kecil"
                 },
                 {
-                    data: "konversi3"
-                },
-                {
                     data: "action"
                 }
             ],
@@ -81,7 +78,6 @@
                                     <th>Satuan Besar</th>
                                     <th>Konversi</th>
                                     <th>Satuan Kecil</th>
-                                    <th>Konversi</th>
                                     <th>Action</th>
                                 </tr>
                             </thead>

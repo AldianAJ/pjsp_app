@@ -145,7 +145,7 @@ class PermintaanController extends Controller
             $pengirimans = Pengiriman::where('status', 0)->get();
             return DataTables::of($pengirimans)
                 ->addColumn('action', function ($object) use ($path) {
-                    $no = str_replace('/', '-', $object->id);
+                    $no = str_replace('/', '-', $object->no_krmskm);
                     return '<a href="' . route($path . "create", ["no_krmskm" => $no]) . '" class="btn btn-primary waves-effect waves-light mx-1">'
                         . '<i class="bx bx-transfer-alt align-middle me-2 font-size-18"></i> Proses</a>';
                 })
@@ -160,17 +160,8 @@ class PermintaanController extends Controller
     {
         $user = $this->userAuth();
         $no_krm = str_replace('-', '/', $no_krmskm);
-        $no_req = Permintaan::select('no_reqskm')->where('status', 0)->get();
 
-        $data_krms = DetailPengiriman::with('barang')
-            ->where('no_krmskm', $no_krm)
-            ->where('status', 0)
-            ->get();
-
-        $data_reqs = DetailPermintaan::with('barang')
-            ->where('no_reqskm')
-            ->where('status', 0)
-            ->get();
+        $no_req = DetailPengiriman::where('no_krmskm', $no_krm)->value('no_reqskm');
 
         $user_id = User::where('role', 'skm')->where('status', 0)->get();
 
@@ -178,11 +169,65 @@ class PermintaanController extends Controller
         $path = 'penerimaan-barang.create.';
 
         if ($request->ajax()) {
-            $barangs = Barang::where('status', 0)->get();
-            return DataTables::of($barangs)->make(true);
+            $type = $request->input('type');
+            
+            if ($type == 'data_reqs') {
+
+                $data_reqs = DB::table('tr_krmskm_detail as a')
+                    ->join('tr_reqskm_detail as b', 'a.no_reqskm', '=', 'b.no_reqskm')
+                    ->join('m_brg as c', 'b.brg_id', '=', 'c.brg_id')
+                    ->select('c.nm_brg', 'b.qty', 'b.satuan_besar')
+                    ->where('b.status', 1)
+                    ->where('no_krmskm', $no_krm)
+                    ->get();
+        
+                return DataTables::of($data_reqs)->make(true);
+        
+            } elseif ($type == 'data_krms') {
+
+                $data_krms = DetailPengiriman::with('barang')
+                    ->where('no_krmskm', $no_krm)
+                    ->where('status', 0)
+                    ->get();
+        
+                return DataTables::of($data_krms)->make(true);
+        
+            } elseif ($type == 'barang_krms') {
+
+                $barang_krms = DetailPengiriman::with('barang')
+                    ->where('no_krmskm', $no_krm)
+                    ->where('status', 0)
+                    ->get();
+        
+                return DataTables::of($barang_krms)
+                    ->addColumn('action', function ($object) {
+                        $html = '<div class="d-flex form-check font-size-18">
+                        <input type="checkbox" class="form-check-input check-barang" value="' . $object->biaya_pemesanan . '"></div>';
+                        return $html;
+                    })
+                    ->rawColumns(['action'])
+                    ->make(true);
+            } else {
+                return response()->json(['error' => 'Invalid type parameter'], 400);
+            }
         }
+        
+        return view('pages.terima-barang-skm.create', compact('user',   'no_krmskm', 'no_krm', 'no_req', 'gudang_id'));
+    }
+
+    public function storeTerima(Request $request)
+    {
+
+        $user_id = $request->user_id;
+
+        Pengiriman::create([
+            'tgl_trm' => $request->tgl_trm,
+            'user_id' => $user_id,
+        ]);
+
+        DetailPengiriman::create([]);
 
 
-        return view('pages.terima-barang-skm.create', compact('user', 'datas', 'no_reqskm', 'no_req', 'gudang_id'));
+        return redirect()->route('penerimaan-barang')->with('success', 'Data penerimaan barang berhasil ditambahkan.');
     }
 }

@@ -63,7 +63,6 @@ class BarangController extends Controller
             'satuan_besar' => 'required|string|max:10',
             'konversi2' => 'required|integer',
             'satuan_kecil' => 'required|string|max:10',
-            'konversi3' => 'required|integer',
         ]);
 
         Barang::create([
@@ -75,7 +74,6 @@ class BarangController extends Controller
             'satuan_besar' => $request->satuan_besar,
             'konversi2' => $request->konversi2,
             'satuan_kecil' => $request->satuan_kecil,
-            'konversi3' => $request->konversi3,
         ]);
 
         return redirect()->route('barang')->with('success', 'Data barang berhasil ditambahkan.');
@@ -112,7 +110,6 @@ class BarangController extends Controller
             'satuan_besar' => 'required|string|max:10',
             'konversi2' => 'required|integer',
             'satuan_kecil' => 'required|string|max:10',
-            'konversi3' => 'required|integer',
         ]);
 
         $barang = Barang::where('brg_id', $brg_id)->first();
@@ -124,7 +121,6 @@ class BarangController extends Controller
             'satuan_besar' => $request->satuan_besar,
             'konversi2' => $request->konversi2,
             'satuan_kecil' => $request->satuan_kecil,
-            'konversi3' => $request->konversi3,
         ]);
 
         return redirect()->route('barang')->with('success', 'Data barang berhasil diperbarui.');

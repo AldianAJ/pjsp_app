@@ -10,12 +10,7 @@ class Pengiriman extends Model
     use HasFactory;
 
     protected $table = 'tr_krmskm';
-    protected $primaryKey = 'no_krmskm';
-    public $incrementing = false;
-
-    protected $fillable = [
-        'no_krmskm', 'tgl_krm','tgl_trm','gudang_id'
-    ];
+    protected $guarded = [];
 
     
 }

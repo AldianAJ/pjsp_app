@@ -11,12 +11,7 @@ class SKM extends Model
     use HasFactory;
 
     protected $table = 'm_skm';
-    protected $primaryKey = 'skm_id';
-    public $incrementing = false;
-
-    protected $fillable = [
-        'skm_id', 'user_id', 'address', 'status'
-    ];
+    protected $guarded = [];
 
     public static function generateSkmId()
     {

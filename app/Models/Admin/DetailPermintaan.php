@@ -14,6 +14,6 @@ class DetailPermintaan extends Model
 
     public function barang()
     {
-        return $this->belongsTo(Barang::class, 'brg_id', 'brg_id');
+        return $this->belongsTo(Barang::class, 'brg_id');
     }
 }

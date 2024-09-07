@@ -15,24 +15,64 @@
         var no_krmskm = "{{ $no_krmskm }}";
 
         $('#datatable').DataTable({
-            ajax: "{{ url('penerimaan-barang/create') }}/" + no_krmskm,
+            ajax: {
+                url: "{{ url('penerimaan-barang/create') }}/" + no_krmskm,
+                data: {
+                    type: 'barang_krms'
+                }
+            },
             lengthMenu: [5],
             columns: [{
-                    data: "brg_id"
+                    data: "barang.nm_brg"
                 },
                 {
-                    data: "nm_brg"
+                    data: "qty"
                 },
                 {
                     data: "satuan_besar"
                 },
                 {
-                    data: null,
-                    render: function(data, type, row) {
-                        return `<button type="button" class="btn btn-primary btn-sm" onclick="showModal('${row.brg_id}', '${row.nm_brg}', '${row.satuan_besar}')">
-                            <i class="fas fa-plus"></i>
-                        </button>`;
-                    },
+                    data: "action"
+                }
+            ],
+        });
+
+        $('#datatable-minta').DataTable({
+            ajax: {
+                url: "{{ url('penerimaan-barang/create') }}/" + no_krmskm,
+                data: {
+                    type: 'data_reqs'
+                }
+            },
+            lengthMenu: [5],
+            columns: [{
+                    data: "nm_brg"
+                },
+                {
+                    data: "qty"
+                },
+                {
+                    data: "satuan_besar"
+                }
+            ],
+        });
+
+        $('#datatable-kirim').DataTable({
+            ajax: {
+                url: "{{ url('penerimaan-barang/create') }}/" + no_krmskm,
+                data: {
+                    type: 'data_krms'
+                }
+            },
+            lengthMenu: [5],
+            columns: [{
+                    data: "barang.nm_brg"
+                },
+                {
+                    data: "qty"
+                },
+                {
+                    data: "satuan_besar"
                 }
             ],
         });
@@ -66,61 +106,7 @@
     </div>
 
     <div class="row">
-        <div class="col-md-6">
-            <div class="card">
-                <div class="card-body">
-                    <h4 class="card-title mb-3">Data Permintaan</h4>
-                    <div class="table-responsive">
-                        <table class="table align-middle table-nowrap">
-                            <thead class="table-light">
-                                <tr>
-                                    <th>Nama Barang</th>
-                                    <th>Qty</th>
-                                    <th>Satuan</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach ($data_reqs as $data)
-                                    <tr>
-                                        <td>{{ $data->barang->nm_brg }}</td>
-                                        <td>{{ $data->qty }}</td>
-                                        <td>{{ $data->satuan_besar }}</td>
-                                    </tr>
-                                @endforeach
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-6">
-            <div class="card">
-                <div class="card-body">
-                    <h4 class="card-title mb-3">Data Pengiriman</h4>
-                    <div class="table-responsive">
-                        <table class="table align-middle table-nowrap">
-                            <thead class="table-light">
-                                <tr>
-                                    <th>Nama Barang</th>
-                                    <th>Qty</th>
-                                    <th>Satuan</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach ($data_krms as $data)
-                                    <tr>
-                                        <td>{{ $data->barang->nm_brg }}</td>
-                                        <td>{{ $data->qty }}</td>
-                                        <td>{{ $data->satuan_besar }}</td>
-                                    </tr>
-                                @endforeach
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-6">
+        <div class="col-md-12">
             <div class="card">
                 <div class="card-body">
                     <h5 class="card-title">Data Transaksi</h5>
@@ -142,34 +128,31 @@
                                 value="{{ $no_req }}" readonly>
                         </div>
                         <div class="form-group mt-3">
-                            <label for="tgl">Tanggal</label>
+                            <label for="tgl">Tanggal Penerimaan</label>
                             <input type="date" class="form-control" name="tgl"
                                 value="{{ old('tgl', \Carbon\Carbon::now()->format('Y-m-d')) }}" required readonly>
                         </div>
                         <div id="items-container"></div> <!-- Container for items input fields -->
                         <div class="d-flex justify-content-end mt-3">
-                            <button type="submit" class="btn btn-success">Simpan</button>
+                            <button type="submit" class="btn btn-primary">Simpan</button>
                         </div>
                     </form>
                 </div>
             </div>
         </div>
     </div>
-
     <div class="row">
         <div class="col-md-6">
-            <!-- Data Barang Table -->
             <div class="card">
                 <div class="card-body">
-                    <h4 class="card-title mb-3">Data Barang</h4>
+                    <h4 class="card-title mb-3">Data Permintaan</h4>
                     <div class="table-responsive">
-                        <table id="datatable" class="table align-middle table-nowrap">
+                        <table id="datatable-minta" class="table align-middle table-nowrap">
                             <thead class="table-light">
                                 <tr>
-                                    <th>ID Barang</th>
                                     <th>Nama Barang</th>
+                                    <th>Qty</th>
                                     <th>Satuan</th>
-                                    <th style="text-align: center;">Action</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -179,60 +162,52 @@
                 </div>
             </div>
         </div>
-
         <div class="col-md-6">
             <div class="card">
                 <div class="card-body">
-                    <h5 class="card-title">List Pengiriman</h5>
-                    <table class="table table-striped" id="selected-items-table">
-                        <thead>
-                            <tr>
-                                <th>No</th>
-                                <th>Nama Barang</th>
-                                <th>Jumlah</th>
-                                <th>Action</th>
-                            </tr>
-                        </thead>
-                        <tbody id="selected-items">
-                        </tbody>
-                    </table>
+                    <h4 class="card-title mb-3">Data Pengiriman</h4>
+                    <div class="table-responsive">
+                        <table id="datatable-kirim" class="table align-middle table-nowrap">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Nama Barang</th>
+                                    <th>Qty</th>
+                                    <th>Satuan</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Modal for Input Quantity -->
-    <div class="modal fade" id="qtyModal" tabindex="-1" role="dialog" aria-labelledby="qtyModalLabel" aria-hidden="true">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="qtyModalLabel">Input Quantity</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <form id="qtyForm">
-                        <input type="hidden" id="modal-brg-id">
-                        <div class="form-group">
-                            <label for="modal-nm-brg">Nama Barang</label>
-                            <input type="text" class="form-control" id="modal-nm-brg" readonly>
-                        </div>
-                        <div class="form-group mt-3">
-                            <label for="modal-qty">Jumlah</label>
-                            <input type="number" class="form-control" id="modal-qty" required>
-                        </div>
-                        <div class="form-group mt-3">
-                            <label for="modal-satuan-kecil">Satuan</label>
-                            <input type="text" class="form-control" id="modal-satuan-kecil" readonly>
-                        </div>
-                    </form>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-primary" data-bs-dismiss="modal"
-                        onclick="addItem()">Tambah</button>
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-body">
+                    <h4 class="card-title mb-3">Data Penerimaan</h4>
+                    <div class="table-responsive">
+                        <table id="datatable" class="table align-middle table-nowrap">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Nama Barang</th>
+                                    <th>Qty</th>
+                                    <th>Satuan</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
+
 
 
     <script>

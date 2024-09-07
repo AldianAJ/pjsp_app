@@ -10,13 +10,7 @@ class Gudang extends Model
     use HasFactory;
 
     protected $table = 'm_gudang';
-    protected $primaryKey = 'gudang_id';
-    public $incrementing = false;
-
-    protected $fillable = [
-        'gudang_id',
-        'address',
-    ];
+    protected $guarded = [];
 
     public static function generateGudangId()
     {

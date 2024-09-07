@@ -125,17 +125,6 @@
                             </div>
                         </div>
 
-                        <div class="mt-4 mb-3 row">
-                            <label for="konversi3" class="col-md-2 col-form-label font-size-14">Konversi 3</label>
-                            <div class="col-md">
-                                <input type="text" name="konversi3" id="konversi3" class="form-control"
-                                    value="{{ $data->konversi3 }}">
-                                @error('konversi3')
-                                    <p class="text-danger font-size-12 font-weight-bold">{{ $message }}</p>
-                                @enderror
-                            </div>
-                        </div>
-
                         <div class="mt-4 mb-3 d-flex justify-content-end">
                             <a href="{{ route('barang') }}" class="btn btn-secondary font-size-14 mx-1"> <i
                                     class="bx bx-caret-left align-middle me-2 font-size-18"></i>Kembali</a>
