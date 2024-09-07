@@ -76,6 +76,15 @@
                 }
             ],
         });
+
+        $('#datatable-check').on('click', '.check-barang', function(e) {
+            if ($(this).prop('checked') == true) {
+                biaya += parseInt($(this).val());
+            } else {
+                biaya -= parseInt($(this).val());
+            }
+            $('#biaya').text(rupiah(biaya));
+        });
     </script>
 @endpush
 
@@ -128,9 +137,9 @@
                                 value="{{ $no_req }}" readonly>
                         </div>
                         <div class="form-group mt-3">
-                            <label for="tgl">Tanggal Penerimaan</label>
-                            <input type="date" class="form-control" name="tgl"
-                                value="{{ old('tgl', \Carbon\Carbon::now()->format('Y-m-d')) }}" required readonly>
+                            <label for="tgl_trm">Tanggal Penerimaan</label>
+                            <input type="date" class="form-control" name="tgl_trm"
+                                value="{{ old('tgl_trm', \Carbon\Carbon::now()->format('Y-m-d')) }}" required readonly>
                         </div>
                         <div id="items-container"></div> <!-- Container for items input fields -->
                         <div class="d-flex justify-content-end mt-3">
@@ -190,7 +199,7 @@
                 <div class="card-body">
                     <h4 class="card-title mb-3">Data Penerimaan</h4>
                     <div class="table-responsive">
-                        <table id="datatable" class="table align-middle table-nowrap">
+                        <table id="datatable-check" class="table align-middle table-nowrap">
                             <thead class="table-light">
                                 <tr>
                                     <th>Nama Barang</th>
@@ -207,70 +216,5 @@
             </div>
         </div>
     </div>
-
-
-
-    <script>
-        let selectedItems = [];
-
-        function showModal(brg_id, nm_brg, satuan_besar) {
-            const modal = document.getElementById('qtyModal');
-            document.getElementById('modal-brg-id').value = brg_id;
-            document.getElementById('modal-nm-brg').value = nm_brg;
-            document.getElementById('modal-satuan-kecil').value = satuan_besar;
-            document.getElementById('modal-qty').value = '';
-            new bootstrap.Modal(modal).show();
-        }
-
-        function addItem() {
-            const brg_id = document.getElementById('modal-brg-id').value;
-            const nm_brg = document.getElementById('modal-nm-brg').value;
-            const qty = parseFloat(document.getElementById('modal-qty').value);
-            const satuan_besar = document.getElementById('modal-satuan-kecil').value;
-
-            if (qty <= 0) {
-                alert('Jumlah harus lebih dari 0');
-                return;
-            }
-
-            selectedItems.push({
-                brg_id,
-                nm_brg,
-                qty,
-                satuan_besar,
-            });
-            updateItems();
-        }
-
-        function removeItem(index) {
-            selectedItems.splice(index, 1);
-            updateItems();
-        }
-
-        function updateItems() {
-            const itemsTable = document.getElementById('selected-items');
-            const itemsContainer = document.getElementById('items-container');
-
-            itemsTable.innerHTML = selectedItems.map((item, index) => `
-                <tr>
-                    <td>${index + 1}</td>
-                    <td>${item.nm_brg}</td>
-                    <td>${item.qty}</td>
-                    <td>
-                        <button type="button" class="btn btn-danger btn-sm" onclick="removeItem(${index})">
-                            <i class="fas fa-trash-alt"></i>
-                        </button>
-                    </td>
-                </tr>
-            `).join('');
-
-            itemsContainer.innerHTML = selectedItems.map((item, index) => `
-                <input type="hidden" name="items[${index}][brg_id]" value="${item.brg_id}">
-                <input type="hidden" name="items[${index}][qty]" value="${item.qty}">
-                <input type="hidden" name="items[${index}][satuan_besar]" value="${item.satuan_besar}">
-            `).join('');
-        }
-    </script>
-
 
 @endsection

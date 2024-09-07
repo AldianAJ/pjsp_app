@@ -215,17 +215,21 @@ class PermintaanController extends Controller
         return view('pages.terima-barang-skm.create', compact('user',   'no_krmskm', 'no_krm', 'no_req', 'gudang_id'));
     }
 
-    public function storeTerima(Request $request)
+    public function storeTerima(Request $request, Request $no_krmskm)
     {
 
         $user_id = $request->user_id;
+        $check_barang = $request->barang;
 
         Pengiriman::create([
             'tgl_trm' => $request->tgl_trm,
             'user_id' => $user_id,
         ]);
 
-        DetailPengiriman::create([]);
+        $no_krmskms = DetailPengiriman::where('no_krmskm', $no_krmskm)->first();
+        $no_krmskms -> update([
+            'diterima' => 0,
+        ]);
 
 
         return redirect()->route('penerimaan-barang')->with('success', 'Data penerimaan barang berhasil ditambahkan.');

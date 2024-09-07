@@ -15,19 +15,6 @@ class Barang extends Model
 
     protected $guarded = [];
 
-    /**
-     * Generate a new Barang ID in an Eloquent way.
-     *
-     * @return string
-     */
-    public static function generateBarangId()
-    {
-        $maxId = self::max('brg_id');
-
-        $numericPart = intval(str_replace('B', '', $maxId)) + 1;
-
-        return 'B' . str_pad($numericPart, 4, '0', STR_PAD_LEFT);
-    }
 
     public function detailPermintaan()
     {

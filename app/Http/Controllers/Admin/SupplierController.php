@@ -31,7 +31,7 @@ class SupplierController extends Controller
     public function create()
     {
         $user = $this->userAuth();
-        $supplier_id = Supplier::generateSupplierId();
+        $supplier_id = 'S' . str_pad(Supplier::count() + 1, 3, '0', STR_PAD_LEFT);
         return view('pages.supplier.create', compact('supplier_id', 'user'));
     }
 
