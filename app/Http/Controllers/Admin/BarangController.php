@@ -44,7 +44,7 @@ class BarangController extends Controller
     public function create()
     {
         $user = $this->userAuth();
-        $barang_id = Barang::generateBarangId();
+        $barang_id = 'B' . str_pad(Barang::count() + 1, 3, '0', STR_PAD_LEFT);
         $suppliers = Supplier::where('status', 0)->get();
         return view('pages.barang.create', compact('barang_id', 'user', 'suppliers'));
     }

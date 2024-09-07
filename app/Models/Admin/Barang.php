@@ -10,6 +10,9 @@ class Barang extends Model
     use HasFactory;
 
     protected $table = 'm_brg';
+    protected $primaryKey = 'brg_id';
+    public $incrementing = false;
+
     protected $guarded = [];
 
     /**
