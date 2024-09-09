@@ -19,9 +19,7 @@ Target Mingguan
 <script>
     $('#datatable').DataTable({
             ajax: "{{ route('kinerja-minggu') }}",
-            columns: [{
-                    data: "week_id"
-                },
+            columns: [
                 {
                     data: "tahun"
                 },
@@ -70,7 +68,6 @@ Target Mingguan
                     <table id="datatable" class="table align-middle table-nowrap">
                         <thead class="table-light">
                             <tr>
-                                <th>Id</th>
                                 <th>Tahun</th>
                                 <th>Minggu</th>
                                 <th>Barang</th>
