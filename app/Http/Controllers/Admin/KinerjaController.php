@@ -2,23 +2,24 @@
 
 namespace App\Http\Controllers\Admin;
 
-use Carbon\Carbon;
+use App\Http\Controllers\Controller;
 use App\Models\Admin\Barang;
 use App\Models\Admin\Harian;
-use Illuminate\Http\Request;
-use App\Models\Admin\Mingguan;
-use Yajra\DataTables\DataTables;
-use App\Http\Controllers\Controller;
 use App\Models\Admin\Mesin;
+use App\Models\Admin\Mingguan;
 use App\Models\Admin\Shift;
 use App\Models\Admin\TargetMesin;
+use Carbon\Carbon;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Yajra\DataTables\DataTables;
 
 class KinerjaController extends Controller
 {
     public function userAuth()
     {
         $user = Auth::guard('user')->user();
+
         return $user;
     }
 
@@ -28,19 +29,50 @@ class KinerjaController extends Controller
     public function index(Request $request)
     {
         $user = $this->userAuth();
+
+        $tahun = date('Y'); // Atau ganti dengan tahun tertentu, misalnya '2024'
+        $mingguList = [];
+        $tahunList = [];
+
+        $tanggal = Carbon::now()->setISODate($tahun, 1);
+
+        for ($minggu = 1; $minggu <= 53; $minggu++) {
+            if ($tanggal->year != $tahun) {
+                break;
+            }
+
+            $mingguList[] = [
+                'minggu' => $minggu,
+                'tanggal' => $tanggal->startOfWeek()->format('Y-m-d'),
+            ];
+
+            $tanggal->addWeek();
+        }
+
         $path = 'kinerja-minggu.';
         if ($request->ajax()) {
-            $targetMinggu = Mingguan::with('barang')->orderby('week_id', 'desc')->get();
+            $targetMinggu = Mingguan::with('barang')->orderby('week_id', 'desc');
+            if ($request->has('tahun') && $request->tahun != '') {
+                $targetMinggu->where('tahun', $request->tahun);
+            }
+
+            if ($request->has('week') && $request->week != '') {
+                $targetMinggu->whereBetween('WEEK', [$request->week - 4, $request->week]);
+            }
+            $targetMinggu->get();
+
             return DataTables::of($targetMinggu)
                 ->addColumn('action', function ($object) use ($path) {
-                    $html = '<a href="' . route($path . "edit", ["supplier_id" => $object->week_id]) . '" class="btn btn-secondary waves-effect waves-light">'
+                    $html = '<a href="' . route($path . 'edit', ['supplier_id' => $object->week_id]) . '" class="btn btn-secondary waves-effect waves-light">'
                         . ' <i class="bx bx-edit align-middle me-2 font-size-18"></i> Edit</a>';
+
                     return $html;
                 })
                 ->rawColumns(['action'])
                 ->make(true);
         }
-        return view('pages.kinerja-week.index', compact('user'));
+
+        return view('pages.kinerja-week.index', compact('user', 'mingguList'));
     }
 
     /**
@@ -63,7 +95,7 @@ class KinerjaController extends Controller
 
             $mingguList[] = [
                 'minggu' => $minggu,
-                'tanggal' => $tanggal->startOfWeek()->format('Y-m-d')
+                'tanggal' => $tanggal->startOfWeek()->format('Y-m-d'),
             ];
 
             $tanggal->addWeek();
@@ -72,8 +104,9 @@ class KinerjaController extends Controller
         $path = 'kinerja-minggu.create.';
         if ($request->ajax()) {
             $barangs = Barang::where('status', 0)->get();
+
             return DataTables::of($barangs)
-                ->addColumn('action', function ($object) use ($path) {
+                ->addColumn('action', function ($object) {
                     // $html = '<div class="d-flex justify-content-center"><button class="btn btn-primary waves-effect waves-light btn-add" data-bs-toggle="modal"' .
                     //         'data-bs-target="#qtyModal"><i class="bx bx-plus-circle align-middle font-size-18"></i></button></div>';
                     //     return $html;
@@ -81,6 +114,7 @@ class KinerjaController extends Controller
                 ->rawColumns(['action'])
                 ->make(true);
         }
+
         return view('pages.kinerja-week.create', compact('user', 'mingguList', 'barangs'));
     }
 
@@ -96,6 +130,7 @@ class KinerjaController extends Controller
                 'qty' => $item['qty'],
             ]);
         }
+
         return redirect()->route('kinerja-minggu')->with('success', 'Data target mingguan berhasil ditambahkan.');
     }
 
@@ -105,19 +140,50 @@ class KinerjaController extends Controller
     public function indexhari(Request $request)
     {
         $user = $this->userAuth();
+
+        $tahun = date('Y'); // Atau ganti dengan tahun tertentu, misalnya '2024'
+        $mingguList = [];
+        $tahunList = [];
+
+        $tanggal = Carbon::now()->setISODate($tahun, 1);
+
+        for ($minggu = 1; $minggu <= 53; $minggu++) {
+            if ($tanggal->year != $tahun) {
+                break;
+            }
+
+            $mingguList[] = [
+                'minggu' => $minggu,
+                'tanggal' => $tanggal->startOfWeek()->format('Y-m-d'),
+            ];
+
+            $tanggal->addWeek();
+        }
+
         $path = 'kinerja-hari.';
         if ($request->ajax()) {
-            $targetMinggu = Mingguan::with('barang')->orderby('week_id', 'asc')->get();
+            $targetMinggu = Mingguan::with('barang')->orderby('week_id', 'asc');
+            if ($request->has('tahun') && $request->tahun != '') {
+                $targetMinggu->where('tahun', $request->tahun);
+            }
+
+            if ($request->has('week') && $request->week != '') {
+                $targetMinggu->whereBetween('WEEK', [$request->week - 4, $request->week]);
+            }
+            $targetMinggu->get();
+
             return DataTables::of($targetMinggu)
-                ->addColumn('action', function ($object) use ($path) {
+                ->addColumn('action', function ($object) {
                     $html = '<button class="btn btn-primary btn-edit waves-effect waves-light me-1" data-week-id="' . $object->week_id . '">'
-                        . '<i class="bx bx-edit align-middle me-2 font-size-18"></i> Proses</button>';
+                        . '<i class="bx bx-transfer-alt align-middle me-2 font-size-18"></i> Proses</button>';
+
                     return $html;
                 })
                 ->rawColumns(['action'])
                 ->make(true);
         }
-        return view('pages.kinerja-hari.index', compact('user'));
+
+        return view('pages.kinerja-hari.index', compact('user', 'mingguList'));
     }
 
     public function detailhari(Request $request)
@@ -126,17 +192,19 @@ class KinerjaController extends Controller
         $path = 'kinerja-shift.';
         if ($request->ajax()) {
             $targetHari = Harian::with('targetWeek.barang')->where('week_id', $request->week_id)->get();
+
             return DataTables::of($targetHari)
-                ->addColumn('action', function ($object) use ($path) {
+                ->addColumn('action', function ($object) {
                     $html = '<button class="btn btn-primary btn-shift waves-effect waves-light me-1" data-harian-id="' . $object->harian_id . '">'
-                        . '<i class="bx bx-edit align-middle me-2 font-size-18"></i> Proses</button>';
+                        . '<i class="bx bx-transfer-alt align-middle me-2 font-size-18"></i> Proses</button>';
+
                     return $html;
                 })
                 ->rawColumns(['action'])
                 ->make(true);
         }
+
         return view('pages.kinerja-hari.detail', compact('user'));
-        // return view('pages.kinerja-shift.index', compact('user'));
     }
 
     /**
@@ -174,8 +242,7 @@ class KinerjaController extends Controller
             $sisaBerhasil = $weeklyTarget->qty - $totalHarian;
 
             if ($totalHarian > $weeklyTarget->qty) {
-                // return redirect()->route('kinerja-hari')->with('error', 'Target harian melebihi batas target mingguan. Sisa target harian : ' . $sisa);
-                return response()->json(['success' => false, 'message' => 'Target harian melebihi batas target mingguan. Sisa target harian : ' . $sisa], 200);
+                return response()->json(['success' => false, 'message' => 'Target melebihi target mingguan. Sisa target harian : ' . $sisa], 200);
             }
         }
 
@@ -185,8 +252,8 @@ class KinerjaController extends Controller
             'tgl' => $request->tgl,
             'qty' => $request->qty,
         ]);
-        // return redirect()->route('kinerja-hari')->with('success', 'Data target harian berhasil ditambahkan. Sisa target harian : ' . $sisa);
-        return response()->json(['success' => true, 'message' => 'Data target harian berhasil ditambahkan. Sisa target harian : ' . $sisaBerhasil], 200);
+
+        return response()->json(['success' => true, 'message' => 'Target harian berhasil ditambahkan. Sisa target harian : ' . $sisaBerhasil], 200);
     }
 
     /**
@@ -198,17 +265,20 @@ class KinerjaController extends Controller
         $path = 'kinerja-shift.';
         if ($request->ajax()) {
             $targetMinggu = Harian::with('targetWeek.barang')->get();
+
             return DataTables::of($targetMinggu)
                 ->addColumn('action', function ($object) use ($path) {
-                    $html = '<a href="' . route($path . "create", ["harian_id" => $object->harian_id]) . '" class="btn btn-primary waves-effect waves-light me-1">'
+                    $html = '<a href="' . route($path . 'create', ['harian_id' => $object->harian_id]) . '" class="btn btn-primary waves-effect waves-light me-1">'
                         . ' <i class="bx bx-edit align-middle me-2 font-size-18"></i> Proses</a>'
-                        . '<a href="' . route($path . "detail", ["harian_id" => $object->harian_id]) . '" class="btn btn-secondary waves-effect waves-light">'
+                        . '<a href="' . route($path . 'detail', ['harian_id' => $object->harian_id]) . '" class="btn btn-secondary waves-effect waves-light">'
                         . ' <i class="bx bx-edit align-middle me-2 font-size-18"></i> Detail</a>';
+
                     return $html;
                 })
                 ->rawColumns(['action'])
                 ->make(true);
         }
+
         return view('pages.kinerja-shift.index', compact('user'));
     }
 
@@ -217,9 +287,11 @@ class KinerjaController extends Controller
         $user = $this->userAuth();
         if ($request->ajax()) {
             $targetShift = Shift::with('targetHari.targetWeek.barang')->where('harian_id', $request->harian_id)->get();
+
             return DataTables::of($targetShift)
                 ->make(true);
         }
+
         return view('pages.kinerja-shift.detail', compact('user'));
     }
 
@@ -262,6 +334,7 @@ class KinerjaController extends Controller
             'shift' => $request->shift,
             'qty' => $request->qty,
         ]);
+
         return response()->json(['success' => true, 'message' => 'Data target shift berhasil ditambahkan. Sisa target shift : ' . $sisaBerhasil], 200);
     }
 
@@ -274,17 +347,20 @@ class KinerjaController extends Controller
         $path = 'kinerja-mesin.';
         if ($request->ajax()) {
             $targetMinggu = Shift::with('targetHari.targetWeek.barang')->get();
+
             return DataTables::of($targetMinggu)
                 ->addColumn('action', function ($object) use ($path) {
-                    $html = '<a href="' . route($path . "create", ["shift_id" => $object->shift_id]) . '" class="btn btn-primary waves-effect waves-light me-1">'
+                    $html = '<a href="' . route($path . 'create', ['shift_id' => $object->shift_id]) . '" class="btn btn-primary waves-effect waves-light me-1">'
                         . ' <i class="bx bx-edit align-middle me-2 font-size-18"></i> Proses</a>'
-                        . '<a href="' . route($path . "detail", ["shift_id" => $object->shift_id]) . '" class="btn btn-secondary waves-effect waves-light">'
+                        . '<a href="' . route($path . 'detail', ['shift_id' => $object->shift_id]) . '" class="btn btn-secondary waves-effect waves-light">'
                         . ' <i class="bx bx-edit align-middle me-2 font-size-18"></i> Detail</a>';
+
                     return $html;
                 })
                 ->rawColumns(['action'])
                 ->make(true);
         }
+
         return view('pages.kinerja-mesin.index', compact('user'));
     }
 
@@ -293,9 +369,11 @@ class KinerjaController extends Controller
         $user = $this->userAuth();
         if ($request->ajax()) {
             $targetMesin = TargetMesin::with('targetShift.targetHari.targetWeek.barang')->with('mesin')->where('shift_id', $request->shift_id)->get();
+
             return DataTables::of($targetMesin)
                 ->make(true);
         }
+
         return view('pages.kinerja-mesin.detail', compact('user'));
     }
 
@@ -308,19 +386,12 @@ class KinerjaController extends Controller
         $shifts = Shift::where('shift_id', $request->shift_id)->get();
         $mesins = Mesin::where('status', 0)->get();
 
-        return view('pages.kinerja-mesin.create', compact('user', 'shifts', 'mesins',));
+        return view('pages.kinerja-mesin.create', compact('user', 'shifts', 'mesins'));
     }
 
     public function storemesin(Request $request)
     {
-
         $mesin_id = $request->shift_id . '/' . str_pad(TargetMesin::where('shift_id', $request->shift_id)->count() + 1, 3, '0', STR_PAD_LEFT);
-
-        // $cek = TargetMesin::where('shift_id', $request->shift_id)->where('shift_id', $request->shift_id)->get();
-
-        // if ($cek->count() > 0) {
-        //     return redirect()->route('kinerja-mesin')->with('error', 'Data target mesin sudah ada.');
-        // }
 
         TargetMesin::create([
             'msn_trgt_id' => $mesin_id,
@@ -328,6 +399,7 @@ class KinerjaController extends Controller
             'mesin_id' => $request->mesin_id,
             'qty' => $request->qty,
         ]);
+
         return redirect()->route('kinerja-mesin')->with('success', 'Data target mesin berhasil ditambahkan.');
     }
 }
