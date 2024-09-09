@@ -128,10 +128,8 @@ class KinerjaController extends Controller
             $targetHari = Harian::with('targetWeek.barang')->where('week_id', $request->week_id)->get();
             return DataTables::of($targetHari)
                 ->addColumn('action', function ($object) use ($path) {
-                    $html = '<button class="btn btn-primary btn-edit waves-effect waves-light me-1" data-harian-id="' . $object->harian_id . '">'
-                        . '<i class="bx bx-edit align-middle me-2 font-size-18"></i> Proses</button>'
-                        . '<button class="btn btn-secondary btn-detail waves-effect waves-light me-1" data-harian-id="' . $object->harian_id . '">'
-                        . ' <i class="bx bx-edit align-middle me-2 font-size-18"></i> Detail</button>';
+                    $html = '<button class="btn btn-primary btn-shift waves-effect waves-light me-1" data-harian-id="' . $object->harian_id . '">'
+                        . '<i class="bx bx-edit align-middle me-2 font-size-18"></i> Proses</button>';
                     return $html;
                 })
                 ->rawColumns(['action'])
@@ -173,6 +171,7 @@ class KinerjaController extends Controller
             $totalHarian = $weeklyTarget->targetHari()->where('week_id', $request->week_id)->sum('qty');
             $sisa = $weeklyTarget->qty - $totalHarian;
             $totalHarian += $request->qty;
+            $sisaBerhasil = $weeklyTarget->qty - $totalHarian;
 
             if ($totalHarian > $weeklyTarget->qty) {
                 // return redirect()->route('kinerja-hari')->with('error', 'Target harian melebihi batas target mingguan. Sisa target harian : ' . $sisa);
@@ -187,7 +186,7 @@ class KinerjaController extends Controller
             'qty' => $request->qty,
         ]);
         // return redirect()->route('kinerja-hari')->with('success', 'Data target harian berhasil ditambahkan. Sisa target harian : ' . $sisa);
-        return response()->json(['success' => true, 'message' => 'Data target harian berhasil ditambahkan. Sisa target harian : ' . $sisa], 200);
+        return response()->json(['success' => true, 'message' => 'Data target harian berhasil ditambahkan. Sisa target harian : ' . $sisaBerhasil], 200);
     }
 
     /**
@@ -242,7 +241,7 @@ class KinerjaController extends Controller
         $cek = Shift::where('harian_id', $request->harian_id)->where('shift', $request->shift)->get();
 
         if ($cek->count() > 0) {
-            return redirect()->route('kinerja-shift')->with('error', 'Data target shift ' . $request->shift . ' sudah ada.');
+            return response()->json(['success' => false, 'message' => 'Data target shift ' . $request->shift . ' sudah ada.'], 200);
         }
 
         // dd($request->harian_id);
@@ -251,9 +250,10 @@ class KinerjaController extends Controller
         $totalShift = $dailyTarget->targetShift()->where('harian_id', $request->harian_id)->sum('qty');
         $sisa = $dailyTarget->qty - $totalShift;
         $totalShift += $request->qty;
+        $sisaBerhasil = $dailyTarget->qty - $totalShift;
 
         if ($totalShift > $dailyTarget->qty) {
-            return redirect()->route('kinerja-shift')->with('error', 'Target shift melebihi batas target harian. Sisa target shift : ' . $sisa);
+            return response()->json(['success' => false, 'message' => 'Target shift melebihi batas target mingguan. Sisa target shift : ' . $sisa], 200);
         }
 
         Shift::create([
@@ -262,7 +262,7 @@ class KinerjaController extends Controller
             'shift' => $request->shift,
             'qty' => $request->qty,
         ]);
-        return redirect()->route('kinerja-shift')->with('success', 'Data target shift berhasil ditambahkan. Sisa target shift : ' . $sisa);
+        return response()->json(['success' => true, 'message' => 'Data target shift berhasil ditambahkan. Sisa target shift : ' . $sisaBerhasil], 200);
     }
 
     /**

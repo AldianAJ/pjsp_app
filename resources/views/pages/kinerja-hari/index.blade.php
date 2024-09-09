@@ -38,9 +38,9 @@ Target Harian
                 }
             ],
             autoWidth: false
-        });
+    });
 
-        $('#datatableDetail').DataTable({
+    $('#datatableDetail').DataTable({
             ajax:{
                     url: "{{ route('kinerja-hari.detail') }}",
                     type: "GET",
@@ -72,31 +72,75 @@ Target Harian
             footerCallback: function (row, data, start, end, display) {
                 var api = this.api();
                 var totalQty = api.column(2).data().reduce((a, b) => a + b, 0);
-                $(api.column(1).footer()).html(totalQty);
+                $(api.column(3).footer()).html(totalQty);
             },
             autoWidth: false
-        });
+    });
 
-    $('#datatable').on('click', '.btn-edit, .btn-detail', function() {
+    $('#datatableShiftDetail').DataTable({
+            ajax:{
+                    url: "{{ route('kinerja-shift.detail') }}",
+                    type: "GET",
+                    data: function(d) {
+                        d.harian_id = window.currentHarianId; // Use the current week_id
+                    }
+                },
+            columns: [{
+                    data: "shift_id"
+                },
+                {
+                    data: "target_hari.target_week.barang.nm_brg"
+                },
+                {
+                    data: "shift"
+                },
+                {
+                    data: "qty"
+                }
+            ],
+            footerCallback: function (row, data, start, end, display) {
+                var api = this.api();
+                var totalQty = api.column(3).data().reduce((a, b) => a + b, 0);
+                $(api.column(3).footer()).html(totalQty);
+            },
+            autoWidth: false
+    });
+
+
+    $('#datatable').on('click', '.btn-edit', function() {
         const weekId = $(this).data('week-id');
+        const row = $(this).closest('tr');
+        const data = $('#datatable').DataTable().row(row).data();
+        console.log(data);
+        const name = data.barang.nm_brg;
+        const details = data.qty;
         if ($(this).hasClass('btn-edit')) {
             $('#week_id').val(weekId);
+            window.currentWeekId = weekId;
+            $('#modalTitle').html(`Target Harian (${name}, Jumlah: ${details})`);
+            $('#datatableDetail').DataTable().ajax.reload();
             $('#editModal').modal('show');
-            window.currentWeekId = weekId;
-            $('#datatableDetail').DataTable().ajax.reload();
-        } else {
-            window.currentWeekId = weekId;
-            $('#datatableDetail').DataTable().ajax.reload();
-            $('#detailModal').modal('show');
+        }
+    });
+
+    $('#datatableDetail').on('click', '.btn-edit, .btn-shift', function() {
+        const harianId = $(this).data('harian-id');
+        if ($(this).hasClass('btn-shift')) {
+            $('#harian_id').val(harianId);
+            window.currentHarianId = harianId;
+            $('#datatableShiftDetail').DataTable().ajax.reload();
+            $('#editModal').modal('hide');
+            $('#shiftModal').modal('show');
         }
     });
 
     // Handle form submission
-    $('#formAction').on('submit', async function(event) {
+    $('form').on('submit', async function(event) {
         event.preventDefault();
-
-        const formData = $(this).serialize();
-        const url = $(this).attr('action');
+        const form = $(this);
+        const formData = form.serialize();
+        const url = form.attr('action');
+        const formId = form.attr('id');
 
         try {
             const response = await $.post(url, formData);
@@ -110,9 +154,10 @@ Target Harian
                     showConfirmButton: false,
                     timer: 3000
                 });
-                $('#formAction')[0].reset();
-                $('#editModal').modal('hide');
+                form[0].reset();
                 $('#datatable').DataTable().ajax.reload();
+                $('#datatableDetail').DataTable().ajax.reload();
+                $('#datatableShiftDetail').DataTable().ajax.reload();
             } else {
                 Swal.fire({
                     toast: true,
@@ -122,9 +167,10 @@ Target Harian
                     showConfirmButton: false,
                     timer: 3000
                 });
-                $('#formAction')[0].reset();
-                $('#editModal').modal('hide');
+                form[0].reset();
                 $('#datatable').DataTable().ajax.reload();
+                $('#datatableDetail').DataTable().ajax.reload();
+                $('#datatableShiftDetail').DataTable().ajax.reload();
             }
         } catch (error) {
             Swal.fire({
@@ -136,9 +182,16 @@ Target Harian
                 timer: 3000
             });
 
-            $('#editModal').modal('hide');
             $('#datatable').DataTable().ajax.reload();
+            $('#datatableDetail').DataTable().ajax.reload();
+            $('#datatableShiftDetail').DataTable().ajax.reload();
         }
+    });
+
+        // Menangani penutupan modal nested
+    $('#shiftModal').on('hidden.bs.modal', function () {
+        var mainModal = new bootstrap.Modal(document.getElementById('editModal'));
+        mainModal.show(); // Tampilkan kembali modal utama jika belum ditampilkan
     });
 </script>
 @endpush
@@ -187,7 +240,7 @@ Target Harian
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">Detail</h5>
+                <h5 id="modalTitle" class="modal-title">Target Harian</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
@@ -195,6 +248,7 @@ Target Harian
                     <div class="col-md-6">
                         <div class="card">
                             <div class="card-body">
+                                <h5 class="card-title">Data Transaksi</h5>
                                 <form id="formAction" action="{{ route('kinerja-hari.store') }}" method="post"
                                     enctype="multipart/form-data">
                                     @csrf
@@ -212,8 +266,6 @@ Target Harian
                                     </div>
                                     <div id="items-container"></div>
                                     <div class="d-flex justify-content-end mt-3">
-                                        <button type="button" class="btn btn-primary" data-bs-toggle="modal"
-                                            data-bs-target="#nestedModal">Buka Modal Nested</button>
                                         <button type="submit" class="btn btn-success">Simpan</button>
                                     </div>
                                 </form>
@@ -255,25 +307,13 @@ Target Harian
         </div>
     </div>
 </div>
-<div class="modal fade" id="nestedModal" tabindex="-1" aria-labelledby="nestedModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="nestedModalLabel">Modal Nested</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <p>Ini adalah modal nested di dalam modal utama.</p>
-            </div>
-        </div>
-    </div>
-</div>
-<!-- Modal create-->
+
+<!-- Modal Target Shift-->
 <div class="modal fade" id="shiftModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">Detail</h5>
+                <h5 class="modal-title">Target Shift</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
@@ -281,23 +321,29 @@ Target Harian
                     <div class="col-md-6">
                         <div class="card">
                             <div class="card-body">
-                                <form id="formAction" action="{{ route('kinerja-hari.store') }}" method="post"
+                                <h5 class="card-title">Data Transaksi</h5>
+                                <form id="formShift" action="{{ route('kinerja-shift.store') }}" method="post"
                                     enctype="multipart/form-data">
                                     @csrf
-                                    <input type="hidden" id="week_id" name="week_id" value="{{ old('week_id') }}"
-                                        readonly>
-                                    <div class="form-group">
-                                        <label for="tgl">Tanggal</label>
-                                        <input type="date" class="form-control" name="tgl"
-                                            value="{{ old('tgl', now()->format('Y-m-d')) }}" required readonly>
+                                    <input type="hidden" id="harian_id" class="form-control" name="harian_id"
+                                        value="{{ old('harian_id')}}" required readonly>
+                                    <div class="form-group mt-3">
+                                        <label for="tgl">Shift</label>
+                                        <select name="shift" class="form-control">
+                                            <option value="1">1</option>
+                                            <option value="2">2</option>
+                                            <option value="3">3</option>
+                                        </select>
                                     </div>
-                                    <div class="form-group">
+                                    <div class="form-group mt-3">
                                         <label for="qty">Jumlah</label>
-                                        <input type="text" class="form-control" name="qty" value="{{ old('qty') }}"
+                                        <input type="text" class="form-control" name="qty" value="{{ old('qty')}}"
                                             required>
                                     </div>
-                                    <div id="items-container"></div>
+                                    <div id="items-container"></div> <!-- Container for items input fields -->
                                     <div class="d-flex justify-content-end mt-3">
+                                        <button type="button" class="btn btn-secondary me-1"
+                                            data-bs-dismiss="modal">Kembali</button>
                                         <button type="submit" class="btn btn-success">Simpan</button>
                                     </div>
                                 </form>
@@ -310,13 +356,13 @@ Target Harian
                         <div class="card">
                             <div class="card-body">
                                 <div class="table-responsive">
-                                    <table id="datatableDetail" class="table align-middle table-nowrap">
+                                    <table id="datatableShiftDetail" class="table align-middle table-nowrap">
                                         <thead class="table-light">
                                             <tr>
-                                                <th>ID</th>
-                                                <th>Tanggal</th>
+                                                <th>Id</th>
+                                                <th>Barang</th>
+                                                <th>Shift</th>
                                                 <th>Jumlah</th>
-                                                <th>Action</th>
                                             </tr>
                                         </thead>
                                         <tbody>
