@@ -6,11 +6,11 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Admin\user;
 use App\Models\Admin\Barang;
-use App\Models\Admin\Permintaan;
+use App\Models\Admin\PermintaanSKM;
+use App\Models\Admin\DetailPermintaanSKM;
 use App\Models\Admin\Gudang;
-use App\Models\Admin\DetailPermintaan;
-use App\Models\Admin\Pengiriman;
-use App\Models\Admin\DetailPengiriman;
+use App\Models\Admin\PengirimanGU;
+use App\Models\Admin\DetailPengirimanGU;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Yajra\DataTables\DataTables;
@@ -36,7 +36,7 @@ class PermintaanController extends Controller
         $path = 'permintaan.';
 
         if ($request->ajax()) {
-            $permintaans = Permintaan::where('status', 0)->get();
+            $permintaans = PermintaanSKM::where('status', 0)->get();
             return DataTables::of($permintaans)
                 ->addColumn('action', function ($object) use ($path) {
                     $html = '<a href="' . route($path . "edit", ["no_reqskm" => $object->no_reqskm]) . '" class="btn btn-secondary waves-effect waves-light mx-1">'
@@ -49,7 +49,7 @@ class PermintaanController extends Controller
                 ->make(true);
         }
 
-        return view('pages.permintaan.index', compact('user'));
+        return view('pages.permintaan-skm.index', compact('user'));
     }
 
     /**
@@ -71,7 +71,7 @@ class PermintaanController extends Controller
                 ->rawColumns(['action'])
                 ->make(true);
         }
-        return view('pages.permintaan.create', compact('user', 'gudang_id'));
+        return view('pages.permintaan-skm.create', compact('user', 'gudang_id'));
     }
 
     /**
@@ -80,11 +80,11 @@ class PermintaanController extends Controller
     public function store(Request $request)
     {
 
-        $no_reqskm = 'FPB/SKM' . '/' . date('y/m/' . str_pad(Permintaan::count() + 1, 3, '0', STR_PAD_LEFT));
+        $no_reqskm = 'FPB/SKM' . '/' . date('y/m/' . str_pad(PermintaanSKM::count() + 1, 3, '0', STR_PAD_LEFT));
 
         $gudang_id = $request->gudang_id;
 
-        $reqSKM = Permintaan::create([
+        $reqSKM = PermintaanSKM::create([
             'no_reqskm' => $no_reqskm,
             'tgl' => $request->tgl,
             'gudang_id' => $gudang_id,
@@ -92,7 +92,7 @@ class PermintaanController extends Controller
         ]);
 
         foreach ($request->items as $item) {
-            DetailPermintaan::create([
+            DetailPermintaanSKM::create([
                 'no_reqskm' => $no_reqskm,
                 'brg_id' => $item['brg_id'],
                 'qty' => $item['qty'],
@@ -108,7 +108,7 @@ class PermintaanController extends Controller
      */
     public function indexDetail($no_reqskm)
     {
-        $details = DetailPermintaan::where('no_reqskm', $no_reqskm)->first();
+        $details = DetailPermintaanSKM::where('no_reqskm', $no_reqskm)->first();
         return response()->json($details);
     }
 
@@ -142,7 +142,7 @@ class PermintaanController extends Controller
         $path = 'penerimaan-barang.';
 
         if ($request->ajax()) {
-            $pengirimans = Pengiriman::where('status', 0)->get();
+            $pengirimans = PengirimanGU::where('status', 0)->get();
             return DataTables::of($pengirimans)
                 ->addColumn('action', function ($object) use ($path) {
                     $no = str_replace('/', '-', $object->no_krmskm);
@@ -161,7 +161,7 @@ class PermintaanController extends Controller
         $user = $this->userAuth();
         $no_krm = str_replace('-', '/', $no_krmskm);
 
-        $no_req = DetailPengiriman::where('no_krmskm', $no_krm)->value('no_reqskm');
+        $no_req = DetailPengirimanGU::where('no_krmskm', $no_krm)->value('no_reqskm');
 
         $user_id = User::where('role', 'skm')->value('user_id');
 
@@ -180,13 +180,14 @@ class PermintaanController extends Controller
                     ->select('c.nm_brg', 'b.qty', 'b.satuan_besar')
                     ->where('b.status', 1)
                     ->where('no_krmskm', $no_krm)
+                    ->distinct()
                     ->get();
 
                 return DataTables::of($data_reqs)->make(true);
 
             } elseif ($type == 'data_krms') {
 
-                $data_krms = DetailPengiriman::with('barang')
+                $data_krms = DetailPengirimanGU::with('barang')
                     ->where('no_krmskm', $no_krm)
                     ->where('status', 0)
                     ->get();
@@ -195,16 +196,20 @@ class PermintaanController extends Controller
 
             } elseif ($type == 'barang_krms') {
 
-                $barang_krms = DetailPengiriman::with('barang')
+                $barang_krms = DetailPengirimanGU::with('barang')
                     ->where('no_krmskm', $no_krm)
                     ->where('status', 0)
                     ->get();
 
                 return DataTables::of($barang_krms)
                     ->addColumn('action', function ($object) {
-                        $html = '<div class="d-flex form-check font-size-18">
+                        if (is_null($object->tgl_trm)) {
+                            return '<div class="d-flex form-check font-size-18">
                         <input type="checkbox" class="form-check-input check-barang" value="' . $object->brg_id . '"></div>';
-                        return $html;
+                        } else {
+
+                        }
+                        
                     })
                     ->rawColumns(['action'])
                     ->make(true);
@@ -223,14 +228,14 @@ class PermintaanController extends Controller
     $penerima = $request->user_id;
     $check_barang = $request->brg_id;
 
-    Pengiriman::where('no_krmskm', $no_krmskms)
+    PengirimanGU::where('no_krmskm', $no_krmskms)
         ->update([
             'tgl_trm' => $request->tgl_trm,
             'penerima' => $penerima,
         ]);
 
     foreach ($check_barang as $barangId) {
-        $detailPengiriman = DetailPengiriman::where('no_krmskm', $no_krmskms)
+        $detailPengiriman = DetailPengirimanGU::where('no_krmskm', $no_krmskms)
             ->where('brg_id', $barangId)
             ->first();
 

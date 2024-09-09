@@ -6,10 +6,10 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Admin\Barang;
 use App\Models\Admin\Gudang;
-use App\Models\Admin\Pengiriman;
-use App\Models\Admin\DetailPengiriman;
-use App\Models\Admin\Permintaan;
-use App\Models\Admin\DetailPermintaan;
+use App\Models\Admin\PengirimanGU;
+use App\Models\Admin\DetailPengirimanGU;
+use App\Models\Admin\PermintaanSKM;
+use App\Models\Admin\DetailPermintaanSKM;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
@@ -38,21 +38,24 @@ class PengirimanController extends Controller
             ->leftJoin('tr_krmskm as c', 'b.no_krmskm', '=', 'c.no_krmskm')
             ->select('a.no_reqskm as id', 'a.tgl as tgl_minta', 'c.tgl_krm')
             ->where('a.status', 0)
+            ->distinct()
             ->get();
+
 
         $pengirimans = DB::table('tr_krmskm as a')
             ->leftJoin('tr_krmskm_detail as b', 'a.no_krmskm', '=', 'b.no_krmskm')
             ->leftJoin('tr_reqskm as c', 'b.no_reqskm', '=', 'c.no_reqskm')
             ->select('a.no_krmskm as id', 'c.tgl as tgl_minta', 'a.tgl_krm')
             ->where('a.status', 0)
+            ->distinct()
             ->get();
+
 
         $activeVariable = !$permintaans->isEmpty() && !$pengirimans->isEmpty()
             ? $permintaans->merge($pengirimans)
             : (!$permintaans->isEmpty()
                 ? $permintaans
                 : $pengirimans);
-
 
         if ($request->ajax()) {
             return DataTables::of($activeVariable)
@@ -70,18 +73,19 @@ class PengirimanController extends Controller
                 ->make(true);
         }
 
-        return view('pages.pengiriman.index', compact('user'));
+        return view('pages.pengiriman-gu.index', compact('user'));
     }
+
 
     /**
      * Show the form for creating a new resource.
      */
-    public function create(string $no_reqskm, Request $request)
+    public function create(Request $request, string $no_reqskm)
     {
         $user = $this->userAuth();
         $no_req = str_replace('-', '/', $no_reqskm);
 
-        $datas = DetailPermintaan::with('barang')
+        $datas = DetailPermintaanSKM::with('barang')
             ->where('no_reqskm', $no_req)
             ->where('status', 0)
             ->get();
@@ -95,7 +99,7 @@ class PengirimanController extends Controller
         }
 
 
-        return view('pages.pengiriman.create', compact('user', 'datas', 'no_reqskm', 'no_req', 'gudang_id'));
+        return view('pages.pengiriman-gu.create', compact('user', 'datas', 'no_reqskm', 'no_req', 'gudang_id'));
     }
 
 
@@ -105,20 +109,20 @@ class PengirimanController extends Controller
      */
     public function store(Request $request)
     {
-        $no_krmskm = 'SJ/GU' . '/' . date('y/m/' . str_pad(Pengiriman::count() + 1, 3, '0', STR_PAD_LEFT));
+        $no_krmskm = 'SJ/GU' . '/' . date('y/m/' . str_pad(PengirimanGU::count() + 1, 3, '0', STR_PAD_LEFT));
 
         $gudang_id = $request->gudang_id;
 
         $no_reqskm = $request->no_reqskm;
 
-        $krmSKM = Pengiriman::create([
+        $krmSKM = PengirimanGU::create([
             'no_krmskm' => $no_krmskm,
             'tgl_krm' => $request->tgl_krm,
             'gudang_id' => $gudang_id,
         ]);
 
         foreach ($request->items as $item) {
-            DetailPengiriman::create([
+            DetailPengirimanGU::create([
                 'no_krmskm' => $no_krmskm,
                 'no_reqskm' => $no_reqskm,
                 'brg_id' => $item['brg_id'],
@@ -127,14 +131,14 @@ class PengirimanController extends Controller
             ]);
         }
 
-        $permintaan = Permintaan::where('status', 0)->first();
+        $permintaan = PermintaanSKM::where('status', 0)->first();
         if ($permintaan) {
             $permintaan->update([
                 'status' => 1,
             ]);
         }
 
-        DetailPermintaan::where('status', 0)->update([
+        DetailPermintaanSKM::where('status', 0)->update([
             'status' => 1,
         ]);
 
@@ -151,7 +155,7 @@ class PengirimanController extends Controller
 
     public function detailKRM()
     {
-        return view('pages.pengiriman.detail');
+        return view('pages.pengiriman-gu.detail');
     }
 
     /**
