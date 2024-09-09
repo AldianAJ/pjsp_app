@@ -163,14 +163,15 @@ class PermintaanController extends Controller
 
         $no_req = DetailPengiriman::where('no_krmskm', $no_krm)->value('no_reqskm');
 
-        $user_id = User::where('role', 'skm')->where('status', 0)->get();
+        $user_id = User::where('role', 'skm')->value('user_id');
 
-        $gudang_id = Gudang::where('jenis', 2)->value('gudang_id');
+
+
         $path = 'penerimaan-barang.create.';
 
         if ($request->ajax()) {
             $type = $request->input('type');
-            
+
             if ($type == 'data_reqs') {
 
                 $data_reqs = DB::table('tr_krmskm_detail as a')
@@ -180,29 +181,29 @@ class PermintaanController extends Controller
                     ->where('b.status', 1)
                     ->where('no_krmskm', $no_krm)
                     ->get();
-        
+
                 return DataTables::of($data_reqs)->make(true);
-        
+
             } elseif ($type == 'data_krms') {
 
                 $data_krms = DetailPengiriman::with('barang')
                     ->where('no_krmskm', $no_krm)
                     ->where('status', 0)
                     ->get();
-        
+
                 return DataTables::of($data_krms)->make(true);
-        
+
             } elseif ($type == 'barang_krms') {
 
                 $barang_krms = DetailPengiriman::with('barang')
                     ->where('no_krmskm', $no_krm)
                     ->where('status', 0)
                     ->get();
-        
+
                 return DataTables::of($barang_krms)
                     ->addColumn('action', function ($object) {
                         $html = '<div class="d-flex form-check font-size-18">
-                        <input type="checkbox" class="form-check-input check-barang" value="' . $object->biaya_pemesanan . '"></div>';
+                        <input type="checkbox" class="form-check-input check-barang" value="' . $object->brg_id . '"></div>';
                         return $html;
                     })
                     ->rawColumns(['action'])
@@ -211,27 +212,38 @@ class PermintaanController extends Controller
                 return response()->json(['error' => 'Invalid type parameter'], 400);
             }
         }
-        
-        return view('pages.terima-barang-skm.create', compact('user',   'no_krmskm', 'no_krm', 'no_req', 'gudang_id'));
+
+        return view('pages.terima-barang-skm.create', compact('user', 'no_krmskm', 'no_krm', 'no_req', 'user_id'));
     }
 
-    public function storeTerima(Request $request, Request $no_krmskm)
-    {
+    public function storeTerima(Request $request)
+{
 
-        $user_id = $request->user_id;
-        $check_barang = $request->barang;
+    $no_krmskms = $request->no_krmskm;
+    $penerima = $request->user_id;
+    $check_barang = $request->brg_id;
 
-        Pengiriman::create([
+    Pengiriman::where('no_krmskm', $no_krmskms)
+        ->update([
             'tgl_trm' => $request->tgl_trm,
-            'user_id' => $user_id,
+            'penerima' => $penerima,
         ]);
 
-        $no_krmskms = DetailPengiriman::where('no_krmskm', $no_krmskm)->first();
-        $no_krmskms -> update([
-            'diterima' => 0,
-        ]);
+    foreach ($check_barang as $barangId) {
+        $detailPengiriman = DetailPengiriman::where('no_krmskm', $no_krmskms)
+            ->where('brg_id', $barangId)
+            ->first();
 
-
-        return redirect()->route('penerimaan-barang')->with('success', 'Data penerimaan barang berhasil ditambahkan.');
+        if ($detailPengiriman) {
+            $detailPengiriman->update([
+                'diterima' => 0,
+            ]);
+        }
     }
+
+    return redirect()->route('penerimaan-barang')
+        ->with('success', 'Data penerimaan barang berhasil ditambahkan.');
+}
+
+
 }

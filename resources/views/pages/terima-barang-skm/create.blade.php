@@ -14,7 +14,7 @@
     <script>
         var no_krmskm = "{{ $no_krmskm }}";
 
-        $('#datatable').DataTable({
+        $('#datatable-check').DataTable({
             ajax: {
                 url: "{{ url('penerimaan-barang/create') }}/" + no_krmskm,
                 data: {
@@ -77,13 +77,30 @@
             ],
         });
 
+        let selectedBarang = [];
+
         $('#datatable-check').on('click', '.check-barang', function(e) {
-            if ($(this).prop('checked') == true) {
-                biaya += parseInt($(this).val());
+            let barangId = $(this).val();
+
+            if ($(this).prop('checked')) {
+                selectedBarang.push(barangId);
             } else {
-                biaya -= parseInt($(this).val());
+                selectedBarang = selectedBarang.filter(item => item !==
+                    barangId);
             }
-            $('#biaya').text(rupiah(biaya));
+
+            console.log(selectedBarang);
+        });
+
+        $('form').on('submit', function(e) {
+            $('#items-container').empty();
+
+            selectedBarang.forEach(function(barangId) {
+                $('#items-container').append(
+                    '<input type="hidden" name="brg_id[]" value="' + barangId +
+                    '">'
+                );
+            });
         });
     </script>
 @endpush
@@ -141,7 +158,8 @@
                             <input type="date" class="form-control" name="tgl_trm"
                                 value="{{ old('tgl_trm', \Carbon\Carbon::now()->format('Y-m-d')) }}" required readonly>
                         </div>
-                        <div id="items-container"></div> <!-- Container for items input fields -->
+                        <input type="hidden" name="user_id" id="user_id" value="{{ old('user_id', $user_id ?? '') }}">
+                        <div id="items-container"></div>
                         <div class="d-flex justify-content-end mt-3">
                             <button type="submit" class="btn btn-primary">Simpan</button>
                         </div>
@@ -216,5 +234,4 @@
             </div>
         </div>
     </div>
-
 @endsection
