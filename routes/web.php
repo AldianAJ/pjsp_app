@@ -9,8 +9,8 @@ use App\Http\Controllers\Admin\JenisMesinController;
 use App\Http\Controllers\Admin\SupplierController;
 use App\Http\Controllers\Admin\StokMasukController;
 use App\Http\Controllers\Admin\KinerjaController;
-use App\Http\Controllers\Admin\PermintaanController;
-use App\Http\Controllers\Admin\PengirimanController;
+use App\Http\Controllers\Admin\PermintaanSKMController;
+use App\Http\Controllers\Admin\PengirimanGUController;
 
 /*
 |--------------------------------------------------------------------------
@@ -96,7 +96,7 @@ Route::middleware('user')->group(function () {
     });
 
 
-    Route::controller(PermintaanController::class)->group(function () {
+    Route::controller(PermintaanSKMController::class)->group(function () {
         Route::get('/permintaan', 'index')->name('permintaan');
         Route::get('/permintaan/detail/{no_reqskm}', 'indexDetail')->name('permintaan.indexDetail');
         Route::get('/permintaan/create', 'create')->name('permintaan.create');
@@ -114,7 +114,7 @@ Route::middleware('user')->group(function () {
 
     });
 
-    Route::controller(PengirimanController::class)->group(function () {
+    Route::controller(PengirimanGUController::class)->group(function () {
         Route::get('/pengiriman', 'index')->name('pengiriman');
         Route::get('/pengiriman/create/{no_reqskm}', 'create')->name('pengiriman.create');
         Route::post('/pengiriman/store', 'store')->name('pengiriman.store');

@@ -14,10 +14,8 @@ use App\Models\Admin\DetailPengirimanGU;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Yajra\DataTables\DataTables;
-use Illuminate\Support\Str;
-use Barryvdh\DomPDF\Facade\Pdf;
 
-class PermintaanController extends Controller
+class PermintaanSKMController extends Controller
 {
     /**
      * Display a listing of the resource.

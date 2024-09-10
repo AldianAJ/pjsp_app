@@ -10,14 +10,11 @@ use App\Models\Admin\PengirimanGU;
 use App\Models\Admin\DetailPengirimanGU;
 use App\Models\Admin\PermintaanSKM;
 use App\Models\Admin\DetailPermintaanSKM;
-use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Yajra\DataTables\DataTables;
-use Barryvdh\DomPDF\Facade\Pdf;
-use Illuminate\Support\Facades\Log;
 
-class PengirimanController extends Controller
+class PengirimanGUController extends Controller
 {
     /**
      * Display a listing of the resource.
