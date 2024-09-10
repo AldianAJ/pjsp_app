@@ -12,13 +12,7 @@ class Shift extends Model
     protected $table = 'tr_target_shift';
     protected $primaryKey = 'shift_id';
     public $incrementing = false;
-
-    protected $fillable = [
-        'shift_id',
-        'harian_id',
-        'shift',
-        'qty'
-    ];
+    protected $guarded = [];
 
     public function targetHari()
     {

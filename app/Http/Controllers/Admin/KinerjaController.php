@@ -63,8 +63,10 @@ class KinerjaController extends Controller
 
             return DataTables::of($targetMinggu)
                 ->addColumn('action', function ($object) use ($path) {
-                    $html = '<a href="' . route($path . 'edit', ['supplier_id' => $object->week_id]) . '" class="btn btn-secondary waves-effect waves-light">'
-                        . ' <i class="bx bx-edit align-middle me-2 font-size-18"></i> Edit</a>';
+                    $html = '<button class="btn btn-secondary btn-detailHari waves-effect waves-light me-1" data-week-id="' . $object->week_id . '">'
+                        . '<i class="bx bx-list-check align-middle me-2 font-size-18"></i> Detail</button>'
+                        . '<button class="btn btn-primary btn-editWeek waves-effect waves-light me-1" data-week-id="' . $object->week_id . '">'
+                        . '<i class="bx bx-edit align-middle me-2 font-size-18"></i> Edit</button>';
 
                     return $html;
                 })
@@ -81,7 +83,7 @@ class KinerjaController extends Controller
     public function create(Request $request)
     {
         $user = $this->userAuth();
-        $tahun = date('Y'); // Atau ganti dengan tahun tertentu, misalnya '2024'
+        $tahun = date('Y');
         $mingguList = [];
         $tahunList = [];
 
@@ -154,7 +156,8 @@ class KinerjaController extends Controller
 
             $mingguList[] = [
                 'minggu' => $minggu,
-                'tanggal' => $tanggal->startOfWeek()->format('Y-m-d'),
+                'tanggal_start' => $tanggal->startOfWeek()->format('Y-m-d'),
+                'tanggal_end' => $tanggal->endOfWeek()->format('Y-m-d'),
             ];
 
             $tanggal->addWeek();

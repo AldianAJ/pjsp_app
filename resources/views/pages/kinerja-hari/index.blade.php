@@ -168,7 +168,7 @@
                         icon: 'success',
                         title: response.message,
                         showConfirmButton: false,
-                        timer: 3000
+                        timer: 5000
                     });
                     form[0].reset();
                     $('#datatable').DataTable().ajax.reload();
@@ -181,7 +181,7 @@
                         icon: 'error',
                         title: response.message,
                         showConfirmButton: false,
-                        timer: 3000
+                        timer: 5000
                     });
                     form[0].reset();
                     $('#datatable').DataTable().ajax.reload();
@@ -195,7 +195,7 @@
                     icon: 'error',
                     title: 'An error occurred',
                     showConfirmButton: false,
-                    timer: 3000
+                    timer: 5000
                 });
 
                 $('#datatable').DataTable().ajax.reload();
@@ -231,7 +231,7 @@
                     <!-- Filter Toolbar -->
                     <div class="row mb-3">
                         <div class="col-md-4">
-                            <label for="filterTahun">Tahun:</label>
+                            <label for="filterTahun" class="fw-bolder">Tahun:</label>
                             <select id="filterTahun" class="form-control">
                                 <option value="">Semua</option>
                                 <option value="{{ \Carbon\Carbon::now()->format('Y') }}" selected>
@@ -240,7 +240,7 @@
                             </select>
                         </div>
                         <div class="col-md-4">
-                            <label for="filterWeek">Minggu:</label>
+                            <label for="filterWeek" class="fw-bolder">Minggu:</label>
                             <select id="filterWeek" class="form-control">
                                 <option value="">Semua</option>
                                 @foreach ($mingguList as $minggu)

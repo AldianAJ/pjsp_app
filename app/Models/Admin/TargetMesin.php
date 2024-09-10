@@ -12,13 +12,7 @@ class TargetMesin extends Model
     protected $table = 'tr_target_mesin';
     protected $primaryKey = 'msn_trgt_id';
     public $incrementing = false;
-
-    protected $fillable = [
-        'msn_trgt_id',
-        'shift_id',
-        'mesin_id',
-        'qty'
-    ];
+    protected $guarded = [];
 
     public function mesin()
     {

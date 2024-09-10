@@ -12,14 +12,7 @@ class Mingguan extends Model
     protected $table = 'tr_target_week';
     protected $primaryKey = 'week_id';
     public $incrementing = false;
-
-    protected $fillable = [
-        'week_id',
-        'brg_id',
-        'tahun',
-        'week',
-        'qty',
-    ];
+    protected $guarded = [];
 
     public function barang()
     {
