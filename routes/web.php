@@ -37,6 +37,7 @@ Route::middleware('user')->group(function () {
         Route::get('/barang/edit/{brg_id}', 'edit')->name('barang.edit');
         Route::post('/barang/store', 'store')->name('barang.store');
         Route::post('/barang/update/{brg_id}', 'update')->name('barang.update');
+        Route::get('/', [BarangController::class, 'getSidebarData']);
     });
 
     Route::controller(GudangController::class)->group(function () {

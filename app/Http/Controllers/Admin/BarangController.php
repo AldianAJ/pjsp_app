@@ -125,4 +125,13 @@ class BarangController extends Controller
 
         return redirect()->route('barang')->with('success', 'Data barang berhasil diperbarui.');
     }
+
+    public function getSidebarData()
+    {
+        $totalBarangs = Barang::where('status', 0)->count();
+
+        return response()->json([
+            'totalBarangs' => $totalBarangs
+        ]);
+    }
 }

@@ -25,7 +25,7 @@
                                 <a href="{{ route('barang') }}" class="waves-effect">
                                     <i class="bx bxs-component"></i>
                                     <span key="t-barang">Barang</span>
-                                    <span class="badge rounded-pill bg-danger float-end">10</span>
+                                    <span id="total-barangs" class="badge rounded-pill bg-danger float-end"></span>
                                 </a>
                             </li>
                             <li>
