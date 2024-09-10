@@ -91,8 +91,11 @@ class PengirimanGUController extends Controller
         $path = 'pengiriman.create.';
 
         if ($request->ajax()) {
-            $barangs = Barang::where('status', 0)->get();
-            return DataTables::of($barangs)->make(true);
+            $data_mintas = DetailPermintaanSKM::with('barang')
+                ->where('no_reqskm', $no_req)
+                ->where('status', 0)
+                ->get();
+            return DataTables::of($data_mintas)->make(true);
         }
 
 

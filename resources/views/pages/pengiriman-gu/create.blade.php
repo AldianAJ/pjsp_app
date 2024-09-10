@@ -21,7 +21,7 @@
                     data: "brg_id"
                 },
                 {
-                    data: "nm_brg"
+                    data: "barang.nm_brg"
                 },
                 {
                     data: "satuan_besar"
@@ -29,10 +29,27 @@
                 {
                     data: null,
                     render: function(data, type, row) {
-                        return `<button type="button" class="btn btn-primary btn-sm" onclick="showModal('${row.brg_id}', '${row.nm_brg}', '${row.satuan_besar}')">
+                        return `<button type="button" class="btn btn-primary btn-sm" onclick="showModal('${row.brg_id}', '${row.barang.nm_brg}', ${row.qty}, '${row.satuan_besar}')">
                             <i class="fas fa-plus"></i>
                         </button>`;
                     },
+                }
+            ],
+        });
+
+        $('#datatable-minta').DataTable({
+            ajax: {
+                ajax: "{{ url('pengiriman/create') }}/" + no_reqskm,
+            },
+            lengthMenu: [5],
+            columns: [{
+                    data: "barang.nm_brg"
+                },
+                {
+                    data: "qty"
+                },
+                {
+                    data: "satuan_besar"
                 }
             ],
         });
@@ -71,7 +88,7 @@
                 <div class="card-body">
                     <h4 class="card-title mb-3">Data Permintaan</h4>
                     <div class="table-responsive">
-                        <table class="table align-middle table-nowrap">
+                        <table id="datatable-minta" class="table align-middle table-nowrap">
                             <thead class="table-light">
                                 <tr>
                                     <th>Nama Barang</th>
@@ -80,13 +97,6 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                @foreach ($datas as $data)
-                                    <tr>
-                                        <td>{{ $data->barang->nm_brg }}</td>
-                                        <td>{{ $data->qty }}</td>
-                                        <td>{{ $data->satuan_besar }}</td>
-                                    </tr>
-                                @endforeach
                             </tbody>
                         </table>
                     </div>
@@ -118,7 +128,7 @@
                             value="{{ old('gudang_id', $gudang_id ?? '') }}">
                         <div id="items-container"></div> <!-- Container for items input fields -->
                         <div class="d-flex justify-content-end mt-3">
-                            <button type="submit" class="btn btn-success">Simpan</button>
+                            <button type="submit" class="btn btn-primary">Simpan</button>
                         </div>
                     </form>
                 </div>
@@ -191,8 +201,8 @@
                             <input type="number" class="form-control" id="modal-qty" required>
                         </div>
                         <div class="form-group mt-3">
-                            <label for="modal-satuan-kecil">Satuan</label>
-                            <input type="text" class="form-control" id="modal-satuan-kecil" readonly>
+                            <label for="modal-satuan-besar">Satuan</label>
+                            <input type="text" class="form-control" id="modal-satuan-besar" readonly>
                         </div>
                     </form>
                 </div>
@@ -208,12 +218,12 @@
     <script>
         let selectedItems = [];
 
-        function showModal(brg_id, nm_brg, satuan_besar) {
+        function showModal(brg_id, nm_brg, qty, satuan_besar) {
             const modal = document.getElementById('qtyModal');
             document.getElementById('modal-brg-id').value = brg_id;
             document.getElementById('modal-nm-brg').value = nm_brg;
-            document.getElementById('modal-satuan-kecil').value = satuan_besar;
-            document.getElementById('modal-qty').value = '';
+            document.getElementById('modal-satuan-besar').value = satuan_besar;
+            document.getElementById('modal-qty').value = qty;
             new bootstrap.Modal(modal).show();
         }
 
@@ -221,7 +231,7 @@
             const brg_id = document.getElementById('modal-brg-id').value;
             const nm_brg = document.getElementById('modal-nm-brg').value;
             const qty = parseFloat(document.getElementById('modal-qty').value);
-            const satuan_besar = document.getElementById('modal-satuan-kecil').value;
+            const satuan_besar = document.getElementById('modal-satuan-besar').value;
 
             if (qty <= 0) {
                 alert('Jumlah harus lebih dari 0');
