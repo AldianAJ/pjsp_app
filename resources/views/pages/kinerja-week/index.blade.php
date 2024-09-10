@@ -4,10 +4,16 @@
     Target Mingguan
 @endsection
 
-@push('after-style')
+@push('after-app-style')
     <!-- Sweet Alert-->
     <link href="{{ asset('assets/libs/sweetalert2/sweetalert2.min.css') }}" rel="stylesheet" type="text/css" />
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <style>
+        .select2-container .select2-selection--single {
+            padding: 0.30rem 0.45rem;
+            height: 38.2px;
+        }
+    </style>
 @endpush
 
 @push('after-app-script')
@@ -21,6 +27,10 @@
     <script src="{{ asset('assets/js/pages/datatables.init.js') }}"></script>
     <script>
         $(document).ready(function() {
+            $('#filterTahun2').select2({
+                selectOnClose: true,
+                width: 'resolve' // need to override the changed default
+            });
             $('#filterWeek').select2({
                 selectOnClose: true,
                 width: 'resolve' // need to override the changed default
@@ -86,7 +96,7 @@
                     <div class="row mb-3">
                         <div class="col-md-4">
                             <label for="filterTahun">Tahun:</label>
-                            <select id="filterTahun" class="form-control">
+                            <select id="filterTahun" class="form-control" style="width: 100%">
                                 <option value="">Semua</option>
                                 <option value="{{ \Carbon\Carbon::now()->format('Y') }}" selected>
                                     {{ \Carbon\Carbon::now()->format('Y') }}</option>

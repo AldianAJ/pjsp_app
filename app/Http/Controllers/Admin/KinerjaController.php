@@ -244,7 +244,7 @@ class KinerjaController extends Controller
             $totalHarian += $request->qty;
             $sisaBerhasil = $weeklyTarget->qty - $totalHarian;
 
-            if ($totalHarian > $weeklyTarget->qty) {
+            if ($totalHarian >= $weeklyTarget->qty) {
                 return response()->json(['success' => false, 'message' => 'Target melebihi target mingguan. Sisa target harian : ' . $sisa], 200);
             }
         }
@@ -327,7 +327,7 @@ class KinerjaController extends Controller
         $totalShift += $request->qty;
         $sisaBerhasil = $dailyTarget->qty - $totalShift;
 
-        if ($totalShift > $dailyTarget->qty) {
+        if ($totalShift >= $dailyTarget->qty) {
             return response()->json(['success' => false, 'message' => 'Target shift melebihi batas target mingguan. Sisa target shift : ' . $sisa], 200);
         }
 

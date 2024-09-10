@@ -107,11 +107,7 @@
                                 </a>
                                 <a href="{{ route('kinerja-hari') }}" class="waves-effect">
                                     <i class="bx bxs-receipt"></i>
-                                    <span key="t-kinerja">Target Harian</span>
-                                </a>
-                                <a href="{{ route('kinerja-shift') }}" class="waves-effect">
-                                    <i class="bx bxs-receipt"></i>
-                                    <span key="t-kinerja">Target Shift</span>
+                                    <span key="t-kinerja">Target Harian & Shift</span>
                                 </a>
                                 <a href="{{ route('kinerja-mesin') }}" class="waves-effect">
                                     <i class="bx bxs-receipt"></i>
