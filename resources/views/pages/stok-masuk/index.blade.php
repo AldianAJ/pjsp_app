@@ -26,7 +26,7 @@
                     data: "no_sj"
                 },
                 {
-                    data: "supplier_id"
+                    data: "supplier.nama"
                 },
                 {
                     data: "tgl",

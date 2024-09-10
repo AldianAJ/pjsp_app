@@ -2,13 +2,10 @@
 
 namespace App\Models\Admin;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class DetailPengirimanSKM extends Model
 {
-    use HasFactory;
-
     protected $table = 'tr_krmmsn_detail';
     protected $guarded = [];
 

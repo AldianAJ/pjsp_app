@@ -26,7 +26,9 @@ class StokMasukController extends Controller
         $user = $this->userAuth();
         $path = 'stok-masuk.';
         if ($request->ajax()) {
-            $stokMasuks = StokMasuk::where('status', 0)->get();
+            $stokMasuks = StokMasuk::with('supplier')
+                ->where('status', 0)
+                ->get();
             return DataTables::of($stokMasuks)
                 ->addColumn('action', function ($object) use ($path) {
                     $html = '<a href="' . route($path . "edit", ["no_trm" => $object->no_trm]) . '" class="btn btn-secondary waves-effect waves-light">'
@@ -43,7 +45,7 @@ class StokMasukController extends Controller
     {
         $user = $this->userAuth();
 
-        // $gudangs = Gudang::where('jenis', 2)->get();
+        $gudang_id = Gudang::where('jenis', 2)->value('gudang_id');
         $suppliers = Supplier::where('status', 0)->get();
 
         $path = 'stok-masuk.create.';
@@ -58,7 +60,7 @@ class StokMasukController extends Controller
                 ->rawColumns(['action'])
                 ->make(true);
         }
-        return view('pages.stok-masuk.create', compact('user', 'suppliers'));
+        return view('pages.stok-masuk.create', compact('user', 'gudang_id', 'suppliers'));
     }
 
     public function store(Request $request)
