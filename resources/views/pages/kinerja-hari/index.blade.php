@@ -4,7 +4,7 @@
     Target Harian
 @endsection
 
-@push('after-style')
+@push('after-app-style')
     <!-- Sweet Alert-->
     <link href="{{ asset('assets/libs/sweetalert2/sweetalert2.min.css') }}" rel="stylesheet" type="text/css" />
 @endpush

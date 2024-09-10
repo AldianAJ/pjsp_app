@@ -14,6 +14,7 @@
     <script src="{{ asset('assets/libs/datatables.net-responsive/js/dataTables.responsive.min.js') }}"></script>
     <script src="{{ asset('assets/libs/datatables.net-responsive-bs4/js/responsive.bootstrap4.min.js') }}"></script>
     <script src="{{ asset('assets/js/pages/datatables.init.js') }}"></script>
+    <script src="{{ asset('assets/libs/sweetalert2/sweetalert2.min.js') }}"></script>
     <script>
         $(document).ready(function() {
             $('#minggu').select2({
@@ -43,6 +44,51 @@
                     },
                 }
             ],
+        });
+
+
+        // Handle form submission
+        $('form').on('submit', async function(event) {
+            event.preventDefault();
+            const form = $(this);
+            const formData = form.serialize();
+            const url = form.attr('action');
+            const formId = form.attr('id');
+
+            try {
+                const response = await $.post(url, formData);
+
+                if (response.success) {
+                    Swal.fire({
+                        toast: true,
+                        position: 'bottom-right',
+                        icon: 'success',
+                        title: response.message,
+                        showConfirmButton: false,
+                        timer: 5000
+                    });
+                    form[0].reset();
+                    $('#datatable').DataTable().ajax.reload();
+                } else {
+                    Swal.fire({
+                        toast: true,
+                        position: 'bottom-right',
+                        icon: 'error',
+                        title: response.message,
+                        showConfirmButton: false,
+                        timer: 5000
+                    });
+                }
+            } catch (error) {
+                Swal.fire({
+                    toast: true,
+                    position: 'bottom-right',
+                    icon: 'error',
+                    title: 'An error occurred',
+                    showConfirmButton: false,
+                    timer: 5000
+                });
+            }
         });
     </script>
 @endpush

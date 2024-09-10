@@ -123,6 +123,12 @@ class KinerjaController extends Controller
     public function store(Request $request)
     {
         foreach ($request->items as $item) {
+            $cek = Mingguan::where('tahun', $request->tahun)->where('week', $request->minggu)->where('brg_id', $item['brg_id'])->count();
+            if ($cek > 0) {
+                // return redirect()->route('kinerja-hari')->with('error', 'Data target harian sudah ada.');
+                return response()->json(['success' => false, 'message' => 'Data target sudah ada.'], 200);
+            }
+
             $week_id = $request->tahun . $request->minggu . '/' . str_pad(Mingguan::count() + 1, 3, '0', STR_PAD_LEFT);
             Mingguan::create([
                 'week_id' => $week_id,
