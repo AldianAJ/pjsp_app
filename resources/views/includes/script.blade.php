@@ -4,7 +4,6 @@
 <script src="{{ asset('assets/libs/metismenu/metisMenu.min.js') }}"></script>
 <script src="{{ asset('assets/libs/simplebar/simplebar.min.js') }}"></script>
 <script src="{{ asset('assets/libs/node-waves/waves.min.js') }}"></script>
-<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 
 
 <!-- App js -->

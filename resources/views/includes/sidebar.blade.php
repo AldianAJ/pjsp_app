@@ -57,7 +57,7 @@
                             <li>
                                 <a href="{{ route('pengiriman') }}" class="waves-effect">
                                     <i class="bx bxs-duplicate"></i>
-                                    <span key="t-gudang">Permintaan</span>
+                                    <span key="t-gudang">Persetujuan Permintaan</span>
                                 </a>
                             </li>
                             <li>

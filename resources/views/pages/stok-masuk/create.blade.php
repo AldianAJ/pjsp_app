@@ -4,10 +4,19 @@
     Tambah Persediaan Masuk
 @endsection
 
+@push('after-app-style')
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <style>
+        .select2-container .select2-selection--single {
+            padding: 0.30rem 0.45rem;
+            height: 38.2px;
+        }
+    </style>
+@endpush
+
 @push('after-app-script')
     <script src="{{ asset('assets/libs/datatables.net/js/jquery.dataTables.min.js') }}"></script>
     <script src="{{ asset('assets/libs/datatables.net-bs4/js/dataTables.bootstrap4.min.js') }}"></script>
-    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     <!-- Responsive examples -->
     <script src="{{ asset('assets/libs/datatables.net-responsive/js/dataTables.responsive.min.js') }}"></script>
@@ -85,7 +94,8 @@
                         </div> --}}
                         <div class="form-group mt-3">
                             <label for="no_sj">No. SJ Supplier</label>
-                            <input type="text" class="form-control" name="no_sj" value="{{ old('no_sj') }}" required>
+                            <input type="text" class="form-control" name="no_sj" value="{{ old('no_sj') }}"
+                                placeholder="Masukkan No. Surat Jalan dari Supplier" required>
                         </div>
                         <div class="form-group mt-3">
                             <label for="supplier_id">Nama Supplier</label>
