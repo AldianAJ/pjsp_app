@@ -126,7 +126,7 @@ class KinerjaController extends Controller
             $cek = Mingguan::where('tahun', $request->tahun)->where('week', $request->minggu)->where('brg_id', $item['brg_id'])->count();
             if ($cek > 0) {
                 // return redirect()->route('kinerja-hari')->with('error', 'Data target harian sudah ada.');
-                return response()->json(['success' => false, 'message' => 'Data target sudah ada.'], 200);
+                return response()->json(['success' => false, 'message' => 'Target ' . $item['nm_brg'] . ' sudah ada.'], 200);
             }
 
             $week_id = $request->tahun . $request->minggu . '/' . str_pad(Mingguan::count() + 1, 3, '0', STR_PAD_LEFT);
@@ -139,7 +139,11 @@ class KinerjaController extends Controller
             ]);
         }
 
-        return redirect()->route('kinerja-minggu')->with('success', 'Data target mingguan berhasil ditambahkan.');
+        return response()->json([
+            'success' => true,
+            'redirect' => route('kinerja-minggu'),
+            'message' => 'Data target mingguan berhasil ditambahkan.'
+        ]);
     }
 
     /**

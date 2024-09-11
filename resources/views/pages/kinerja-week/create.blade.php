@@ -59,16 +59,8 @@
                 const response = await $.post(url, formData);
 
                 if (response.success) {
-                    Swal.fire({
-                        toast: true,
-                        position: 'bottom-right',
-                        icon: 'success',
-                        title: response.message,
-                        showConfirmButton: false,
-                        timer: 5000
-                    });
+                    window.location.href = response.redirect;
                     form[0].reset();
-                    $('#datatable').DataTable().ajax.reload();
                 } else {
                     Swal.fire({
                         toast: true,
@@ -229,10 +221,6 @@
                             <label for="modal-satuan-besar">Satuan</label>
                             <input type="text" class="form-control" id="modal-satuan-besar" readonly>
                         </div>
-                        <div class="form-group mt-3">
-                            <label for="modal-ket">Keterangan</label>
-                            <input type="text" class="form-control" id="modal-ket">
-                        </div>
                     </form>
                 </div>
                 <div class="modal-footer">
@@ -252,7 +240,6 @@
             document.getElementById('modal-nm-brg').value = nm_brg;
             document.getElementById('modal-satuan-besar').value = satuan_besar;
             document.getElementById('modal-qty').value = '';
-            document.getElementById('modal-ket').value = '';
             new bootstrap.Modal(modal).show();
         }
 
@@ -261,7 +248,6 @@
             const nm_brg = document.getElementById('modal-nm-brg').value;
             const qty = parseFloat(document.getElementById('modal-qty').value);
             const satuan_besar = document.getElementById('modal-satuan-besar').value;
-            const ket = document.getElementById('modal-ket').value;
 
             if (qty <= 0 || isNaN(qty)) {
                 alert('Jumlah harus lebih dari 0');
@@ -272,8 +258,7 @@
                 brg_id,
                 nm_brg,
                 qty,
-                satuan_besar,
-                ket
+                satuan_besar
             });
             updateItems();
             bootstrap.Modal.getInstance(document.getElementById("qtyModal")).hide();
@@ -306,7 +291,7 @@
                 <input type="hidden" name="items[${index}][brg_id]" value="${item.brg_id}">
                 <input type="hidden" name="items[${index}][qty]" value="${item.qty}">
                 <input type="hidden" name="items[${index}][satuan_besar]" value="${item.satuan_besar}">
-                <input type="hidden" name="items[${index}][ket]" value="${item.ket}">
+                <input type="hidden" name="items[${index}][nm_brg]" value="${item.nm_brg}">
             `).join('');
         }
     </script>
