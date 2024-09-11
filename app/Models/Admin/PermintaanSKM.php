@@ -10,4 +10,9 @@ class PermintaanSKM extends Model
     protected $primaryKey = 'no_reqskm';
     public $incrementing = false;
     protected $guarded = [];
+
+    public function detail_permintaan()
+    {
+        return $this->hasMany(DetailPermintaanSKM::class);
+    }
 }

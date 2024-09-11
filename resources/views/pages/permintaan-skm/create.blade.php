@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('title')
-    Permintaan
+    Tambah Permintaan
 @endsection
 
 @push('after-app-script')

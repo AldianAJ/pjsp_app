@@ -125,7 +125,21 @@
                             <li>
                                 <a href="{{ route('penerimaan-barang') }}" class="waves-effect">
                                     <i class="bx bxs-duplicate"></i>
-                                    <span key="t-minta">Terima Barang</span>
+                                    <span key="t-terima">Terima Barang</span>
+                                </a>
+                            </li>
+
+                            <li>
+                                <a href="{{ route('pengiriman-skm') }}" class="waves-effect">
+                                    <i class="bx bxs-duplicate"></i>
+                                    <span key="t-kirim-skm">Pengiriman ke Mesin</span>
+                                </a>
+                            </li>
+
+                            <li>
+                                <a href="{{ route('return-mesin') }}" class="waves-effect">
+                                    <i class="bx bxs-duplicate"></i>
+                                    <span key="t-return-mesin">Return ke SKM</span>
                                 </a>
                             </li>
 

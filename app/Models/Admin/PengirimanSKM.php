@@ -9,6 +9,9 @@ class PengirimanSKM extends Model
     protected $table = 'tr_krmmsn';
     protected $guarded = [];
 
-    
+    public function detail_pengiriman()
+    {
+        return $this->hasMany(DetailPengirimanSKM::class);
+    }
 }
 

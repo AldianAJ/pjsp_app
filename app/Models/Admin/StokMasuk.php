@@ -12,7 +12,7 @@ class StokMasuk extends Model
 
     public function detail_stok_masuk()
     {
-        return $this->belongsTo(DetailStokMasuk::class, 'no_trm');
+        return $this->hasMany(DetailStokMasuk::class);
     }
 
     public function supplier()

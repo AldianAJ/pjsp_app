@@ -10,7 +10,6 @@ use App\Models\Admin\Supplier;
 use App\Models\Admin\Barang;
 use Illuminate\Http\Request;
 use Yajra\DataTables\DataTables;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
 
 class StokMasukController extends Controller

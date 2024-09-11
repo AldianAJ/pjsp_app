@@ -5,13 +5,12 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Admin\Barang;
-use App\Models\Admin\PengirimanSKM;
-use App\Models\Admin\DetailPengirimanSKM;
-use Illuminate\Support\Facades\DB;
+use App\Models\Admin\ReturnMesin;
+use App\Models\Admin\DetailReturnMesin;
 use Illuminate\Support\Facades\Auth;
 use Yajra\DataTables\DataTables;
 
-class PengirimanSKMController extends Controller
+class ReturnMesinController extends Controller
 {
   /**
    * Display a listing of the resource.
@@ -25,13 +24,13 @@ class PengirimanSKMController extends Controller
   public function index(Request $request)
   {
     $user = $this->userAuth();
-    $path = 'pengiriman-skm.';
+    $path = 'return-skm.';
 
     if ($request->ajax()) {
-      $pengirimans = PengirimanSKM::where('status', 0)->get();
-      return DataTables::of($pengirimans)
+      $returnMesins = ReturnMesin::where('status', 0)->get();
+      return DataTables::of($returnMesins)
         ->addColumn('action', function ($object) use ($path) {
-          $html = '<a href="' . route($path . "edit", ["no_krmmsn" => $object->no_krmmsn]) . '" class="btn btn-secondary waves-effect waves-light mx-1">'
+          $html = '<a href="' . route($path . "edit", ["no_returnmsn" => $object->no_returnmsn]) . '" class="btn btn-secondary waves-effect waves-light mx-1">'
             . ' <i class="bx bx-edit align-middle me-2 font-size-18"></i> Edit</a>';
           return $html;
         })
@@ -39,7 +38,7 @@ class PengirimanSKMController extends Controller
         ->make(true);
     }
 
-    return view('pages.pengiriman-skm.index', compact('user'));
+    return view('pages.return-mesin.index', compact('user'));
   }
 
 
@@ -49,7 +48,7 @@ class PengirimanSKMController extends Controller
   public function create(Request $request)
   {
     $user = $this->userAuth();
-    $path = 'permintaan-skm.create.';
+    $path = 'return-skm.create.';
     if ($request->ajax()) {
       $barangs = Barang::where('status', 0)->get();
       return DataTables::of($barangs)
@@ -61,7 +60,7 @@ class PengirimanSKMController extends Controller
         ->rawColumns(['action'])
         ->make(true);
     }
-    return view('pages.pengiriman-skm.create', compact('user'));
+    return view('pages.return-mesin.create', compact('user'));
   }
 
 
@@ -71,25 +70,25 @@ class PengirimanSKMController extends Controller
    */
   public function store(Request $request)
   {
-    $no_krmmsn = 'TBI/SKM' . '/' . date('y/m/' . str_pad(PengirimanSKM::count() + 1, 3, '0', STR_PAD_LEFT));
+    $no_returnmsn = 'RBI/SKM' . '/' . date('y/m/' . str_pad(ReturnMesin::count() + 1, 3, '0', STR_PAD_LEFT));
 
-    $no_krmmsn = $request->no_krmmsn;
+    $no_returnmsn = $request->no_returnmsn;
 
-    $krmMSN = PengirimanSKM::create([
-      'no_krmmsn' => $no_krmmsn,
+    $returnSKM = ReturnMesin::create([
+      'no_returnmsn' => $no_returnmsn,
       'tgl' => $request->tgl,
     ]);
 
     foreach ($request->items as $item) {
-      DetailPengirimanSKM::create([
-        'no_krmmsn' => $no_krmmsn,
+      DetailReturnMesin::create([
+        'no_returnmsn' => $no_returnmsn,
         'brg_id' => $item['brg_id'],
         'qty' => $item['qty'],
         'satuan_besar' => $item['satuan_besar'],
       ]);
     }
 
-    return redirect()->route('pengiriman-skm')->with('success', 'Data pengiriman berhasil ditambahkan.');
+    return redirect()->route('return-skm')->with('success', 'Data return berhasil ditambahkan.');
   }
 
   /**

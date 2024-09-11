@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Models\Admin\Barang;
 use App\Models\Admin\Gudang;
 use App\Models\Admin\PengirimanGU;
 use App\Models\Admin\DetailPengirimanGU;
@@ -28,7 +27,7 @@ class PengirimanGUController extends Controller
     public function index(Request $request)
     {
         $user = $this->userAuth();
-        $path = 'pengiriman.';
+        $path = 'pengiriman-gudang-utama.';
 
         $permintaans = DB::table('tr_reqskm as a')
             ->leftJoin('tr_krmskm_detail as b', 'a.no_reqskm', '=', 'b.no_reqskm')
@@ -88,7 +87,7 @@ class PengirimanGUController extends Controller
             ->get();
 
         $gudang_id = Gudang::where('jenis', 2)->value('gudang_id');
-        $path = 'pengiriman.create.';
+        $path = 'pengiriman-gudang-utama.create.';
 
         if ($request->ajax()) {
             $data_mintas = DetailPermintaanSKM::with('barang')
@@ -142,7 +141,7 @@ class PengirimanGUController extends Controller
             'status' => 1,
         ]);
 
-        return redirect()->route('pengiriman')->with('success', 'Data pengiriman berhasil ditambahkan.');
+        return redirect()->route('pengiriman-gudang-utama')->with('success', 'Data pengiriman berhasil ditambahkan.');
     }
 
     /**

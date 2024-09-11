@@ -11,7 +11,8 @@ use App\Http\Controllers\Admin\StokMasukController;
 use App\Http\Controllers\Admin\KinerjaController;
 use App\Http\Controllers\Admin\PermintaanSKMController;
 use App\Http\Controllers\Admin\PengirimanGUController;
-
+use App\Http\Controllers\Admin\PengirimanSKMController;
+use App\Http\Controllers\Admin\ReturnMesinController;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -116,19 +117,22 @@ Route::middleware('user')->group(function () {
     });
 
     Route::controller(PengirimanGUController::class)->group(function () {
-        Route::get('/pengiriman', 'index')->name('pengiriman');
-        Route::get('/pengiriman/create/{no_reqskm}', 'create')->name('pengiriman.create');
-        Route::post('/pengiriman/store', 'store')->name('pengiriman.store');
-        Route::get('/pengiriman/detail/{no_reqskm}', 'detailREQ')->name('pengiriman.detailREQ');
-        Route::get('/pengiriman/detail/{no_krmskm}', 'detailKRM')->name('pengiriman.detailKRM');
-        Route::get('/pengiriman/store/penerimaan/{slug}', 'storePenerimaan')->name('pengiriman.penerimaan');
-        Route::get('/pengiriman/keep/barang', 'indexBarangDiambil')->name('pengiriman.barangDiambil');
-        Route::get('/pengiriman/history', 'indexHistory')->name('pengiriman.history');
-        Route::post('/pengiriman/history/detail', 'detailHistory')->name('pengiriman.detailHistory');
-        Route::get('/pengiriman/exportPDF/{slug}', 'exportPDF')->name('pengiriman.exportPDF');
-        Route::get('/pengiriman_barang/update/status/{pengiriman_barang_id}/{barang_id}', 'updateStatus')->name('pengiriman.updateStatus');
+        Route::get('/pengiriman-gudang-utama', 'index')->name('pengiriman-gudang-utama');
+        Route::get('/pengiriman-gudang-utama/create/{no_reqskm}', 'create')->name('pengiriman-gudang-utama.create');
+        Route::post('/pengiriman-gudang-utama/store', 'store')->name('pengiriman-gudang-utama.store');
     });
 
+    Route::controller(PengirimanSKMController::class)->group(function () {
+        Route::get('/pengiriman-skm', 'index')->name('pengiriman-skm');
+        Route::get('/pengiriman-skm/create', 'create')->name('pengiriman-skm.create');
+        Route::post('/pengiriman-skm/store', 'store')->name('pengiriman-skm.store');
+    });
+
+    Route::controller(ReturnMesinController::class)->group(function () {
+        Route::get('/return-mesin', 'index')->name('return-mesin');
+        Route::get('/return-mesin/create', 'create')->name('return-mesin.create');
+        Route::post('/return-mesin/store', 'store')->name('return-mesin.store');
+    });
 
 
     Route::controller(StokMasukController::class)->group(function () {

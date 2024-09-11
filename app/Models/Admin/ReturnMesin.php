@@ -9,6 +9,9 @@ class ReturnMesin extends Model
     protected $table = 'tr_returnmsn';
     protected $guarded = [];
 
-    
+    public function detail_return()
+    {
+        return $this->hasMany(DetailReturnMesin::class);
+    }
 }
 
