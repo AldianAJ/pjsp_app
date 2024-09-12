@@ -45,43 +45,6 @@
                 }
             ],
         });
-
-
-        // Handle form submission
-        $('form').on('submit', async function(event) {
-            event.preventDefault();
-            const form = $(this);
-            const formData = form.serialize();
-            const url = form.attr('action');
-            const formId = form.attr('id');
-
-            try {
-                const response = await $.post(url, formData);
-
-                if (response.success) {
-                    window.location.href = response.redirect;
-                    form[0].reset();
-                } else {
-                    Swal.fire({
-                        toast: true,
-                        position: 'bottom-right',
-                        icon: 'error',
-                        title: response.message,
-                        showConfirmButton: false,
-                        timer: 5000
-                    });
-                }
-            } catch (error) {
-                Swal.fire({
-                    toast: true,
-                    position: 'bottom-right',
-                    icon: 'error',
-                    title: 'An error occurred',
-                    showConfirmButton: false,
-                    timer: 5000
-                });
-            }
-        });
     </script>
 @endpush
 

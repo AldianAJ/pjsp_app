@@ -16,6 +16,7 @@
 
 @push('after-app-script')
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script src="{{ asset('assets/libs/sweetalert2/sweetalert2.min.js') }}"></script>
 
     <script src="{{ asset('assets/libs/datatables.net/js/jquery.dataTables.min.js') }}"></script>
     <script src="{{ asset('assets/libs/datatables.net-bs4/js/dataTables.bootstrap4.min.js') }}"></script>
@@ -55,13 +56,89 @@
                 },
                 {
                     data: "qty",
-                    className: 'editable'
                 },
                 {
                     data: "action"
                 }
             ],
-            oerdering: false,
+            ordering: false,
+        });
+        // Handle Edit button click
+        $('#datatable').on('click', '.btn-editWeek', function() {
+            var table = $('#datatable').DataTable();
+            var $row = $(this).closest('tr');
+            var row = table.row($row);
+
+            // Store original data
+            var originalData = row.data();
+            $row.data('original', originalData);
+
+            // Convert qty cell to an input field
+            var qtyCell = $row.find('td').eq(3); // Assuming qty is the 4th column
+            var qtyText = qtyCell.text();
+            qtyCell.html('<input type="text" value="' + qtyText + '" class="form-control">');
+
+            // Switch to inline edit mode
+            $(this).text('Save').removeClass('btn-editWeek').addClass('btn-save');
+
+            // Show Save and Cancel buttons, hide Edit button
+
+            $row.find('.btn-cancel').show();
+        });
+
+        // Handle Save button click
+        $('#datatable').on('click', '.btn-save', function() {
+            var table = $('#datatable').DataTable();
+            var $row = $(this).closest('tr');
+            var row = table.row($row);
+
+            var originalData = $row.data('original');
+            // Collect updated qty value
+            var updatedQty = $row.find('td').eq(3).find('input').val();
+            var week_id = originalData.week_id;
+
+            // Send updated data to server via AJAX
+            $.ajax({
+                url: "{{ route('kinerja-minggu.update') }}", // Replace with your update route
+                type: "POST",
+                data: {
+                    _token: "{{ csrf_token() }}",
+                    qty: updatedQty,
+                    id: row.data().week_id // Assuming each row has a unique ID
+                },
+                success: function(response) {
+                    Swal.fire({
+                        toast: true,
+                        position: 'bottom-right',
+                        icon: 'success',
+                        title: response.message,
+                        showConfirmButton: false,
+                        timer: 5000
+                    });
+                    // Reload table data
+                    table.ajax.reload();
+                }
+            });
+
+        });
+
+        // Handle Cancel button click
+        $('#datatable').on('click', '.btn-cancel', function() {
+            var $row = $(this).closest('tr');
+            var row = table.row($row);
+
+            // Restore original data
+            var originalData = $row.data('original');
+            $row.find('td').each(function(index) {
+                if (index === 3) { // Only for qty column
+                    $(this).text(originalData.qty);
+                }
+            });
+
+            // Hide Save and Cancel buttons, show Edit button
+            $row.find('.btn-save').hide();
+            $row.find('.btn-cancel').hide();
+            $row.find('.btn-edit').show();
         });
 
         // Apply filters on change
@@ -136,7 +213,6 @@
     </div>
 
     @if (session()->has('success'))
-        <script src="{{ asset('assets/libs/sweetalert2/sweetalert2.min.js') }}"></script>
         <script>
             document.addEventListener('DOMContentLoaded', function() {
                 Swal.fire({

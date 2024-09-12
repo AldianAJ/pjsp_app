@@ -79,22 +79,25 @@ Route::middleware('user')->group(function () {
         Route::get('/kinerja-minggu/create', 'create')->name('kinerja-minggu.create');
         Route::get('/kinerja-minggu/edit/{supplier_id}', 'edit')->name('kinerja-minggu.edit');
         Route::post('/kinerja-minggu/store', 'store')->name('kinerja-minggu.store');
-        Route::post('/kinerj-minggu/update/{supplier_id}', 'update')->name('kinerja.update');
+        Route::post('/kinerj-minggu/update/', 'update')->name('kinerja-minggu.update');
 
         Route::get('/kinerja-hari', 'indexhari')->name('kinerja-hari');
         Route::get('/kinerja-hari/create', 'createhari')->name('kinerja-hari.create');
         Route::post('/kinerja-hari/store', 'storehari')->name('kinerja-hari.store');
         Route::get('/kinerja-hari/detail/', 'detailhari')->name('kinerja-hari.detail');
+        Route::post('/kinerj-hari/update/', 'updatehari')->name('kinerja-hari.update');
 
         Route::get('/kinerja-shift', 'indexshift')->name('kinerja-shift');
         Route::get('/kinerja-shift/create', 'createshift')->name('kinerja-shift.create');
         Route::post('/kinerja-shift/store', 'storeshift')->name('kinerja-shift.store');
         Route::get('/kinerja-shift/detail/', 'detailshift')->name('kinerja-shift.detail');
+        Route::post('/kinerj-shift/update/', 'updateshift')->name('kinerja-shift.update');
 
         Route::get('/kinerja-mesin', 'indexmesin')->name('kinerja-mesin');
         Route::get('/kinerja-mesin/create', 'createmesin')->name('kinerja-mesin.create');
         Route::post('/kinerja-mesin/store', 'storemesin')->name('kinerja-mesin.store');
         Route::get('/kinerja-mesin/detail/', 'detailmesin')->name('kinerja-mesin.detail');
+        Route::post('/kinerj-mesin/update/', 'updatemesin')->name('kinerja-mesin.update');
     });
 
 
@@ -106,15 +109,14 @@ Route::middleware('user')->group(function () {
         Route::post('/permintaan-skm/store', 'store')->name('permintaan-skm.store');
         Route::post('/permintaan-skm/update/{no_reqskm}', 'update')->name('permintaan-skm.update');
         Route::get('/permintaan-skm/history', 'indexHistory')->name('permintaan-skm.history');
-        
+
         Route::get('/penerimaan-barang', 'indexTerima')->name('penerimaan-barang');
         Route::get('/penerimaan-barang/create/{no_krmskm}', 'createTerima')->name('penerimaan-barang.create');
         Route::post('/penerimaan-barang/store', 'storeTerima')->name('penerimaan-barang.store');
         Route::get('/penerimaan-barang/detail/{no_reqskm}', 'indexDetail')->name('penerimaan-barang.indexDetail');
         Route::get('/penerimaan-barang/edit/{no_reqskm}', 'edit')->name('penerimaan-barang.edit');
-        
-        Route::post('/penerimaan-barang/update/{no_reqskm}', 'update')->name('penerimaan-barang.update');
 
+        Route::post('/penerimaan-barang/update/{no_reqskm}', 'update')->name('penerimaan-barang.update');
     });
 
     Route::controller(PengirimanGUController::class)->group(function () {

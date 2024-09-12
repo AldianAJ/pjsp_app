@@ -43,7 +43,8 @@
                     data: "action"
                 }
             ],
-            autoWidth: false
+            autoWidth: false,
+            ordering: false
         });
 
         $('#datatableDetail').DataTable({
@@ -56,7 +57,10 @@
             },
             lengthMenu: [5],
             columns: [{
-                    data: "harian_id"
+                    data: null, // Use null because we will provide custom rendering
+                    render: function(data, type, row, meta) {
+                        return meta.row + 1; // +1 to start numbering from 1
+                    }
                 },
                 {
                     data: "tgl",
@@ -80,7 +84,8 @@
                 var totalQty = api.column(2).data().reduce((a, b) => a + b, 0);
                 $(api.column(3).footer()).html(totalQty);
             },
-            autoWidth: false
+            autoWidth: false,
+            ordering: false
         });
 
         $('#datatableShiftDetail').DataTable({
@@ -93,7 +98,10 @@
             },
             lengthMenu: [5],
             columns: [{
-                    data: "shift_id"
+                    data: null, // Use null because we will provide custom rendering
+                    render: function(data, type, row, meta) {
+                        return meta.row + 1; // +1 to start numbering from 1
+                    }
                 },
                 {
                     data: "target_hari.target_week.barang.nm_brg"
@@ -110,7 +118,8 @@
                 var totalQty = api.column(3).data().reduce((a, b) => a + b, 0);
                 $(api.column(3).footer()).html(totalQty);
             },
-            autoWidth: false
+            autoWidth: false,
+            ordering: false
         });
 
         // Apply filters on change
@@ -148,6 +157,124 @@
                 $('#editModal').modal('hide');
                 $('#shiftModal').modal('show');
             }
+        });
+
+        // Handle Edit button click
+        $('#datatableDetail').on('click', '.btn-editHari', function() {
+            var table = $('#datatableDetail').DataTable();
+            var $row = $(this).closest('tr');
+            var row = table.row($row);
+
+            // Store original data
+            var originalData = row.data();
+            $row.data('original', originalData);
+
+            // Convert qty cell to an input field
+            var qtyCell = $row.find('td').eq(2); // Assuming qty is the 4th column
+            var qtyText = qtyCell.text();
+            qtyCell.html('<input type="text" value="' + qtyText + '" class="form-control">');
+
+            // Switch to inline edit mode
+            $(this).text('Save').removeClass('btn-editHari').addClass('btn-save');
+
+            // Show Save and Cancel buttons, hide Edit button
+
+            $row.find('.btn-cancel').show();
+        });
+
+        // Handle Save button click
+        $('#datatableDetail').on('click', '.btn-save', function() {
+            var table = $('#datatableDetail').DataTable();
+            var $row = $(this).closest('tr');
+            var row = table.row($row);
+
+            var originalData = $row.data('original');
+            // Collect updated qty value
+            var updatedQty = $row.find('td').eq(2).find('input').val();
+            var harian_id = originalData.harian_id;
+            console.log(updatedQty);
+            // Send updated data to server via AJAX
+            $.ajax({
+                url: "{{ route('kinerja-hari.update') }}", // Replace with your update route
+                type: "POST",
+                data: {
+                    _token: "{{ csrf_token() }}",
+                    qty: updatedQty,
+                    id: row.data().harian_id // Assuming each row has a unique ID
+                },
+                success: function(response) {
+                    Swal.fire({
+                        toast: true,
+                        position: 'bottom-right',
+                        icon: 'success',
+                        title: response.message,
+                        showConfirmButton: false,
+                        timer: 5000
+                    });
+                    // Reload table data
+                    table.ajax.reload();
+                }
+            });
+
+        });
+
+        // Handle Edit button click
+        $('#datatableShiftDetail').on('click', '.btn-editHari', function() {
+            var table = $('#datatableShiftDetail').DataTable();
+            var $row = $(this).closest('tr');
+            var row = table.row($row);
+
+            // Store original data
+            var originalData = row.data();
+            $row.data('original', originalData);
+
+            // Convert qty cell to an input field
+            var qtyCell = $row.find('td').eq(2); // Assuming qty is the 4th column
+            var qtyText = qtyCell.text();
+            qtyCell.html('<input type="text" value="' + qtyText + '" class="form-control">');
+
+            // Switch to inline edit mode
+            $(this).text('Save').removeClass('btn-editHari').addClass('btn-save');
+
+            // Show Save and Cancel buttons, hide Edit button
+
+            $row.find('.btn-cancel').show();
+        });
+
+        // Handle Save button click
+        $('#datatableShiftDetail').on('click', '.btn-save', function() {
+            var table = $('#datatableShiftDetail').DataTable();
+            var $row = $(this).closest('tr');
+            var row = table.row($row);
+
+            var originalData = $row.data('original');
+            // Collect updated qty value
+            var updatedQty = $row.find('td').eq(2).find('input').val();
+            var harian_id = originalData.harian_id;
+            console.log(updatedQty);
+            // Send updated data to server via AJAX
+            $.ajax({
+                url: "{{ route('kinerja-hari.update') }}", // Replace with your update route
+                type: "POST",
+                data: {
+                    _token: "{{ csrf_token() }}",
+                    qty: updatedQty,
+                    id: row.data().harian_id // Assuming each row has a unique ID
+                },
+                success: function(response) {
+                    Swal.fire({
+                        toast: true,
+                        position: 'bottom-right',
+                        icon: 'success',
+                        title: response.message,
+                        showConfirmButton: false,
+                        timer: 5000
+                    });
+                    // Reload table data
+                    table.ajax.reload();
+                }
+            });
+
         });
 
         // Handle form submission
@@ -409,6 +536,33 @@
                                                 </tr>
                                             </tfoot>
                                         </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Target Week-->
+    <div class="modal fade" id="weekModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 id="modalTitleShift" class="modal-title">Target Shift</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="card">
+                                <div class="card-body">
+                                    <div id="table-content" style="display: none;">
+                                        @yield('content')
                                     </div>
                                 </div>
                             </div>

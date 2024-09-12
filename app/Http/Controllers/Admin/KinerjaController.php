@@ -64,9 +64,11 @@ class KinerjaController extends Controller
             return DataTables::of($targetMinggu)
                 ->addColumn('action', function ($object) use ($path) {
                     $html = '<button class="btn btn-secondary btn-detailHari waves-effect waves-light me-1" data-week-id="' . $object->week_id . '">'
-                        . '<i class="bx bx-list-check align-middle me-2 font-size-18"></i> Detail</button>'
-                        . '<button class="btn btn-primary btn-editWeek waves-effect waves-light me-1" data-week-id="' . $object->week_id . '">'
-                        . '<i class="bx bx-edit align-middle me-2 font-size-18"></i> Edit</button>';
+                        . '<i class="bx bx-list-check align-middle me-2 font-size-18"></i> Detail</button>';
+                    if ($object->WEEK == date('W')) {
+                        $html .= '<button class="btn btn-primary btn-editWeek waves-effect waves-light me-1" data-week-id="' . $object->week_id . '">'
+                            . '<i class="bx bx-edit align-middle me-2 font-size-18"></i> Edit</button>';
+                    }
 
                     return $html;
                 })
@@ -125,8 +127,8 @@ class KinerjaController extends Controller
         foreach ($request->items as $item) {
             $cek = Mingguan::where('tahun', $request->tahun)->where('week', $request->minggu)->where('brg_id', $item['brg_id'])->count();
             if ($cek > 0) {
-                // return redirect()->route('kinerja-hari')->with('error', 'Data target harian sudah ada.');
-                return response()->json(['success' => false, 'message' => 'Target ' . $item['nm_brg'] . ' sudah ada.'], 200);
+                // return response()->json(['success' => false, 'message' => 'Target ' . $item['nm_brg'] . ' sudah ada.'], 200);
+                return redirect()->route('kinerja-minggu')->with('success', 'Target ' . $item['nm_brg'] . ' sudah ada.');
             }
 
             $week_id = $request->tahun . $request->minggu . '/' . str_pad(Mingguan::count() + 1, 3, '0', STR_PAD_LEFT);
@@ -138,12 +140,25 @@ class KinerjaController extends Controller
                 'qty' => $item['qty'],
             ]);
         }
+        return redirect()->route('kinerja-minggu')->with('success', 'Target mingguan berhasil ditambahkan.');
+    }
 
-        return response()->json([
-            'success' => true,
-            'redirect' => route('kinerja-minggu'),
-            'message' => 'Data target mingguan berhasil ditambahkan.'
+    public function edit($id)
+    {
+        $user = $this->userAuth();
+        $data = Mingguan::find($id);
+        $barangs = Barang::where('status', 0)->get();
+        return view('pages.kinerja-week.edit', compact('user', 'data', 'barangs'));
+    }
+
+    public function update(Request $request)
+    {
+        $data = Mingguan::find($request->id);
+        $data->update([
+            'qty' => $request->qty,
         ]);
+        // return redirect()->route('kinerja-minggu')->with('success', 'Target mingguan berhasil diubah.');
+        return response()->json(['success' => true, 'message' => 'Target mingguan berhasil diubah.'], 200);
     }
 
     /**
@@ -175,7 +190,7 @@ class KinerjaController extends Controller
 
         $path = 'kinerja-hari.';
         if ($request->ajax()) {
-            $targetMinggu = Mingguan::with('barang')->orderby('week_id', 'asc');
+            $targetMinggu = Mingguan::with('barang')->orderby('week_id', 'desc');
             if ($request->has('tahun') && $request->tahun != '') {
                 $targetMinggu->where('tahun', $request->tahun);
             }
@@ -210,7 +225,10 @@ class KinerjaController extends Controller
                 ->addColumn('action', function ($object) {
                     $html = '<button class="btn btn-primary btn-shift waves-effect waves-light me-1" data-harian-id="' . $object->harian_id . '">'
                         . '<i class="bx bx-transfer-alt align-middle me-2 font-size-18"></i> Proses</button>';
-
+                    if ($object->tgl == date('Y-m-d')) {
+                        $html .= '<button class="btn btn-secondary btn-editHari waves-effect waves-light me-1" data-harian-id="' . $object->harian_id . '">'
+                            . '<i class="bx bx-edit align-middle me-2 font-size-18"></i> Edit</button>';
+                    }
                     return $html;
                 })
                 ->rawColumns(['action'])
@@ -254,7 +272,7 @@ class KinerjaController extends Controller
             $totalHarian += $request->qty;
             $sisaBerhasil = $weeklyTarget->qty - $totalHarian;
 
-            if ($totalHarian >= $weeklyTarget->qty) {
+            if ($totalHarian > $weeklyTarget->qty || $sisa == 0) {
                 return response()->json(['success' => false, 'message' => 'Target melebihi target mingguan. Sisa target harian : ' . $sisa], 200);
             }
         }
@@ -269,6 +287,16 @@ class KinerjaController extends Controller
         return response()->json(['success' => true, 'message' => 'Target harian berhasil ditambahkan. Sisa target harian : ' . $sisaBerhasil], 200);
     }
 
+    public function updatehari(Request $request)
+    {
+        $data = Harian::find($request->id);
+        $data->update([
+            'qty' => $request->qty,
+        ]);
+        // return redirect()->route('kinerja-hari')->with('success', 'Target harian berhasil diubah.');
+        return response()->json(['success' => true, 'message' => 'Target harian berhasil diubah.'], 200);
+    }
+
     /**
      * resource Kinerja Shift.
      */
@@ -277,7 +305,7 @@ class KinerjaController extends Controller
         $user = $this->userAuth();
         $path = 'kinerja-shift.';
         if ($request->ajax()) {
-            $targetMinggu = Harian::with('targetWeek.barang')->get();
+            $targetMinggu = Harian::with('targetWeek.barang')->orderby('harian_id', 'desc')->get();
 
             return DataTables::of($targetMinggu)
                 ->addColumn('action', function ($object) use ($path) {
@@ -302,6 +330,15 @@ class KinerjaController extends Controller
             $targetShift = Shift::with('targetHari.targetWeek.barang')->where('harian_id', $request->harian_id)->get();
 
             return DataTables::of($targetShift)
+                ->addColumn('action', function ($object) {
+                    $html = '';
+                    if ($object->tgl == date('Y-m-d')) {
+                        $html .= '<button class="btn btn-secondary btn-editShift waves-effect waves-light me-1" data-shift-id="' . $object->shift_id . '">'
+                            . '<i class="bx bx-edit align-middle me-2 font-size-18"></i> Edit</button>';
+                    }
+                    return $html;
+                })
+                ->rawColumns(['action'])
                 ->make(true);
         }
 
@@ -337,7 +374,7 @@ class KinerjaController extends Controller
         $totalShift += $request->qty;
         $sisaBerhasil = $dailyTarget->qty - $totalShift;
 
-        if ($totalShift >= $dailyTarget->qty) {
+        if ($totalShift > $dailyTarget->qty || $sisa == 0) {
             return response()->json(['success' => false, 'message' => 'Target shift melebihi batas target mingguan. Sisa target shift : ' . $sisa], 200);
         }
 
@@ -351,6 +388,14 @@ class KinerjaController extends Controller
         return response()->json(['success' => true, 'message' => 'Data target shift berhasil ditambahkan. Sisa target shift : ' . $sisaBerhasil], 200);
     }
 
+    public function updateshift(Request $request)
+    {
+        $data = Shift::find($request->id);
+        $data->update([
+            'qty' => $request->qty,
+        ]);
+    }
+
     /**
      * resource Kinerja Mesin.
      */
@@ -359,7 +404,7 @@ class KinerjaController extends Controller
         $user = $this->userAuth();
         $path = 'kinerja-mesin.';
         if ($request->ajax()) {
-            $targetMinggu = Shift::with('targetHari.targetWeek.barang')->get();
+            $targetMinggu = Shift::with('targetHari.targetWeek.barang')->orderby('shift_id', 'desc')->get();
 
             return DataTables::of($targetMinggu)
                 ->addColumn('action', function ($object) use ($path) {
