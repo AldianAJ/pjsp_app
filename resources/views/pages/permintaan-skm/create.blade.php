@@ -13,7 +13,7 @@
     <script src="{{ asset('assets/js/pages/datatables.init.js') }}"></script>
     <script>
         $('#datatable').DataTable({
-            ajax: "{{ route('permintaan.create') }}",
+            ajax: "{{ route('permintaan-skm.create') }}",
             lengthMenu: [5],
             columns: [{
                     data: "brg_id"
@@ -68,7 +68,7 @@
             <div class="card">
                 <div class="card-body">
                     <h5 class="card-title">Data Transaksi</h5>
-                    <form action="{{ route('permintaan.store') }}" method="post" enctype="multipart/form-data">
+                    <form action="{{ route('permintaan-skm.store') }}" method="post" enctype="multipart/form-data">
                         @csrf
                         {{-- <div class="form-group mt-3">
                             <label for="no_trm">No. Dokumen</label>

@@ -31,7 +31,7 @@ class PermintaanSKMController extends Controller
     public function index(Request $request)
     {
         $user = $this->userAuth();
-        $path = 'permintaan.';
+        $path = 'permintaan-skm.';
 
         if ($request->ajax()) {
             $permintaans = PermintaanSKM::where('status', 0)->get();
@@ -58,7 +58,7 @@ class PermintaanSKMController extends Controller
     {
         $user = $this->userAuth();
         $gudang_id = Gudang::where('jenis', 2)->value('gudang_id');
-        $path = 'permintaan.create.';
+        $path = 'permintaan-skm.create.';
         if ($request->ajax()) {
             $barangs = Barang::where('status', 0)->get();
             return DataTables::of($barangs)
@@ -99,7 +99,7 @@ class PermintaanSKMController extends Controller
             ]);
         }
 
-        return redirect()->route('permintaan')->with('success', 'Data permintaan berhasil ditambahkan.');
+        return redirect()->route('permintaan-skm')->with('success', 'Data permintaan berhasil ditambahkan.');
     }
 
     /**
@@ -123,7 +123,7 @@ class PermintaanSKMController extends Controller
         ->where('status', 0)
         ->first();
 
-        $path = 'permintaan.edit.';
+        $path = 'permintaan-skm.edit.';
 
         if ($request->ajax()) {
             $data_mintas = DetailPermintaanSKM::with('barang')
@@ -150,15 +150,30 @@ class PermintaanSKMController extends Controller
                 'qty' => $item['qty'],
             ]);
         }
-        return redirect()->route('permintaan')->with('success', 'Data permintaan berhasil di update.');
+        return redirect()->route('permintaan-skm')->with('success', 'Data permintaan berhasil di update.');
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy()
+    public function indexHistory(Request $request)
     {
-        //
+        $user = $this->userAuth();
+        $path = 'permintaan-skm.history.';
+
+        if ($request->ajax()) {
+            $permintaans = PermintaanSKM::where('status', 0)->get();
+            return DataTables::of($permintaans)
+                ->addColumn('action', function ($object) use ($path) {
+                    $no = str_replace('/', '-', $object->no_reqskm);
+                    $html = '<a href="' . route($path . "edit", ["no_reqskm" => $no]) . '" class="btn btn-secondary waves-effect waves-light mx-1">'
+                        . ' <i class="bx bx-edit align-middle me-2 font-size-18"></i> Edit</a>';
+                    $html .= '<button class="btn btn-primary waves-effect waves-light mx-1 btn-detail" data-no_reqskm="' . $object->no_reqskm . '">' .
+                        '<i class="bx bx-show align-middle font-size-18"></i> Detail</button>';
+                    return $html;
+                })
+                ->rawColumns(['action'])
+                ->make(true);
+        }
+
+        return view('pages.permintaan-skm.index', compact('user'));
     }
 
     public function indexTerima(Request $request)

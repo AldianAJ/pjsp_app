@@ -21,24 +21,42 @@ class StokMasukController extends Controller
     }
 
     public function index(Request $request)
-    {
-        $user = $this->userAuth();
-        $path = 'stok-masuk.';
-        if ($request->ajax()) {
-            $stokMasuks = StokMasuk::with('supplier')
-                ->where('status', 0)
-                ->get();
-            return DataTables::of($stokMasuks)
-                ->addColumn('action', function ($object) use ($path) {
-                    $html = '<a href="' . route($path . "edit", ["no_trm" => $object->no_trm]) . '" class="btn btn-secondary waves-effect waves-light">'
-                        . ' <i class="bx bx-edit align-middle me-2 font-size-18"></i> Edit</a>';
-                    return $html;
-                })
-                ->rawColumns(['action'])
-                ->make(true);
-        }
-        return view('pages.stok-masuk.index', compact('user'));
+{
+    $user = $this->userAuth();
+    $path = 'stok-masuk.';
+    
+    $suppliers = Supplier::all();
+    
+    if ($request->ajax()) {
+        $supplierId = $request->get('supplier_id');
+        $selectedDate = $request->get('selected_date'); 
+
+        $stokMasuks = StokMasuk::with('supplier')
+            ->where('status', 0)
+            ->when($supplierId, function ($query, $supplierId) {
+                return $query->where('supplier_id', $supplierId);
+            })
+            ->when($selectedDate, function ($query, $selectedDate) {
+                return $query->whereDate('tgl', '=', $selectedDate);
+            })
+            ->get();
+
+        return DataTables::of($stokMasuks)
+            ->addColumn('action', function ($object) use ($path) {
+                return '<a href="' . route($path . "edit", ["no_trm" => $object->no_trm]) . '" class="btn btn-secondary waves-effect waves-light">'
+                    . '<i class="bx bx-edit align-middle me-2 font-size-18"></i> Edit</a>';
+            })
+            ->rawColumns(['action'])
+            ->make(true);
     }
+
+    return view('pages.stok-masuk.index', compact('user', 'suppliers'));
+}
+
+
+
+
+
 
     public function create(Request $request)
     {

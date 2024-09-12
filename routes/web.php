@@ -99,12 +99,13 @@ Route::middleware('user')->group(function () {
 
 
     Route::controller(PermintaanSKMController::class)->group(function () {
-        Route::get('/permintaan', 'index')->name('permintaan');
-        Route::get('/permintaan/detail/{no_reqskm}', 'indexDetail')->name('permintaan.indexDetail');
-        Route::get('/permintaan/create', 'create')->name('permintaan.create');
-        Route::get('/permintaan/edit/{no_reqskm}', 'edit')->name('permintaan.edit');
-        Route::post('/permintaan/store', 'store')->name('permintaan.store');
-        Route::post('/permintaan/update/{no_reqskm}', 'update')->name('permintaan.update');
+        Route::get('/permintaan-skm', 'index')->name('permintaan-skm');
+        Route::get('/permintaan-skm/detail/{no_reqskm}', 'indexDetail')->name('permintaan-skm.indexDetail');
+        Route::get('/permintaan-skm/create', 'create')->name('permintaan-skm.create');
+        Route::get('/permintaan-skm/edit/{no_reqskm}', 'edit')->name('permintaan-skm.edit');
+        Route::post('/permintaan-skm/store', 'store')->name('permintaan-skm.store');
+        Route::post('/permintaan-skm/update/{no_reqskm}', 'update')->name('permintaan-skm.update');
+        Route::get('/permintaan-skm/history', 'indexHistory')->name('permintaan-skm.history');
         
         Route::get('/penerimaan-barang', 'indexTerima')->name('penerimaan-barang');
         Route::get('/penerimaan-barang/create/{no_krmskm}', 'createTerima')->name('penerimaan-barang.create');

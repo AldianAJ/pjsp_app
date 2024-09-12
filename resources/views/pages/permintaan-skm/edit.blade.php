@@ -15,7 +15,7 @@
         var no_reqskm = "{{ $no_reqskm }}";
 
         $('#datatable').DataTable({
-            ajax: "{{ url('permintaan/edit') }}/" + no_reqskm,
+            ajax: "{{ url('permintaan-skm/edit') }}/" + no_reqskm,
             lengthMenu: [5],
             columns: [{
                     data: "barang.nm_brg"
@@ -70,7 +70,7 @@
             <div class="card">
                 <div class="card-body">
                     <h5 class="card-title">Data Transaksi</h5>
-                    <form action="{{ route('permintaan.update', ['no_reqskm' => $no_reqskm]) }}" method="post"
+                    <form action="{{ route('permintaan-skm.update', ['no_reqskm' => $no_reqskm]) }}" method="post"
                         enctype="multipart/form-data">
                         @csrf
                         <div class="form-group mt-3">

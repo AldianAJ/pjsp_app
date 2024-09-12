@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('title')
-    Permintaan
+    History Permintaan
 @endsection
 
 @push('after-style')
@@ -17,7 +17,7 @@
         <script src="{{ asset('assets/js/pages/datatables.init.js') }}"></script>
         <script>
             $('#datatable').DataTable({
-                ajax: "{{ route('permintaan-skm') }}",
+                ajax: "{{ route('permintaan-skm.history') }}",
                 columns: [{
                         data: "no_reqskm"
                     },
@@ -36,36 +36,6 @@
                     }
                 ],
             });
-
-
-            $("datatable").on("click", ".btn-detail", function() {
-                let selectData = detailDatatable.row($(this).parents('tr')).data();
-                let no_reqskm = selectData.no_reqskm;
-                $.ajax({
-                    url: '/permintaan/detail/' + no_reqskm,
-                    method: 'GET',
-                    success: function(data) {
-                        $('detailModal .modal-body').html(
-                            `<table class="table table-bordered">
-            <thead class="table-light">
-                <tr>
-                    <th>Nama Barang</th>
-                    <th>Qty</th>
-                    <th>Satuan Besar</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td>${data.nm_brg}</td>
-                    <td>${data.qty}</td>
-                    <td>${data.satuan_besar}</td>
-                </tr>
-            </tbody></table>`
-                        );
-                        $('#detailModal').modal('show')
-                    }
-                })
-            });
         </script>
     @endpush
 
@@ -74,7 +44,7 @@
         <div class="row">
             <div class="col-12">
                 <div class="page-title-box d-sm-flex align-items-center justify-content-between">
-                    <h4 class="mb-sm-0 font-size-18">Permintaan</h4>
+                    <h4 class="mb-sm-0 font-size-18">History Permintaan</h4>
                 </div>
             </div>
         </div>
@@ -84,10 +54,6 @@
             <div class="col-12">
                 <div class="card">
                     <div class="card-body">
-                        <div class="d-flex justify-content-end mb-2">
-                            <a href="{{ route('permintaan-skm.create') }}" class="btn btn-primary my-2"><i
-                                    class="bx bx-plus-circle align-middle me-2 font-size-18"></i> Tambah</a>
-                        </div>
                         <div class="table-responsive">
                             <table id="datatable" class="table align-middle table-nowrap">
                                 <thead class="table-light">
@@ -120,29 +86,4 @@
                 </div>
             </div>
         </div>
-
-
-        @if (session()->has('success'))
-            <script src="{{ asset('assets/libs/sweetalert2/sweetalert2.min.js') }}"></script>
-            <script>
-                document.addEventListener('DOMContentLoaded', function() {
-                    Swal.fire({
-                        toast: true,
-                        position: 'bottom-right',
-                        icon: 'success',
-                        title: '{{ session('success') }}',
-                        showConfirmButton: false,
-                        timer: 5000,
-                        didOpen: (toast) => {
-                            toast.addEventListener('mouseenter', Swal.stopTimer)
-                            toast.addEventListener('mouseleave', Swal.resumeTimer)
-                        },
-                        customClass: {
-                            popup: 'colored-toast'
-                        },
-                        showCloseButton: true
-                    });
-                });
-            </script>
-        @endif
     @endsection
