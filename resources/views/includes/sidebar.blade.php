@@ -117,7 +117,7 @@
 
                             <li class="menu-title" key="t-transactions">Transaksi</li>
                             <li>
-                                <a href="{{ route('permintaan') }}" class="waves-effect">
+                                <a href="{{ route('permintaan-skm') }}" class="waves-effect">
                                     <i class="bx bxs-duplicate"></i>
                                     <span key="t-minta">Permintaan</span>
                                 </a>
