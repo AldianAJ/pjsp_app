@@ -37,7 +37,8 @@ class PermintaanSKMController extends Controller
             $permintaans = PermintaanSKM::where('status', 0)->get();
             return DataTables::of($permintaans)
                 ->addColumn('action', function ($object) use ($path) {
-                    $html = '<a href="' . route($path . "edit", ["no_reqskm" => $object->no_reqskm]) . '" class="btn btn-secondary waves-effect waves-light mx-1">'
+                    $no = str_replace('/', '-', $object->no_reqskm);
+                    $html = '<a href="' . route($path . "edit", ["no_reqskm" => $no]) . '" class="btn btn-secondary waves-effect waves-light mx-1">'
                         . ' <i class="bx bx-edit align-middle me-2 font-size-18"></i> Edit</a>';
                     $html .= '<button class="btn btn-primary waves-effect waves-light mx-1 btn-detail" data-no_reqskm="' . $object->no_reqskm . '">' .
                         '<i class="bx bx-show align-middle font-size-18"></i> Detail</button>';
@@ -113,17 +114,43 @@ class PermintaanSKMController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit()
+    public function edit(Request $request, string $no_reqskm)
     {
-        //
+        $user = $this->userAuth();
+        $no_req = str_replace('-', '/', $no_reqskm);
+
+        $datas = PermintaanSKM::where('no_reqskm', $no_req)
+        ->where('status', 0)
+        ->first();
+
+        $path = 'permintaan.edit.';
+
+        if ($request->ajax()) {
+            $data_mintas = DetailPermintaanSKM::with('barang')
+                ->where('no_reqskm', $no_req)
+                ->where('status', 0)
+                ->get();
+            return DataTables::of($data_mintas)->make(true);
+        }
+
+
+        return view('pages.permintaan-skm.edit', compact('user', 'datas','no_reqskm', 'no_req'));
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update()
+    public function update(Request $request, string $no_reqskm)
     {
-        //
+        $no_reqskm = $request->no_reqskm;
+
+        foreach ($request->items as $item) {
+            $detail_mintas = DetailPermintaanSKM::where('no_reqskm', operator: $no_reqskm)->where('brg_id', $item['brg_id']);
+            $detail_mintas->update([
+                'qty' => $item['qty'],
+            ]);
+        }
+        return redirect()->route('permintaan')->with('success', 'Data permintaan berhasil di update.');
     }
 
     /**
@@ -207,7 +234,7 @@ class PermintaanSKMController extends Controller
                         } else {
 
                         }
-                        
+
                     })
                     ->rawColumns(['action'])
                     ->make(true);
@@ -220,33 +247,33 @@ class PermintaanSKMController extends Controller
     }
 
     public function storeTerima(Request $request)
-{
+    {
 
-    $no_krmskms = $request->no_krmskm;
-    $penerima = $request->user_id;
-    $check_barang = $request->brg_id;
+        $no_krmskms = $request->no_krmskm;
+        $penerima = $request->user_id;
+        $check_barang = $request->brg_id;
 
-    PengirimanGU::where('no_krmskm', $no_krmskms)
-        ->update([
-            'tgl_trm' => $request->tgl_trm,
-            'penerima' => $penerima,
-        ]);
-
-    foreach ($check_barang as $barangId) {
-        $detailPengiriman = DetailPengirimanGU::where('no_krmskm', $no_krmskms)
-            ->where('brg_id', $barangId)
-            ->first();
-
-        if ($detailPengiriman) {
-            $detailPengiriman->update([
-                'diterima' => 0,
+        PengirimanGU::where('no_krmskm', $no_krmskms)
+            ->update([
+                'tgl_trm' => $request->tgl_trm,
+                'penerima' => $penerima,
             ]);
-        }
-    }
 
-    return redirect()->route('penerimaan-barang')
-        ->with('success', 'Data penerimaan barang berhasil ditambahkan.');
-}
+        foreach ($check_barang as $barangId) {
+            $detailPengiriman = DetailPengirimanGU::where('no_krmskm', $no_krmskms)
+                ->where('brg_id', $barangId)
+                ->first();
+
+            if ($detailPengiriman) {
+                $detailPengiriman->update([
+                    'diterima' => 0,
+                ]);
+            }
+        }
+
+        return redirect()->route('penerimaan-barang')
+            ->with('success', 'Data penerimaan barang berhasil ditambahkan.');
+    }
 
 
 }

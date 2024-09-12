@@ -73,8 +73,6 @@ class PengirimanSKMController extends Controller
   {
     $no_krmmsn = 'TBI/SKM' . '/' . date('y/m/' . str_pad(PengirimanSKM::count() + 1, 3, '0', STR_PAD_LEFT));
 
-    $no_krmmsn = $request->no_krmmsn;
-
     $krmMSN = PengirimanSKM::create([
       'no_krmmsn' => $no_krmmsn,
       'tgl' => $request->tgl,

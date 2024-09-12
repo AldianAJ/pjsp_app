@@ -104,8 +104,8 @@ Route::middleware('user')->group(function () {
         Route::get('/permintaan/create', 'create')->name('permintaan.create');
         Route::get('/permintaan/edit/{no_reqskm}', 'edit')->name('permintaan.edit');
         Route::post('/permintaan/store', 'store')->name('permintaan.store');
-        Route::post('/permintaan/update/{no_reqskm}', 'update')->name('supplier.update');
-
+        Route::post('/permintaan/update/{no_reqskm}', 'update')->name('permintaan.update');
+        
         Route::get('/penerimaan-barang', 'indexTerima')->name('penerimaan-barang');
         Route::get('/penerimaan-barang/create/{no_krmskm}', 'createTerima')->name('penerimaan-barang.create');
         Route::post('/penerimaan-barang/store', 'storeTerima')->name('penerimaan-barang.store');
@@ -120,18 +120,21 @@ Route::middleware('user')->group(function () {
         Route::get('/pengiriman-gudang-utama', 'index')->name('pengiriman-gudang-utama');
         Route::get('/pengiriman-gudang-utama/create/{no_reqskm}', 'create')->name('pengiriman-gudang-utama.create');
         Route::post('/pengiriman-gudang-utama/store', 'store')->name('pengiriman-gudang-utama.store');
+        Route::get('/pengiriman-gudang-utama/detail/{no_krmskm}', 'detailKRM')->name('pengiriman-gudang-utama.detailKRM');
     });
 
     Route::controller(PengirimanSKMController::class)->group(function () {
         Route::get('/pengiriman-skm', 'index')->name('pengiriman-skm');
         Route::get('/pengiriman-skm/create', 'create')->name('pengiriman-skm.create');
         Route::post('/pengiriman-skm/store', 'store')->name('pengiriman-skm.store');
+        Route::get('/pengiriman-skm/edit/{no_krmmsn}', 'edit')->name('pengiriman-skm.edit');
     });
 
     Route::controller(ReturnMesinController::class)->group(function () {
         Route::get('/return-mesin', 'index')->name('return-mesin');
         Route::get('/return-mesin/create', 'create')->name('return-mesin.create');
         Route::post('/return-mesin/store', 'store')->name('return-mesin.store');
+        Route::get('/return-mesin/edit/{no_returnmsn}', 'edit')->name('return-mesin.edit');
     });
 
 

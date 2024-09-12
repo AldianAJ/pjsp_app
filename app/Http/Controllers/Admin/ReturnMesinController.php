@@ -24,7 +24,7 @@ class ReturnMesinController extends Controller
   public function index(Request $request)
   {
     $user = $this->userAuth();
-    $path = 'return-skm.';
+    $path = 'return-mesin.';
 
     if ($request->ajax()) {
       $returnMesins = ReturnMesin::where('status', 0)->get();
@@ -48,7 +48,7 @@ class ReturnMesinController extends Controller
   public function create(Request $request)
   {
     $user = $this->userAuth();
-    $path = 'return-skm.create.';
+    $path = 'return-mesin.create.';
     if ($request->ajax()) {
       $barangs = Barang::where('status', 0)->get();
       return DataTables::of($barangs)
@@ -72,8 +72,6 @@ class ReturnMesinController extends Controller
   {
     $no_returnmsn = 'RBI/SKM' . '/' . date('y/m/' . str_pad(ReturnMesin::count() + 1, 3, '0', STR_PAD_LEFT));
 
-    $no_returnmsn = $request->no_returnmsn;
-
     $returnSKM = ReturnMesin::create([
       'no_returnmsn' => $no_returnmsn,
       'tgl' => $request->tgl,
@@ -88,7 +86,7 @@ class ReturnMesinController extends Controller
       ]);
     }
 
-    return redirect()->route('return-skm')->with('success', 'Data return berhasil ditambahkan.');
+    return redirect()->route('return-mesin')->with('success', 'Data return berhasil ditambahkan.');
   }
 
   /**

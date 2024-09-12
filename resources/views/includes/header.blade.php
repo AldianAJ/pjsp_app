@@ -3,15 +3,7 @@
         <div class="d-flex">
             <!-- LOGO -->
             <div class="navbar-brand-box">
-                <a href="#" class="logo logo-dark">
-                    <span class="logo-sm">
-                        <img src="{{ asset('assets/images/pjsp-logo.png') }}" alt="" height="22">
-                    </span>
-                    <span class="logo-lg">
-                        <img src="{{ asset('assets/images/pjsp-logo.png') }}" alt="" height="50">
-                    </span>
-                </a>
-                <a href="index.html" class="logo logo-light">
+                <a href="#" class="logo logo-light">
                     <span class="logo-sm">
                         <img src="{{ asset('assets/images/pjsp-logo.png') }}" alt="" height="22">
                     </span>

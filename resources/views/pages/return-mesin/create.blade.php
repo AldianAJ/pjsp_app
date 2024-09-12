@@ -68,7 +68,7 @@
             <div class="card">
                 <div class="card-body">
                     <h5 class="card-title">Data Transaksi</h5>
-                    <form action="{{ route('pengiriman-skm.store') }}" method="post" enctype="multipart/form-data">
+                    <form action="{{ route('return-mesin.store') }}" method="post" enctype="multipart/form-data">
                         @csrf
                         {{-- <div class="form-group mt-3">
                             <label for="no_trm">No. Dokumen</label>
@@ -82,7 +82,7 @@
                         </div>
                         <div id="items-container"></div> <!-- Container for items input fields -->
                         <div class="d-flex justify-content-end mt-3">
-                            <button type="submit" class="btn btn-success">Simpan</button>
+                            <button type="submit" class="btn btn-primary">Simpan</button>
                         </div>
                     </form>
                 </div>

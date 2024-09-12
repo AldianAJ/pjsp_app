@@ -18,7 +18,7 @@
     <script src="{{ asset('assets/js/pages/datatables.init.js') }}"></script>
     <script>
         $('#datatable').DataTable({
-            ajax: "{{ route('pengiriman') }}",
+            ajax: "{{ route('pengiriman-gudang-utama') }}",
             columns: [{
                     data: "id"
                 },

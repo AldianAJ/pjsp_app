@@ -55,7 +55,7 @@
                             <li class="menu-title" key="t-transactions">Transaksi</li>
 
                             <li>
-                                <a href="{{ route('pengiriman') }}" class="waves-effect">
+                                <a href="{{ route('pengiriman-gudang-utama') }}" class="waves-effect">
                                     <i class="bx bxs-duplicate"></i>
                                     <span key="t-gudang">Persetujuan Permintaan</span>
                                 </a>
@@ -128,14 +128,12 @@
                                     <span key="t-terima">Terima Barang</span>
                                 </a>
                             </li>
-
                             <li>
                                 <a href="{{ route('pengiriman-skm') }}" class="waves-effect">
                                     <i class="bx bxs-duplicate"></i>
                                     <span key="t-kirim-skm">Pengiriman ke Mesin</span>
                                 </a>
                             </li>
-
                             <li>
                                 <a href="{{ route('return-mesin') }}" class="waves-effect">
                                     <i class="bx bxs-duplicate"></i>

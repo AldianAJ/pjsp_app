@@ -15,7 +15,7 @@
         var no_reqskm = "{{ $no_reqskm }}";
 
         $('#datatable').DataTable({
-            ajax: "{{ url('pengiriman/create') }}/" + no_reqskm,
+            ajax: "{{ url('pengiriman-gudang-utama/create') }}/" + no_reqskm,
             lengthMenu: [5],
             columns: [{
                     data: "brg_id"
@@ -107,7 +107,8 @@
             <div class="card">
                 <div class="card-body">
                     <h5 class="card-title">Data Transaksi</h5>
-                    <form action="{{ route('pengiriman.store') }}" method="post" enctype="multipart/form-data">
+                    <form action="{{ route('pengiriman-gudang-utama.store') }}" method="post"
+                        enctype="multipart/form-data">
                         @csrf
                         {{-- <div class="form-group mt-3">
                             <label for="no_trm">No. Dokumen</label>
