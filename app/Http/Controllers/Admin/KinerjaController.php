@@ -332,10 +332,10 @@ class KinerjaController extends Controller
             return DataTables::of($targetShift)
                 ->addColumn('action', function ($object) {
                     $html = '';
-                    if ($object->tgl == date('Y-m-d')) {
-                        $html .= '<button class="btn btn-secondary btn-editShift waves-effect waves-light me-1" data-shift-id="' . $object->shift_id . '">'
-                            . '<i class="bx bx-edit align-middle me-2 font-size-18"></i> Edit</button>';
-                    }
+                    // if ($object->tgl == date('Y-m-d')) {
+                    $html .= '<button class="btn btn-secondary btn-editShift waves-effect waves-light me-1" data-shift-id="' . $object->shift_id . '">'
+                        . '<i class="bx bx-edit align-middle me-2 font-size-18"></i> Edit</button>';
+                    // }
                     return $html;
                 })
                 ->rawColumns(['action'])
@@ -394,6 +394,7 @@ class KinerjaController extends Controller
         $data->update([
             'qty' => $request->qty,
         ]);
+        return response()->json(['success' => true, 'message' => 'Target shift berhasil diubah.'], 200);
     }
 
     /**

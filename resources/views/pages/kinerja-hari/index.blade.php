@@ -111,6 +111,9 @@
                 },
                 {
                     data: "qty"
+                },
+                {
+                    data: "action"
                 }
             ],
             footerCallback: function(row, data, start, end, display) {
@@ -219,7 +222,7 @@
         });
 
         // Handle Edit button click
-        $('#datatableShiftDetail').on('click', '.btn-editHari', function() {
+        $('#datatableShiftDetail').on('click', '.btn-editShift', function() {
             var table = $('#datatableShiftDetail').DataTable();
             var $row = $(this).closest('tr');
             var row = table.row($row);
@@ -229,12 +232,12 @@
             $row.data('original', originalData);
 
             // Convert qty cell to an input field
-            var qtyCell = $row.find('td').eq(2); // Assuming qty is the 4th column
+            var qtyCell = $row.find('td').eq(3); // Assuming qty is the 4th column
             var qtyText = qtyCell.text();
             qtyCell.html('<input type="text" value="' + qtyText + '" class="form-control">');
 
             // Switch to inline edit mode
-            $(this).text('Save').removeClass('btn-editHari').addClass('btn-save');
+            $(this).text('Save').removeClass('btn-editShift').addClass('btn-save');
 
             // Show Save and Cancel buttons, hide Edit button
 
@@ -249,17 +252,17 @@
 
             var originalData = $row.data('original');
             // Collect updated qty value
-            var updatedQty = $row.find('td').eq(2).find('input').val();
-            var harian_id = originalData.harian_id;
+            var updatedQty = $row.find('td').eq(3).find('input').val();
+            var shift_id = originalData.shift_id;
             console.log(updatedQty);
             // Send updated data to server via AJAX
             $.ajax({
-                url: "{{ route('kinerja-hari.update') }}", // Replace with your update route
+                url: "{{ route('kinerja-shift.update') }}", // Replace with your update route
                 type: "POST",
                 data: {
                     _token: "{{ csrf_token() }}",
                     qty: updatedQty,
-                    id: row.data().harian_id // Assuming each row has a unique ID
+                    id: row.data().shift_id // Assuming each row has a unique ID
                 },
                 success: function(response) {
                     Swal.fire({
@@ -525,6 +528,7 @@
                                                     <th>Barang</th>
                                                     <th>Shift</th>
                                                     <th>Jumlah</th>
+                                                    <th>Action</th>
                                                 </tr>
                                             </thead>
                                             <tbody>
