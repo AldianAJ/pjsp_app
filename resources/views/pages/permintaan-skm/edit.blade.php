@@ -7,10 +7,10 @@
 @push('after-app-script')
     <script src="{{ asset('assets/libs/datatables.net/js/jquery.dataTables.min.js') }}"></script>
     <script src="{{ asset('assets/libs/datatables.net-bs4/js/dataTables.bootstrap4.min.js') }}"></script>
-    <!-- Responsive examples -->
     <script src="{{ asset('assets/libs/datatables.net-responsive/js/dataTables.responsive.min.js') }}"></script>
     <script src="{{ asset('assets/libs/datatables.net-responsive-bs4/js/responsive.bootstrap4.min.js') }}"></script>
     <script src="{{ asset('assets/js/pages/datatables.init.js') }}"></script>
+
     <script>
         var no_reqskm = "{{ $no_reqskm }}";
 
@@ -21,7 +21,13 @@
                     data: "barang.nm_brg"
                 },
                 {
-                    data: "qty"
+                    data: "qty",
+                    render: function(data, type, row) {
+                        return `
+                            <span class="qty-value">${data}</span>
+                            <input type="number" class="form-control qty-input d-none" value="${data}">
+                        `;
+                    }
                 },
                 {
                     data: "satuan_besar"
@@ -29,12 +35,56 @@
                 {
                     data: null,
                     render: function(data, type, row) {
-                        return `<button type="button" class="btn btn-primary btn-sm" onclick="showModal('${row.brg_id}', '${row.barang.nm_brg}', ${row.qty}, '${row.satuan_besar} ')">
-                            <i class="fas fa-plus"></i>
-                        </button>`;
-                    },
+                        return `
+                            <button class="btn btn-success waves-effect waves-light edit-btn"><i class="bx bx-edit align-middle font-size-18"></i> Edit</button>
+                            <button class="btn btn-primary waves-effect waves-light save-btn d-none"><i class="bx bx-save align-middle font-size-18"></i> Simpan</button>
+                        `;
+                    }
                 }
             ],
+            rowCallback: function(row, data) {
+                // Attach the brg_id to each row for later use in update
+                $(row).attr('data-brg-id', data.brg_id);
+            }
+        });
+
+        // Event delegation to handle Edit/Save functionality
+        $('#datatable').on('click', '.edit-btn', function() {
+            var $row = $(this).closest('tr');
+            $row.find('.qty-value').addClass('d-none');
+            $row.find('.qty-input').removeClass('d-none');
+            $(this).addClass('d-none');
+            $row.find('.save-btn').removeClass('d-none');
+        });
+
+        $('#datatable').on('click', '.save-btn', function() {
+            var $row = $(this).closest('tr');
+            var qty = $row.find('.qty-input').val();
+            var brg_id = $row.data('brg-id'); // Get brg_id from the row attribute
+
+            // Ajax call to save the updated qty
+            $.ajax({
+                url: "{{ route('permintaan-skm.update', ['no_reqskm' => $no_reqskm]) }}",
+                method: 'POST',
+                data: {
+                    _token: "{{ csrf_token() }}",
+                    no_reqskm: "{{ $no_reqskm }}",
+                    items: [{
+                        brg_id: brg_id,
+                        qty: qty
+                    }]
+                },
+                success: function(response) {
+                    $row.find('.qty-value').text(qty).removeClass('d-none');
+                    $row.find('.qty-input').addClass('d-none');
+                    $row.find('.save-btn').addClass('d-none');
+                    $row.find('.edit-btn').removeClass('d-none');
+                    alert('Qty updated successfully');
+                },
+                error: function() {
+                    alert('Failed to update qty');
+                }
+            });
         });
     </script>
 @endpush
@@ -70,8 +120,7 @@
             <div class="card">
                 <div class="card-body">
                     <h5 class="card-title">Data Transaksi</h5>
-                    <form action="{{ route('permintaan-skm.update', ['no_reqskm' => $no_reqskm]) }}" method="post"
-                        enctype="multipart/form-data">
+                    <form>
                         @csrf
                         <div class="form-group mt-3">
                             <label for="no_reqskm">No. Dokumen Permintaan SKM :</label>
@@ -84,9 +133,6 @@
                                 value="{{ \Carbon\Carbon::parse($datas['tgl'])->format('d-m-Y') }}" readonly>
                         </div>
                         <div id="items-container"></div> <!-- Container for items input fields -->
-                        <div class="d-flex justify-content-end mt-3">
-                            <button type="submit" class="btn btn-primary">Simpan</button>
-                        </div>
                     </form>
                 </div>
             </div>
@@ -94,7 +140,7 @@
     </div>
 
     <div class="row">
-        <div class="col-md-6">
+        <div class="col-md-12">
             <!-- Data Barang Table -->
             <div class="card">
                 <div class="card-body">
@@ -106,7 +152,7 @@
                                     <th>Nama Barang</th>
                                     <th>Qty</th>
                                     <th>Satuan</th>
-                                    <th style="text-align: center;">Action</th>
+                                    <th>Action</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -116,122 +162,5 @@
                 </div>
             </div>
         </div>
-
-        <div class="col-md-6">
-            <div class="card">
-                <div class="card-body">
-                    <h5 class="card-title">List Permintaan</h5>
-                    <table class="table table-striped" id="selected-items-table">
-                        <thead>
-                            <tr>
-                                <th>No</th>
-                                <th>Nama Barang</th>
-                                <th>Qty</th>
-                                <th>Action</th>
-                            </tr>
-                        </thead>
-                        <tbody id="selected-items">
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
     </div>
-
-    <!-- Modal for Input Quantity -->
-    <div class="modal fade" id="qtyModal" tabindex="-1" role="dialog" aria-labelledby="qtyModalLabel" aria-hidden="true">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="qtyModalLabel">Input Quantity</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <form id="qtyForm">
-                        <input type="hidden" id="modal-brg-id">
-                        <div class="form-group">
-                            <label for="modal-nm-brg">Nama Barang</label>
-                            <input type="text" class="form-control" id="modal-nm-brg" readonly>
-                        </div>
-                        <div class="form-group mt-3">
-                            <label for="modal-qty">Qty</label>
-                            <input type="number" class="form-control" id="modal-qty" required>
-                        </div>
-                        <div class="form-group mt-3">
-                            <label for="modal-satuan-besar">Satuan</label>
-                            <input type="text" class="form-control" id="modal-satuan-besar" readonly>
-                        </div>
-                    </form>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-primary" data-bs-dismiss="modal"
-                        onclick="addItem()">Tambah</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-
-    <script>
-        let selectedItems = [];
-
-        function showModal(brg_id, nm_brg, qty, satuan_besar) {
-            const modal = document.getElementById('qtyModal');
-            document.getElementById('modal-brg-id').value = brg_id;
-            document.getElementById('modal-nm-brg').value = nm_brg;
-            document.getElementById('modal-qty').value = qty;
-            document.getElementById('modal-satuan-besar').value = satuan_besar;
-            new bootstrap.Modal(modal).show();
-        }
-
-        function addItem() {
-            const brg_id = document.getElementById('modal-brg-id').value;
-            const nm_brg = document.getElementById('modal-nm-brg').value;
-            const qty = parseFloat(document.getElementById('modal-qty').value);
-            const satuan_besar = document.getElementById('modal-satuan-besar').value;
-
-            if (qty <= 0) {
-                alert('Jumlah harus lebih dari 0');
-                return;
-            }
-
-            selectedItems.push({
-                brg_id,
-                nm_brg,
-                qty,
-                satuan_besar,
-            });
-            updateItems();
-        }
-
-        function removeItem(index) {
-            selectedItems.splice(index, 1);
-            updateItems();
-        }
-
-        function updateItems() {
-            const itemsTable = document.getElementById('selected-items');
-            const itemsContainer = document.getElementById('items-container');
-
-            itemsTable.innerHTML = selectedItems.map((item, index) => `
-                <tr>
-                    <td>${index + 1}</td>
-                    <td>${item.nm_brg}</td>
-                    <td>${item.qty}</td>
-                    <td>
-                        <button type="button" class="btn btn-danger btn-sm" onclick="removeItem(${index})">
-                            <i class="fas fa-trash-alt"></i>
-                        </button>
-                    </td>
-                </tr>
-            `).join('');
-
-            itemsContainer.innerHTML = selectedItems.map((item, index) => `
-                <input type="hidden" name="items[${index}][brg_id]" value="${item.brg_id}">
-                <input type="hidden" name="items[${index}][qty]" value="${item.qty}">
-            `).join('');
-        }
-    </script>
-
-
 @endsection

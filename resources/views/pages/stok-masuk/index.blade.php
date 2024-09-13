@@ -4,35 +4,44 @@
     Stok Masuk
 @endsection
 
-@push('after-style')
+@push('after-app-style')
     <!-- Sweet Alert-->
     <link href="{{ asset('assets/libs/sweetalert2/sweetalert2.min.css') }}" rel="stylesheet" type="text/css" />
-    <!-- Datepicker CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-datepicker@1.9.0/dist/css/bootstrap-datepicker.min.css"
-        rel="stylesheet" />
+    <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.10.0/css/bootstrap-datepicker.min.css">
 @endpush
 
 @push('after-app-script')
-    <!-- Scripts for DataTables and Datepicker -->
     <script src="{{ asset('assets/libs/datatables.net/js/jquery.dataTables.min.js') }}"></script>
     <script src="{{ asset('assets/libs/datatables.net-bs4/js/dataTables.bootstrap4.min.js') }}"></script>
     <script src="{{ asset('assets/libs/datatables.net-responsive/js/dataTables.responsive.min.js') }}"></script>
     <script src="{{ asset('assets/libs/datatables.net-responsive-bs4/js/responsive.bootstrap4.min.js') }}"></script>
     <script src="{{ asset('assets/js/pages/datatables.init.js') }}"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap-datepicker@1.9.0/dist/js/bootstrap-datepicker.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.10.0/js/bootstrap-datepicker.min.js">
+    </script>
 
     <script>
         $(document).ready(function() {
-            $('#filterDate').datepicker({
-                format: "yyyy-mm-dd",
+            $('#filterMonthYear').datepicker({
+                format: "mm-yyyy",
                 autoclose: true,
+                minViewMode: 1,
                 todayHighlight: true,
                 clearBtn: true,
                 todayBtn: "linked",
-                orientation: "bottom auto"
+                orientation: "bottom auto",
+                templates: {
+                    leftArrow: '&laquo;',
+                    rightArrow: '&raquo;'
+                }
             }).on('changeDate', function(e) {
                 $('#filterSupplier').trigger('change');
             });
+
+            var today = new Date();
+            var currentMonth = ('0' + (today.getMonth() + 1)).slice(-2);
+            var currentYear = today.getFullYear();
+            $('#filterMonthYear').datepicker('update', new Date(currentYear, today.getMonth(), 1));
 
             var table = $('#datatable').DataTable({
                 processing: true,
@@ -41,7 +50,17 @@
                     url: "{{ route('stok-masuk') }}",
                     data: function(d) {
                         d.supplier_id = $('#filterSupplier').val();
-                        d.selected_date = $('#filterDate').val();
+
+                        var selectedMonthYear = $('#filterMonthYear').datepicker('getDate');
+                        if (selectedMonthYear) {
+                            var month = ('0' + (selectedMonthYear.getMonth() + 1)).slice(-2);
+                            var year = selectedMonthYear.getFullYear();
+                            d.selected_month = month;
+                            d.selected_year = year;
+                        } else {
+                            d.selected_month = '';
+                            d.selected_year = '';
+                        }
                     }
                 },
                 columns: [{
@@ -56,7 +75,8 @@
                     {
                         data: 'tgl',
                         render: function(data) {
-                            return new Date(data).toLocaleDateString('id-ID', {
+                            var date = new Date(data);
+                            return date.toLocaleDateString('id-ID', {
                                 day: 'numeric',
                                 month: 'long',
                                 year: 'numeric'
@@ -73,7 +93,7 @@
             $('#filterSupplier').on('change', function() {
                 table.draw();
             });
-
+            table.draw();
         });
     </script>
 @endpush
@@ -112,10 +132,10 @@
                         </div>
 
                         <div class="col-md-4">
-                            <label for="filterDate">Tanggal:</label>
+                            <label for="filterMonthYear">Tanggal:</label>
                             <div class="input-group" id="datepicker2">
-                                <input type="text" id="filterDate" class="form-control" placeholder="-- Pilih Tanggal --"
-                                    autocomplete="off" />
+                                <input type="text" id="filterMonthYear" class="form-control"
+                                    placeholder="-- Pilih Tanggal --" autocomplete="off" />
                                 <span class="input-group-text">
                                     <i class="mdi mdi-calendar"></i>
                                 </span>

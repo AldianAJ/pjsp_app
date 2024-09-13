@@ -38,9 +38,9 @@ class PermintaanSKMController extends Controller
             return DataTables::of($permintaans)
                 ->addColumn('action', function ($object) use ($path) {
                     $no = str_replace('/', '-', $object->no_reqskm);
-                    $html = '<a href="' . route($path . "edit", ["no_reqskm" => $no]) . '" class="btn btn-secondary waves-effect waves-light mx-1">'
+                    $html = '<a href="' . route($path . "edit", ["no_reqskm" => $no]) . '" class="btn btn-success waves-effect waves-light mx-1">'
                         . ' <i class="bx bx-edit align-middle me-2 font-size-18"></i> Edit</a>';
-                    $html .= '<button class="btn btn-primary waves-effect waves-light mx-1 btn-detail" data-no_reqskm="' . $object->no_reqskm . '">' .
+                    $html .= '<button class="btn btn-secondary waves-effect waves-light mx-1 btn-detail" data-no_reqskm="' . $object->no_reqskm . '">' .
                         '<i class="bx bx-show align-middle font-size-18"></i> Detail</button>';
                     return $html;
                 })
@@ -143,9 +143,9 @@ class PermintaanSKMController extends Controller
     public function update(Request $request, string $no_reqskm)
     {
         $no_reqskm = $request->no_reqskm;
-
+        $no_req = str_replace('-', '/', $no_reqskm);
         foreach ($request->items as $item) {
-            $detail_mintas = DetailPermintaanSKM::where('no_reqskm', operator: $no_reqskm)->where('brg_id', $item['brg_id']);
+            $detail_mintas = DetailPermintaanSKM::where('no_reqskm', operator: $no_req)->where('brg_id', $item['brg_id']);
             $detail_mintas->update([
                 'qty' => $item['qty'],
             ]);
