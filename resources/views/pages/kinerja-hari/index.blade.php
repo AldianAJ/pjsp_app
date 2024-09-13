@@ -182,6 +182,7 @@
 
             // Show Save and Cancel buttons, hide Edit button
 
+            $row.find('.btn-shift').hide();
             $row.find('.btn-cancel').show();
         });
 
@@ -195,6 +196,8 @@
             // Collect updated qty value
             var updatedQty = $row.find('td').eq(2).find('input').val();
             var harian_id = originalData.harian_id;
+            var week_id = originalData.week_id;
+            var qtyOri = originalData.qty;
             console.log(updatedQty);
             // Send updated data to server via AJAX
             $.ajax({
@@ -202,6 +205,8 @@
                 type: "POST",
                 data: {
                     _token: "{{ csrf_token() }}",
+                    week_id: week_id,
+                    qtyOri: qtyOri,
                     qty: updatedQty,
                     id: row.data().harian_id // Assuming each row has a unique ID
                 },
@@ -209,7 +214,7 @@
                     Swal.fire({
                         toast: true,
                         position: 'bottom-right',
-                        icon: 'success',
+                        icon: response.success ? 'success' : 'error',
                         title: response.message,
                         showConfirmButton: false,
                         timer: 5000
@@ -254,21 +259,25 @@
             // Collect updated qty value
             var updatedQty = $row.find('td').eq(3).find('input').val();
             var shift_id = originalData.shift_id;
-            console.log(updatedQty);
+            var harian_id = originalData.harian_id;
+            var qtyOri = originalData.qty;
             // Send updated data to server via AJAX
+            console.log(originalData);
             $.ajax({
                 url: "{{ route('kinerja-shift.update') }}", // Replace with your update route
                 type: "POST",
                 data: {
                     _token: "{{ csrf_token() }}",
+                    harian_id: harian_id,
+                    qtyOri: qtyOri,
                     qty: updatedQty,
-                    id: row.data().shift_id // Assuming each row has a unique ID
+                    id: shift_id
                 },
                 success: function(response) {
                     Swal.fire({
                         toast: true,
                         position: 'bottom-right',
-                        icon: 'success',
+                        icon: response.success ? 'success' : 'error',
                         title: response.message,
                         showConfirmButton: false,
                         timer: 5000
@@ -291,24 +300,11 @@
             try {
                 const response = await $.post(url, formData);
 
-                if (response.success) {
+                if (response) {
                     Swal.fire({
                         toast: true,
                         position: 'bottom-right',
-                        icon: 'success',
-                        title: response.message,
-                        showConfirmButton: false,
-                        timer: 5000
-                    });
-                    form[0].reset();
-                    $('#datatable').DataTable().ajax.reload();
-                    $('#datatableDetail').DataTable().ajax.reload();
-                    $('#datatableShiftDetail').DataTable().ajax.reload();
-                } else {
-                    Swal.fire({
-                        toast: true,
-                        position: 'bottom-right',
-                        icon: 'error',
+                        icon: response.success ? 'success' : 'error',
                         title: response.message,
                         showConfirmButton: false,
                         timer: 5000
@@ -416,6 +412,7 @@
                             <div class="card">
                                 <div class="card-body">
                                     <h5 class="card-title">Data Transaksi</h5>
+                                    @
                                     <form id="formAction" action="{{ route('kinerja-hari.store') }}" method="post"
                                         enctype="multipart/form-data">
                                         @csrf
