@@ -1,150 +1,186 @@
 @extends('layouts.app')
 
 @section('title')
-    Edit Stok Masuk
+Edit Stok Masuk
 @endsection
 
-@push('after-style')
-    <link rel="stylesheet" href="{{ asset('assets/libs/bootstrap-datepicker/css/bootstrap-datepicker.min.css') }}">
-@endpush
+@push('after-app-script')
+<script src="{{ asset('assets/libs/datatables.net/js/jquery.dataTables.min.js') }}"></script>
+<script src="{{ asset('assets/libs/datatables.net-bs4/js/dataTables.bootstrap4.min.js') }}"></script>
+<script src="{{ asset('assets/libs/datatables.net-responsive/js/dataTables.responsive.min.js') }}"></script>
+<script src="{{ asset('assets/libs/datatables.net-responsive-bs4/js/responsive.bootstrap4.min.js') }}"></script>
+<script src="{{ asset('assets/js/pages/datatables.init.js') }}"></script>
 
-@push('after-script')
-    <script src="{{ asset('assets/libs/bootstrap-datepicker/js/bootstrap-datepicker.min.js') }}"></script>
-    <script src="{{ asset('assets/libs/tinymce/tinymce.min.js') }}"></script>
+<script>
+    var no_trm = "{{ $no_trm }}";
+
+    $('#datatable-header').DataTable({
+            ajax: {
+                url: "{{ url('stok-masuk/create') }}/" + no_trm,
+                data: {
+                    type: 'data_stok_masuks'
+                }
+            },
+            lengthMenu: [5],
+            columns: [{
+                    data: "no_trm"
+                },
+                {
+                    data: "no_sj"
+                },
+                {
+                    data: "supplier.nama"
+                }
+            ],
+        });
+
+        $('#datatable-barang').DataTable({
+            ajax: "{{ url('stok-masuk/edit') }}/" + no_trm,
+            data: {
+                    type: 'barang_krms'
+                }
+            lengthMenu: [5],
+            columns: [{
+                    data: "barang.nm_brg"
+                },
+                {
+                    data: "qty",
+                    render: function(data, type, row) {
+                        return `
+                            <span class="qty-value">${data}</span>
+                            <input type="number" class="form-control qty-input d-none" value="${data}">
+                        `;
+                    }
+                },
+                {
+                    data: "satuan_beli"
+                },
+                {
+                    data: null,
+                    render: function(data, type, row) {
+                        return `
+                            <button class="btn btn-success waves-effect waves-light edit-btn"><i class="bx bx-edit align-middle font-size-18"></i> Edit</button>
+                            <button class="btn btn-primary waves-effect waves-light save-btn d-none"><i class="bx bx-save align-middle font-size-18"></i> Simpan</button>
+                        `;
+                    }
+                }
+            ],
+            rowCallback: function(row, data) {
+                $(row).attr('data-brg-id', data.brg_id);
+            }
+        });
+
+        $('#datatable-barang').on('click', '.edit-btn', function() {
+            var $row = $(this).closest('tr');
+            $row.find('.qty-value').addClass('d-none');
+            $row.find('.qty-input').removeClass('d-none');
+            $(this).addClass('d-none');
+            $row.find('.save-btn').removeClass('d-none');
+        });
+
+        $('#datatable-barang').on('click', '.save-btn', function() {
+            var $row = $(this).closest('tr');
+            var qty = $row.find('.qty-input').val();
+            var brg_id = $row.data('brg-id');
+
+            $.ajax({
+                url: "{{ route('stok-masuk.update', ['no_trm' => $no_trm]) }}",
+                method: 'POST',
+                data: {
+                    _token: "{{ csrf_token() }}",
+                    no_trm: "{{ $no_trm }}",
+                    items: [{
+                        brg_id: brg_id,
+                        qty: qty
+                    }]
+                },
+                success: function(response) {
+                    $row.find('.qty-value').text(qty).removeClass('d-none');
+                    $row.find('.qty-input').addClass('d-none');
+                    $row.find('.save-btn').addClass('d-none');
+                    $row.find('.edit-btn').removeClass('d-none');
+                    alert('Qty updated successfully');
+                },
+                error: function() {
+                    alert('Failed to update qty');
+                }
+            });
+        });
+</script>
 @endpush
 
 @section('content')
-    <!-- start page title -->
-    <div class="row">
-        <div class="col-12">
-            <div class="page-title-box d-sm-flex align-items-center justify-content-between">
-                <h4 class="mb-sm-0 font-size-18">Edit Stok Masuk</h4>
-            </div>
+<!-- Page Title -->
+<div class="row">
+    <div class="col-12">
+        <div class="page-title-box d-sm-flex align-items-center justify-content-between">
+            <h4 class="mb-sm-0 font-size-18">Edit Stok Masuk</h4>
         </div>
     </div>
-    <!-- end page title -->
-    <div class="row">
-        <div class="col-8">
-            <div class="card">
-                <div class="card-body">
-                    <form action="{{ route('stok-masuk.update', ['brg_id' => $data->brg_id]) }}" method="post"
-                        enctype="multipart/form-data">
-                        @csrf
-                        <div class="mt-4 mb-3 row">
-                            <label for="brg_id" class="col-md-2 col-form-label font-size-14">ID Stok Masuk</label>
-                            <div class="col-md">
-                                <input type="text" name="brg_id" id="brg_id" class="form-control"
-                                    value="{{ $data->brg_id }}" readonly>
-                                @error('brg_id')
-                                    <p class="text-danger font-size-12 font-weight-bold">{{ $message }}</p>
-                                @enderror
-                            </div>
-                        </div>
+</div>
 
-                        <div class="mt-4 mb-3 row">
-                            <label for="supplier_id" class="col-md-2 col-form-label font-size-14">Supplier</label>
-                            <div class="col-md">
-                                <select name="supplier_id" id="supplier_id" class="form-control">
-                                    <option value="">-- Pilih Supplier --</option>
-                                    @foreach ($suppliers as $supplier)
-                                        <option value="{{ $supplier->supplier_id }}"
-                                            {{ $supplier->supplier_id == $data->supplier_id ? 'selected' : '' }}>
-                                            {{ $supplier->nama }}
-                                        </option>
-                                    @endforeach
-                                </select>
-                                @error('supplier_id')
-                                    <p class="text-danger font-size-12 font-weight-bold">{{ $message }}</p>
-                                @enderror
-                            </div>
-                        </div>
+<!-- Main Form -->
+<div class="row">
+    <div class="col-md-12">
+        <!-- Display validation errors -->
+        @if ($errors->any())
+        <div class="alert alert-danger">
+            <ul>
+                @foreach ($errors->all() as $error)
+                <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+        @endif
+    </div>
+</div>
 
-                        <div class="mt-4 mb-3 row">
-                            <label for="nm_brg" class="col-md-2 col-form-label font-size-14">Nama Stok Masuk</label>
-                            <div class="col-md">
-                                <input type="text" name="nm_brg" id="nm_brg" class="form-control"
-                                    value="{{ $data->nm_brg }}">
-                                @error('nm_brg')
-                                    <p class="text-danger font-size-12 font-weight-bold">{{ $message }}</p>
-                                @enderror
-                            </div>
-                        </div>
-
-                        <div class="mt-4 mb-3 row">
-                            <label for="satuan_beli" class="col-md-2 col-form-label font-size-14">Satuan Beli</label>
-                            <div class="col-md">
-                                <input type="text" name="satuan_beli" id="satuan_beli" class="form-control"
-                                    value="{{ $data->satuan_beli }}">
-                                @error('satuan_beli')
-                                    <p class="text-danger font-size-12 font-weight-bold">{{ $message }}</p>
-                                @enderror
-                            </div>
-                        </div>
-
-                        <div class="mt-4 mb-3 row">
-                            <label for="konversi1" class="col-md-2 col-form-label font-size-14">Konversi 1</label>
-                            <div class="col-md">
-                                <input type="text" name="konversi1" id="konversi1" class="form-control"
-                                    value="{{ $data->konversi1 }}">
-                                @error('konversi1')
-                                    <p class="text-danger font-size-12 font-weight-bold">{{ $message }}</p>
-                                @enderror
-                            </div>
-                        </div>
-
-                        <div class="mt-4 mb-3 row">
-                            <label for="satuan_besar" class="col-md-2 col-form-label font-size-14">Satuan Besar</label>
-                            <div class="col-md">
-                                <input type="text" name="satuan_besar" id="satuan_besar" class="form-control"
-                                    value="{{ $data->satuan_besar }}">
-                                @error('satuan_besar')
-                                    <p class="text-danger font-size-12 font-weight-bold">{{ $message }}</p>
-                                @enderror
-                            </div>
-                        </div>
-
-                        <div class="mt-4 mb-3 row">
-                            <label for="konversi2" class="col-md-2 col-form-label font-size-14">Konversi 2</label>
-                            <div class="col-md">
-                                <input type="text" name="konversi2" id="konversi2" class="form-control"
-                                    value="{{ $data->konversi2 }}">
-                                @error('konversi2')
-                                    <p class="text-danger font-size-12 font-weight-bold">{{ $message }}</p>
-                                @enderror
-                            </div>
-                        </div>
-
-                        <div class="mt-4 mb-3 row">
-                            <label for="satuan_kecil" class="col-md-2 col-form-label font-size-14">Satuan Kecil</label>
-                            <div class="col-md">
-                                <input type="text" name="satuan_kecil" id="satuan_kecil" class="form-control"
-                                    value="{{ $data->satuan_kecil }}">
-                                @error('satuan_kecil')
-                                    <p class="text-danger font-size-12 font-weight-bold">{{ $message }}</p>
-                                @enderror
-                            </div>
-                        </div>
-
-                        <div class="mt-4 mb-3 row">
-                            <label for="konversi3" class="col-md-2 col-form-label font-size-14">Konversi 3</label>
-                            <div class="col-md">
-                                <input type="text" name="konversi3" id="konversi3" class="form-control"
-                                    value="{{ $data->konversi3 }}">
-                                @error('konversi3')
-                                    <p class="text-danger font-size-12 font-weight-bold">{{ $message }}</p>
-                                @enderror
-                            </div>
-                        </div>
-
-                        <div class="mt-4 mb-3 d-flex justify-content-end">
-                            <a href="{{ route('stok-masuk') }}" class="btn btn-secondary font-size-14 mx-1"> <i
-                                    class="bx bx-caret-left align-middle me-2 font-size-18"></i>Kembali</a>
-                            <button type="submit" class="btn btn-success font-size-14 mx-1"><i
-                                    class="bx bx-save align-middle me-2 font-size-18"></i>Simpan</button>
-                        </div>
-                    </form>
+<div class="row">
+    <div class="col-md-12">
+        <!-- Data Barang Table -->
+        <div class="card">
+            <div class="card-body">
+                <h4 class="card-title mb-3">Data Transaksi</h4>
+                <div class="table-responsive">
+                    <table id="datatable-header" class="table align-middle table-nowrap">
+                        <thead class="table-light">
+                            <tr>
+                                <th>No Dokumen Stok Masuk</th>
+                                <th>No. Surat Jalan dari Supplier</th>
+                                <th>Nama Supplier</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>
     </div>
+</div>
+
+<div class="row">
+    <div class="col-md-12">
+        <!-- Data Barang Table -->
+        <div class="card">
+            <div class="card-body">
+                <h4 class="card-title mb-3">Data Barang</h4>
+                <div class="table-responsive">
+                    <table id="datatable-barang" class="table align-middle table-nowrap">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Nama Barang</th>
+                                <th>Qty</th>
+                                <th>Satuan</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 @endsection

@@ -105,8 +105,8 @@ Route::middleware('user')->group(function () {
         Route::get('/permintaan-skm', 'index')->name('permintaan-skm');
         Route::get('/permintaan-skm/detail/{no_reqskm}', 'indexDetail')->name('permintaan-skm.indexDetail');
         Route::get('/permintaan-skm/create', 'create')->name('permintaan-skm.create');
-        Route::get('/permintaan-skm/edit/{no_reqskm}', 'edit')->name('permintaan-skm.edit');
         Route::post('/permintaan-skm/store', 'store')->name('permintaan-skm.store');
+        Route::get('/permintaan-skm/edit/{no_reqskm}', 'edit')->name('permintaan-skm.edit');
         Route::post('/permintaan-skm/update/{no_reqskm}', 'update')->name('permintaan-skm.update');
         Route::get('/permintaan-skm/history', 'indexHistory')->name('permintaan-skm.history');
 
@@ -144,8 +144,8 @@ Route::middleware('user')->group(function () {
     Route::controller(StokMasukController::class)->group(function () {
         Route::get('/stok-masuk', 'index')->name('stok-masuk');
         Route::get('/stok-masuk/create', 'create')->name('stok-masuk.create');
-        Route::get('/stok-masuk/edit/{no_trm}', 'edit')->name('stok-masuk.edit');
         Route::post('/stok-masuk/store', 'store')->name('stok-masuk.store');
+        Route::get('/stok-masuk/edit/{no_trm}', 'edit')->name('stok-masuk.edit');
         Route::post('/stok-masuk/update/{no_trm}', 'update')->name('stok-masuk.update');
     });
 });

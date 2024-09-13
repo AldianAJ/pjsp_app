@@ -120,8 +120,8 @@ class PermintaanSKMController extends Controller
         $no_req = str_replace('-', '/', $no_reqskm);
 
         $datas = PermintaanSKM::where('no_reqskm', $no_req)
-        ->where('status', 0)
-        ->first();
+            ->where('status', 0)
+            ->first();
 
         $path = 'permintaan-skm.edit.';
 
@@ -134,7 +134,7 @@ class PermintaanSKMController extends Controller
         }
 
 
-        return view('pages.permintaan-skm.edit', compact('user', 'datas','no_reqskm', 'no_req'));
+        return view('pages.permintaan-skm.edit', compact('user', 'datas', 'no_reqskm', 'no_req'));
     }
 
     /**
@@ -204,8 +204,6 @@ class PermintaanSKMController extends Controller
         $no_req = DetailPengirimanGU::where('no_krmskm', $no_krm)->value('no_reqskm');
 
         $user_id = User::where('role', 'skm')->value('user_id');
-
-
 
         $path = 'penerimaan-barang.create.';
 

@@ -45,8 +45,12 @@ class StokMasukController extends Controller
 
             return DataTables::of($stokMasuks)
                 ->addColumn('action', function ($object) use ($path) {
-                    return '<a href="' . route($path . "edit", ["no_trm" => $object->no_trm]) . '" class="btn btn-secondary waves-effect waves-light">'
-                        . '<i class="bx bx-edit align-middle me-2 font-size-18"></i> Edit</a>';
+                    $no = str_replace('/', '-', $object->no_trm);
+                    $html = '<a href="' . route($path . "edit", ["no_trm" => $no]) . '" class="btn btn-success waves-effect waves-light mx-1">'
+                        . ' <i class="bx bx-edit align-middle me-2 font-size-18"></i> Edit</a>';
+                    $html .= '<button class="btn btn-secondary waves-effect waves-light mx-1 btn-detail" data-no_trm="' . $object->no_trm . '">' .
+                        '<i class="bx bx-show align-middle font-size-18"></i> Detail</button>';
+                    return $html;
                 })
                 ->rawColumns(['action'])
                 ->make(true);
@@ -110,37 +114,47 @@ class StokMasukController extends Controller
         $no_trm_supp = str_replace('-', '/', $no_trm);
 
         $datas = StokMasuk::where('no_trm', $no_trm_supp)
-            ->where('status', 0)
-            ->first();
-
-        $path = 'stok-masuk.edit.';
+                    ->where('status', 0)
+                    ->first();
 
         if ($request->ajax()) {
-            $data_trms = DetailStokMasuk::with('barang')
+            $type = $request->input('type');
+
+            if ($type == 'data_stok_masuks') {
+                $data_stok_masuks = StokMasuk::with('supplier')
                 ->where('no_trm', $no_trm_supp)
-                ->where('status', 0)
-                ->get();
-            return DataTables::of($data_trms)->make(true);
+                    ->where('status', 0)
+                    ->first();
+
+                return DataTables::of($data_stok_masuks)->make(true);
+
+            } elseif ($type == 'data_detail_stok_masuks') {
+                $data_stok_masuks = DetailStokMasuk::with('barang')
+                    ->where('no_trm', $no_trm_supp)
+                    ->where('status', 0)
+                    ->get();
+                return DataTables::of($data_stok_masuks)->make(true);
+
+            }
+
+
+            return view('pages.stok-masuk.edit', compact('user', 'datas', 'no_trm', 'no_trm_supp'));
         }
-
-
-        return view('pages.stok-masuk.edit', compact('user', 'datas', 'no_trm', 'no_trm_supp'));
     }
-
     /**
      * Update the specified resource in storage.
      */
     public function update(Request $request, string $no_trm)
     {
         $no_trm = $request->no_trm;
-
+        $no_trm_supp = str_replace('-', '/', $no_trm);
         foreach ($request->items as $item) {
-            $detail_mintas = DetailPermintaanSKM::where('no_reqskm', operator: $no_reqskm)->where('brg_id', $item['brg_id']);
-            $detail_mintas->update([
+            $detail_stok_masuks = DetailStokMasuk::where('no_trm', operator: $no_trm_supp)->where('brg_id', $item['brg_id']);
+            $detail_stok_masuks->update([
                 'qty' => $item['qty'],
             ]);
         }
-        return redirect()->route('permintaan-skm')->with('success', 'Data permintaan berhasil di update.');
+        return redirect()->route('stok-masuk.edit')->with('success', 'Data stok masuk berhasil di update.');
     }
 
 
