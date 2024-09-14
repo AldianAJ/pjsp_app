@@ -117,7 +117,11 @@
                             value="{{ old('gudang_id', $gudang_id ?? '') }}">
                         <div id="items-container"></div> <!-- Container for items input fields -->
                         <div class="d-flex justify-content-end mt-3">
-                            <button type="submit" class="btn btn-success">Simpan</button>
+                            <a href="{{ route('stok-masuk') }}" class="btn btn-secondary waves-effect waves-light me-2">
+                                <i class="bx bx-caret-left align-middle me-2 font-size-18"></i>Kembali
+                            </a>
+                            <button type="submit" class="btn btn-primary waves-effect waves-light"><i
+                                    class="bx bx bxs-save align-middle me-2 font-size-18"></i>Simpan</button>
                         </div>
                     </form>
                 </div>

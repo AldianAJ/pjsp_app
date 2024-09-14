@@ -1,22 +1,23 @@
 @extends('layouts.app')
 
 @section('title')
-Edit Stok Masuk
+    Edit Stok Masuk
 @endsection
 
 @push('after-app-script')
-<script src="{{ asset('assets/libs/datatables.net/js/jquery.dataTables.min.js') }}"></script>
-<script src="{{ asset('assets/libs/datatables.net-bs4/js/dataTables.bootstrap4.min.js') }}"></script>
-<script src="{{ asset('assets/libs/datatables.net-responsive/js/dataTables.responsive.min.js') }}"></script>
-<script src="{{ asset('assets/libs/datatables.net-responsive-bs4/js/responsive.bootstrap4.min.js') }}"></script>
-<script src="{{ asset('assets/js/pages/datatables.init.js') }}"></script>
+    <script src="{{ asset('assets/libs/datatables.net/js/jquery.dataTables.min.js') }}"></script>
+    <script src="{{ asset('assets/libs/datatables.net-bs4/js/dataTables.bootstrap4.min.js') }}"></script>
+    <script src="{{ asset('assets/libs/datatables.net-responsive/js/dataTables.responsive.min.js') }}"></script>
+    <script src="{{ asset('assets/libs/datatables.net-responsive-bs4/js/responsive.bootstrap4.min.js') }}"></script>
+    <script src="{{ asset('assets/js/pages/datatables.init.js') }}"></script>
+    <script src="{{ asset('assets/libs/sweetalert2/sweetalert2.min.js') }}"></script>
 
-<script>
-    var no_trm = "{{ $no_trm }}";
+    <script>
+        var no_trm = "{{ $no_trm }}";
 
-    $('#datatable-header').DataTable({
+        $('#datatable-header').DataTable({
             ajax: {
-                url: "{{ url('stok-masuk/create') }}/" + no_trm,
+                url: "{{ url('stok-masuk/edit') }}/" + no_trm,
                 data: {
                     type: 'data_stok_masuks'
                 }
@@ -35,10 +36,12 @@ Edit Stok Masuk
         });
 
         $('#datatable-barang').DataTable({
-            ajax: "{{ url('stok-masuk/edit') }}/" + no_trm,
-            data: {
-                    type: 'barang_krms'
+            ajax: {
+                url: "{{ url('stok-masuk/edit') }}/" + no_trm,
+                data: {
+                    type: 'data_detail_stok_masuks'
                 }
+            },
             lengthMenu: [5],
             columns: [{
                     data: "barang.nm_brg"
@@ -99,88 +102,91 @@ Edit Stok Masuk
                     $row.find('.qty-input').addClass('d-none');
                     $row.find('.save-btn').addClass('d-none');
                     $row.find('.edit-btn').removeClass('d-none');
-                    alert('Qty updated successfully');
+                    Swal.fire({
+                        toast: true,
+                        position: 'bottom-right',
+                        icon: response.success ? 'success' : 'error',
+                        title: response.message,
+                        showConfirmButton: false,
+                        timer: 5000
+                    });
                 },
-                error: function() {
-                    alert('Failed to update qty');
-                }
             });
         });
-</script>
+    </script>
 @endpush
 
 @section('content')
-<!-- Page Title -->
-<div class="row">
-    <div class="col-12">
-        <div class="page-title-box d-sm-flex align-items-center justify-content-between">
-            <h4 class="mb-sm-0 font-size-18">Edit Stok Masuk</h4>
+    <!-- Page Title -->
+    <div class="row">
+        <div class="col-12">
+            <div class="page-title-box d-sm-flex align-items-center justify-content-between">
+                <h4 class="mb-sm-0 font-size-18">Edit Stok Masuk</h4>
+            </div>
         </div>
     </div>
-</div>
 
-<!-- Main Form -->
-<div class="row">
-    <div class="col-md-12">
-        <!-- Display validation errors -->
-        @if ($errors->any())
-        <div class="alert alert-danger">
-            <ul>
-                @foreach ($errors->all() as $error)
-                <li>{{ $error }}</li>
-                @endforeach
-            </ul>
+    <!-- Main Form -->
+    <div class="row">
+        <div class="col-md-12">
+            <!-- Display validation errors -->
+            @if ($errors->any())
+                <div class="alert alert-danger">
+                    <ul>
+                        @foreach ($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+            @endif
         </div>
-        @endif
     </div>
-</div>
 
-<div class="row">
-    <div class="col-md-12">
-        <!-- Data Barang Table -->
-        <div class="card">
-            <div class="card-body">
-                <h4 class="card-title mb-3">Data Transaksi</h4>
-                <div class="table-responsive">
-                    <table id="datatable-header" class="table align-middle table-nowrap">
-                        <thead class="table-light">
-                            <tr>
-                                <th>No Dokumen Stok Masuk</th>
-                                <th>No. Surat Jalan dari Supplier</th>
-                                <th>Nama Supplier</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                        </tbody>
-                    </table>
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-body">
+                    <h4 class="card-title mb-3">Data Transaksi</h4>
+                    <div class="table-responsive">
+                        <table id="datatable-header" class="table align-middle table-nowrap">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>No Dokumen Stok Masuk</th>
+                                    <th>No. Surat Jalan dari Supplier</th>
+                                    <th>Nama Supplier</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-</div>
 
-<div class="row">
-    <div class="col-md-12">
-        <!-- Data Barang Table -->
-        <div class="card">
-            <div class="card-body">
-                <h4 class="card-title mb-3">Data Barang</h4>
-                <div class="table-responsive">
-                    <table id="datatable-barang" class="table align-middle table-nowrap">
-                        <thead class="table-light">
-                            <tr>
-                                <th>Nama Barang</th>
-                                <th>Qty</th>
-                                <th>Satuan</th>
-                                <th>Action</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                        </tbody>
-                    </table>
+    <div class="row">
+        <div class="col-md-12">
+            <!-- Data Barang Table -->
+            <div class="card">
+                <div class="card-body">
+                    <h4 class="card-title mb-3">Data Barang</h4>
+                    <div class="table-responsive">
+                        <table id="datatable-barang" class="table align-middle table-nowrap">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Nama Barang</th>
+                                    <th>Qty</th>
+                                    <th>Satuan</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-</div>
 @endsection

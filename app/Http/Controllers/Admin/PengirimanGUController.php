@@ -58,10 +58,10 @@ class PengirimanGUController extends Controller
                 ->addColumn('action', function ($object) use ($path) {
                     $no = str_replace('/', '-', $object->id);
                     if (is_null($object->tgl_krm)) {
-                        return '<a href="' . route($path . "create", ["no_reqskm" => $no]) . '" class="btn btn-primary waves-effect waves-light mx-1">'
+                        return '<a href="' . route($path . "create", ["no_reqskm" => $no]) . '" class="btn btn-info waves-effect waves-light mx-1">'
                             . '<i class="bx bx-transfer-alt align-middle me-2 font-size-18"></i> Proses</a>';
                     } else {
-                        return '<a href="' . route($path . "detailKRM", ["no_krmskm" => $no]) . '" class="btn btn-primary waves-effect waves-light mx-1">'
+                        return '<a href="' . route($path . "detailKRM", ["no_krmskm" => $no]) . '" class="btn btn-secondary waves-effect waves-light mx-1">'
                             . '<i class="bx bx-show align-middle me-2 font-size-18"></i> Detail</a>';
                     }
                 })

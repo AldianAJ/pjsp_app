@@ -114,47 +114,48 @@ class StokMasukController extends Controller
         $no_trm_supp = str_replace('-', '/', $no_trm);
 
         $datas = StokMasuk::where('no_trm', $no_trm_supp)
-                    ->where('status', 0)
-                    ->first();
+            ->where('status', 0)
+            ->first();
 
         if ($request->ajax()) {
             $type = $request->input('type');
 
             if ($type == 'data_stok_masuks') {
                 $data_stok_masuks = StokMasuk::with('supplier')
-                ->where('no_trm', $no_trm_supp)
+                    ->where('no_trm', $no_trm_supp)
                     ->where('status', 0)
-                    ->first();
+                    ->get();
 
                 return DataTables::of($data_stok_masuks)->make(true);
 
             } elseif ($type == 'data_detail_stok_masuks') {
-                $data_stok_masuks = DetailStokMasuk::with('barang')
+                $data_detail_stok_masuks = DetailStokMasuk::with('barang')
                     ->where('no_trm', $no_trm_supp)
                     ->where('status', 0)
                     ->get();
-                return DataTables::of($data_stok_masuks)->make(true);
-
+                return DataTables::of($data_detail_stok_masuks)->make(true);
             }
 
-
-            return view('pages.stok-masuk.edit', compact('user', 'datas', 'no_trm', 'no_trm_supp'));
         }
+        return view('pages.stok-masuk.edit', compact('user', 'datas', 'no_trm', 'no_trm_supp'));
     }
     /**
      * Update the specified resource in storage.
      */
     public function update(Request $request, string $no_trm)
     {
+        $nama = $qty = '';
         $no_trm = $request->no_trm;
         $no_trm_supp = str_replace('-', '/', $no_trm);
         foreach ($request->items as $item) {
             $detail_stok_masuks = DetailStokMasuk::where('no_trm', operator: $no_trm_supp)->where('brg_id', $item['brg_id']);
+            $nama = Barang::where('brg_id', $item['brg_id'])->value('nm_brg');
             $detail_stok_masuks->update([
                 'qty' => $item['qty'],
             ]);
+            $qty = $item['qty'];
         }
-        return redirect()->route('stok-masuk.edit')->with('success', 'Data stok masuk berhasil di update.');
+        return response()->json(['success' => true, 'message' => 'Data ' . $nama . ' berhasil diubah. Menjadi Qty : ' . $qty], 200);
     }
 
 

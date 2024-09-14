@@ -4,6 +4,13 @@
     Tambah Pengiriman ke Mesin
 @endsection
 
+@push('after-app-style')
+    <!-- Sweet Alert -->
+    <link href="{{ asset('assets/libs/sweetalert2/sweetalert2.min.css') }}" rel="stylesheet" type="text/css" />
+    <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.10.0/css/bootstrap-datepicker.min.css">
+@endpush
+
 @push('after-app-script')
     <script src="{{ asset('assets/libs/datatables.net/js/jquery.dataTables.min.js') }}"></script>
     <script src="{{ asset('assets/libs/datatables.net-bs4/js/dataTables.bootstrap4.min.js') }}"></script>
@@ -11,14 +18,58 @@
     <script src="{{ asset('assets/libs/datatables.net-responsive/js/dataTables.responsive.min.js') }}"></script>
     <script src="{{ asset('assets/libs/datatables.net-responsive-bs4/js/responsive.bootstrap4.min.js') }}"></script>
     <script src="{{ asset('assets/js/pages/datatables.init.js') }}"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.10.0/js/bootstrap-datepicker.min.js">
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/moment.min.js"></script>
     <script>
+        $(document).ready(function() {
+            $("#date").datepicker({
+                format: 'dd-mm-yyyy',
+                autoclose: true,
+                todayHighlight: true,
+                clearBtn: true,
+                todayBtn: "linked",
+                orientation: "bottom auto",
+                endDate: new Date()
+            }).on('changeDate', function() {
+                $('#targetMesinModal').modal('show');
+            });
+
+            $('#datatable').DataTable({
+                ajax: "{{ route('pengiriman-skm.create') }}",
+                lengthMenu: [5],
+                columns: [{
+                        data: "nm_brg"
+                    },
+                    {
+                        data: "satuan_besar"
+                    },
+                    {
+                        data: null,
+                        render: function(data, type, row) {
+                            return `<button type="button" class="btn btn-primary btn-sm" onclick="showModal('${row.brg_id}', '${row.nm_brg}', '${row.satuan_besar}')">
+                                <i class="fas fa-plus"></i>
+                            </button>`;
+                        },
+                    }
+                ],
+            });
+
+            $("#date").val("{{ old('tgl', date('d-m-Y')) }}");
+
+            $('form').on('submit', function() {
+                var dateInput = $("#date").val();
+                if (dateInput) {
+                    var date = moment(dateInput, 'DD-MM-YYYY').format('YYYY-MM-DD');
+                    $("#date").val(date);
+                }
+            });
+        });
+
         $('#datatable').DataTable({
             ajax: "{{ route('pengiriman-skm.create') }}",
             lengthMenu: [5],
             columns: [{
-                    data: "brg_id"
-                },
-                {
                     data: "nm_brg"
                 },
                 {
@@ -28,12 +79,72 @@
                     data: null,
                     render: function(data, type, row) {
                         return `<button type="button" class="btn btn-primary btn-sm" onclick="showModal('${row.brg_id}', '${row.nm_brg}', '${row.satuan_besar}')">
-                            <i class="fas fa-plus"></i>
-                        </button>`;
+                                <i class="fas fa-plus"></i>
+                            </button>`;
                     },
                 }
             ],
         });
+
+        let selectedItems = [];
+
+        function showModal(brg_id, nm_brg, satuan_besar) {
+            const modal = document.getElementById('qtyModal');
+            document.getElementById('modal-brg-id').value = brg_id;
+            document.getElementById('modal-nm-brg').value = nm_brg;
+            document.getElementById('modal-satuan-kecil').value = satuan_besar;
+            document.getElementById('modal-qty').value = '';
+            new bootstrap.Modal(modal).show();
+        }
+
+        function addItem() {
+            const brg_id = document.getElementById('modal-brg-id').value;
+            const nm_brg = document.getElementById('modal-nm-brg').value;
+            const qty = parseFloat(document.getElementById('modal-qty').value);
+            const satuan_besar = document.getElementById('modal-satuan-kecil').value;
+
+            if (qty <= 0) {
+                alert('Jumlah harus lebih dari 0');
+                return;
+            }
+
+            selectedItems.push({
+                brg_id,
+                nm_brg,
+                qty,
+                satuan_besar,
+            });
+            updateItems();
+        }
+
+        function removeItem(index) {
+            selectedItems.splice(index, 1);
+            updateItems();
+        }
+
+        function updateItems() {
+            const itemsTable = document.getElementById('selected-items');
+            const itemsContainer = document.getElementById('items-container');
+
+            itemsTable.innerHTML = selectedItems.map((item, index) => `
+                <tr>
+                    <td>${index + 1}</td>
+                    <td>${item.nm_brg}</td>
+                    <td>${item.qty}</td>
+                    <td>
+                        <button type="button" class="btn btn-danger btn-sm" onclick="removeItem(${index})">
+                            <i class="fas fa-trash-alt"></i>
+                        </button>
+                    </td>
+                </tr>
+            `).join('');
+
+            itemsContainer.innerHTML = selectedItems.map((item, index) => `
+                <input type="hidden" name="items[${index}][brg_id]" value="${item.brg_id}">
+                <input type="hidden" name="items[${index}][qty]" value="${item.qty}">
+                <input type="hidden" name="items[${index}][satuan_besar]" value="${item.satuan_besar}">
+            `).join('');
+        }
     </script>
 @endpush
 
@@ -47,10 +158,8 @@
         </div>
     </div>
 
-    <!-- Main Form -->
     <div class="row">
         <div class="col-md-12">
-            <!-- Display validation errors -->
             @if ($errors->any())
                 <div class="alert alert-danger">
                     <ul>
@@ -70,15 +179,15 @@
                     <h5 class="card-title">Data Transaksi</h5>
                     <form action="{{ route('pengiriman-skm.store') }}" method="post" enctype="multipart/form-data">
                         @csrf
-                        {{-- <div class="form-group mt-3">
-                            <label for="no_trm">No. Dokumen</label>
-                            <input type="text" class="form-control" name="no_trm" value="{{ old('no_trm', $no_trm) }}"
-                                required>
-                        </div> --}}
-                        <div class="form-group mt-3">
-                            <label for="tgl">Tanggal</label>
-                            <input type="date" class="form-control" name="tgl"
-                                value="{{ old('tgl', \Carbon\Carbon::now()->format('Y-m-d')) }}" required readonly>
+                        <div class="col-md-4">
+                            <label for="date">Tanggal:</label>
+                            <div class="input-group">
+                                <input type="text" id="date" name="tgl" class="form-control"
+                                    placeholder="-- Pilih Tanggal --" autocomplete="off" />
+                                <span class="input-group-text">
+                                    <i class="mdi mdi-calendar"></i>
+                                </span>
+                            </div>
                         </div>
                         <div id="items-container"></div> <!-- Container for items input fields -->
                         <div class="d-flex justify-content-end mt-3">
@@ -100,7 +209,6 @@
                         <table id="datatable" class="table align-middle table-nowrap">
                             <thead class="table-light">
                                 <tr>
-                                    <th>ID Barang</th>
                                     <th>Nama Barang</th>
                                     <th>Satuan</th>
                                     <th style="text-align: center;">Action</th>
@@ -168,68 +276,45 @@
         </div>
     </div>
 
-
-    <script>
-        let selectedItems = [];
-
-        function showModal(brg_id, nm_brg, satuan_besar) {
-            const modal = document.getElementById('qtyModal');
-            document.getElementById('modal-brg-id').value = brg_id;
-            document.getElementById('modal-nm-brg').value = nm_brg;
-            document.getElementById('modal-satuan-kecil').value = satuan_besar;
-            document.getElementById('modal-qty').value = '';
-            new bootstrap.Modal(modal).show();
-        }
-
-        function addItem() {
-            const brg_id = document.getElementById('modal-brg-id').value;
-            const nm_brg = document.getElementById('modal-nm-brg').value;
-            const qty = parseFloat(document.getElementById('modal-qty').value);
-            const satuan_besar = document.getElementById('modal-satuan-kecil').value;
-
-            if (qty <= 0) {
-                alert('Jumlah harus lebih dari 0');
-                return;
-            }
-
-            selectedItems.push({
-                brg_id,
-                nm_brg,
-                qty,
-                satuan_besar,
-            });
-            updateItems();
-        }
-
-        function removeItem(index) {
-            selectedItems.splice(index, 1);
-            updateItems();
-        }
-
-        function updateItems() {
-            const itemsTable = document.getElementById('selected-items');
-            const itemsContainer = document.getElementById('items-container');
-
-            itemsTable.innerHTML = selectedItems.map((item, index) => `
-                <tr>
-                    <td>${index + 1}</td>
-                    <td>${item.nm_brg}</td>
-                    <td>${item.qty}</td>
-                    <td>
-                        <button type="button" class="btn btn-danger btn-sm" onclick="removeItem(${index})">
-                            <i class="fas fa-trash-alt"></i>
-                        </button>
-                    </td>
-                </tr>
-            `).join('');
-
-            itemsContainer.innerHTML = selectedItems.map((item, index) => `
-                <input type="hidden" name="items[${index}][brg_id]" value="${item.brg_id}">
-                <input type="hidden" name="items[${index}][qty]" value="${item.qty}">
-                <input type="hidden" name="items[${index}][satuan_besar]" value="${item.satuan_besar}">
-            `).join('');
-        }
-    </script>
-
-
+    <!-- Modal for Login -->
+    <div class="modal fade" id="targetMesinModal" tabindex="-1" role="dialog" aria-labelledby="targetMesinLabel"
+        aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="targetMesinLabel">Data Target Mesin</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="card">
+                                <div class="card-body">
+                                    <h5 class="card-title">Data Transaksi</h5>
+                                    <form action="{{ route('pengiriman-skm.store') }}" method="post"
+                                        enctype="multipart/form-data">
+                                        @csrf
+                                        <div class="col-md-4">
+                                            <label for="date">Tanggal:</label>
+                                            <div class="input-group">
+                                                <input type="text" id="date" name="tgl" class="form-control"
+                                                    placeholder="-- Pilih Tanggal --" autocomplete="off" />
+                                                <span class="input-group-text">
+                                                    <i class="mdi mdi-calendar"></i>
+                                                </span>
+                                            </div>
+                                        </div>
+                                        <div id="items-container"></div> <!-- Container for items input fields -->
+                                        <div class="d-flex justify-content-end mt-3">
+                                            <button type="submit" class="btn btn-primary">Simpan</button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 @endsection

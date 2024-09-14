@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Admin\Barang;
+use App\Models\Admin\TargetMesin;
 use App\Models\Admin\PengirimanSKM;
 use App\Models\Admin\DetailPengirimanSKM;
 use Illuminate\Support\Facades\Auth;
@@ -48,20 +49,35 @@ class PengirimanSKMController extends Controller
     public function create(Request $request)
     {
         $user = $this->userAuth();
-        $path = 'permintaan-skm.create.';
+        $tgl = $request->tgl;
+
+        $targetMesin = TargetMesin::with('targetShift.targetHari.targetWeek.barang')
+            ->whereHas('targetShift.targetHari', function ($query) use ($tgl) {
+                $query->whereDate('tgl', $tgl);
+            })
+            ->with('mesin')
+            ->orderby('msn_trgt_id', 'desc')
+            ->get();
+
         if ($request->ajax()) {
             $barangs = Barang::where('status', 0)->get();
             return DataTables::of($barangs)
-                ->addColumn('action', function ($object) use ($path) {
-                    $html = '<div class="d-flex justify-content-center"><button class="btn btn-primary waves-effect waves-light btn-add" data-bs-toggle="modal"' .
-                        'data-bs-target="#qtyModal"><i class="bx bx-plus-circle align-middle font-size-18"></i></button></div>';
+                ->addColumn('action', function ($object) {
+                    $html = '<div class="d-flex justify-content-center">
+                            <button class="btn btn-primary waves-effect waves-light btn-add" data-bs-toggle="modal"
+                            data-bs-target="#qtyModal">
+                                <i class="bx bx-plus-circle align-middle font-size-18"></i>
+                            </button>
+                         </div>';
                     return $html;
                 })
                 ->rawColumns(['action'])
                 ->make(true);
         }
+
         return view('pages.pengiriman-skm.create', compact('user'));
     }
+
 
 
 
@@ -72,9 +88,12 @@ class PengirimanSKMController extends Controller
     {
         $no_krmmsn = 'TBI/SKM' . '/' . date('y/m/' . str_pad(PengirimanSKM::count() + 1, 3, '0', STR_PAD_LEFT));
 
+        $msn_trgt_id = $request->msn_trgt_id;
+
         $krmMSN = PengirimanSKM::create([
             'no_krmmsn' => $no_krmmsn,
             'tgl' => $request->tgl,
+            'msn_trgt_id' => $msn_trgt_id,
         ]);
 
         foreach ($request->items as $item) {
