@@ -115,6 +115,14 @@
                                 </a>
                             </li>
 
+                            <li class="menu-title" key="t-apps">Closing SKM</li>
+                            <li>
+                                <a href="{{ route('closing-mesin') }}" class="waves-effect">
+                                    <i class="bx bxs-receipt"></i>
+                                    <span key="t-kinerja">Closing Mesin</span>
+                                </a>
+                            </li>
+
                             <li class="menu-title" key="t-transactions">Transaksi</li>
                             <li>
                                 <a href="{{ route('permintaan-skm') }}" class="waves-effect">

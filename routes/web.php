@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\BarangController;
+use App\Http\Controllers\Admin\ClosingController;
 use App\Http\Controllers\Admin\GudangController;
 use App\Http\Controllers\Admin\MesinController;
 use App\Http\Controllers\Admin\JenisMesinController;
@@ -100,6 +101,13 @@ Route::middleware('user')->group(function () {
         Route::post('/kinerj-mesin/update/', 'updatemesin')->name('kinerja-mesin.update');
     });
 
+    Route::controller(ClosingController::class)->group(function () {
+        Route::get('/closing-mesin', 'index')->name('closing-mesin');
+        Route::get('/closing-mesin/create', 'create')->name('closing-mesin.create');
+        Route::post('/closing-mesin/store', 'store')->name('closing-mesin.store');
+        Route::get('/closing-mesin/edit/{closing_id}', 'edit')->name('closing-mesin.edit');
+        Route::post('/closing-mesin/update/{closing_id}', 'update')->name('closing-mesin.update');
+    });
 
     Route::controller(PermintaanSKMController::class)->group(function () {
         Route::get('/permintaan-skm', 'index')->name('permintaan-skm');

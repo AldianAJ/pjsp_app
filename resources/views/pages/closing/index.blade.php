@@ -18,7 +18,7 @@
     <script src="{{ asset('assets/js/pages/datatables.init.js') }}"></script>
     <script>
         $('#datatable').DataTable({
-            ajax: "{{ route('kinerja-mesin') }}",
+            ajax: "{{ route('closing-mesin') }}",
             columns: [{
                     data: "target_hari.target_week.barang.nm_brg"
                 },

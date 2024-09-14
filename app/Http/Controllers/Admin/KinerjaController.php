@@ -206,7 +206,7 @@ class KinerjaController extends Controller
                         $html = '<button class="btn btn-info btn-edit waves-effect waves-light me-1" data-week-id="' . $object->week_id . '">'
                             . '<i class="bx bx-transfer-alt align-middle me-2 font-size-18"></i> Proses</button>';
                     } else {
-                        $html = '<button class="btn btn-secondary btn-detailHari waves-effect waves-light me-1" data-week-id="' . $object->week_id . '">'
+                        $html = '<button class="btn btn-secondary btn-detailHari waves-effect waves-light me-1" data-week-id="' . $object->week_id . '" data-week="' . $object->WEEK . '">'
                             . '<i class="bx bx-list-check align-middle me-2 font-size-18"></i> Detail</button>';
                     }
 
@@ -434,7 +434,7 @@ class KinerjaController extends Controller
         $user = $this->userAuth();
         $path = 'kinerja-mesin.';
         if ($request->ajax()) {
-            $targetMinggu = Shift::with('targetHari.targetWeek.barang')->orderby('shift_id', 'desc')->get();
+            $targetMinggu = Shift::with('targetHari.targetWeek.barang')->orderby('harian_id', 'desc')->orderby('shift', 'asc')->get();
 
             return DataTables::of($targetMinggu)
                 ->addColumn('action', function ($object) use ($path) {

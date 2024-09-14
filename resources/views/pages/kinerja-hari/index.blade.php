@@ -130,13 +130,13 @@
             $('#datatable').DataTable().ajax.reload(); // Reload data based on new filters
         });
 
-        $('#datatable').on('click', '.btn-edit', function() {
+        $('#datatable').on('click', '.btn-edit, .btn-detailHari', function() {
             const weekId = $(this).data('week-id');
             const row = $(this).closest('tr');
             const data = $('#datatable').DataTable().row(row).data();
             const name = data.barang.nm_brg;
             const details = data.qty;
-            if ($(this).hasClass('btn-edit')) {
+            if ($(this).hasClass('btn-edit') || $(this).hasClass('btn-detailHari')) {
                 $('#week_id').val(weekId);
                 window.currentWeekId = weekId;
                 $('#modalTitle').html(`Target Harian (${name}, Jumlah: ${details})`);
@@ -412,7 +412,7 @@
                             <div class="card">
                                 <div class="card-body">
                                     <h5 class="card-title">Data Transaksi</h5>
-                                    @
+
                                     <form id="formAction" action="{{ route('kinerja-hari.store') }}" method="post"
                                         enctype="multipart/form-data">
                                         @csrf
