@@ -28,13 +28,20 @@ class ClosingController extends Controller
         if ($request->ajax()) {
 
             $targetMesin = TargetMesin::with('targetShift.targetHari.targetWeek.barang')
+                ->with('mesin')
                 ->whereHas('targetShift.targetHari', function ($query) use ($tgl) {
                     $query->whereDate('tgl', $tgl); // memastikan bahwa tgl adalah kolom tanggal
                 })
-                ->with('mesin')
                 ->orderby('msn_trgt_id', 'desc')->get();
 
             return DataTables::of($targetMesin)
+                ->addColumn('action', function ($object) use ($path) {
+                    $html = '<button class="btn btn-info btn-process waves-effect waves-light me-1" data-msn-trgt-id="' . $object->msn_trgt_id . '">'
+                        . '<i class="bx bx-transfer-alt align-middle me-2 font-size-18"></i> Proses</button>';
+
+                    return $html;
+                })
+                ->rawColumns(['action'])
                 ->make(true);
         }
 
