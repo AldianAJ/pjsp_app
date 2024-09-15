@@ -28,7 +28,7 @@ class BarangController extends Controller
             $barangs = Barang::where('status', 0)->get();
             return DataTables::of($barangs)
             ->addColumn('action', function ($object) use ($path) {
-                $html = '<a href="' . route($path . "edit", ["brg_id" => $object->brg_id]) . '" class="btn btn-secondary waves-effect waves-light">'
+                $html = '<a href="' . route($path . "edit", ["brg_id" => $object->brg_id]) . '" class="btn btn-success waves-effect waves-light">'
                     . ' <i class="bx bx-edit align-middle me-2 font-size-18"></i> Edit</a>';
                 return $html;
             })

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Admin\Supplier;
 use Illuminate\Http\Request;
+use Yajra\DataTables\DataTables;
 use Illuminate\Support\Facades\Auth;
 
 class SupplierController extends Controller
@@ -21,8 +22,19 @@ class SupplierController extends Controller
     public function index(Request $request)
     {
         $user = $this->userAuth();
-        $suppliers = Supplier::where('status', 0)->get();
-        return view('pages.supplier.index', compact('user', 'suppliers'));
+        $path = 'supplier.';
+        if($request->ajax()) {
+            $suppliers = Supplier::where('status', 0)->get();
+            return DataTables::of($suppliers)
+            ->addColumn('action', function ($object) use ($path) {
+                $html = '<a href="' . route($path . "edit", ["supplier_id" => $object->supplier_id]) . '" class="btn btn-success waves-effect waves-light">'
+                    . ' <i class="bx bx-edit align-middle me-2 font-size-18"></i> Edit</a>';
+                return $html;
+            })
+            ->rawColumns(['action'])
+            ->make(true);
+        }
+        return view('pages.supplier.index', compact('user'));
     }
 
     /**
