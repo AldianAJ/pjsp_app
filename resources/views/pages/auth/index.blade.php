@@ -7,18 +7,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta content="Premium Multipurpose Admin & Dashboard Template" name="description" />
     <meta content="Themesbrand" name="author" />
-    <!-- App favicon -->
     <link rel="shortcut icon" href="{{ asset('assets/images/pjsp-logo.png') }}">
-
-    <!-- Bootstrap Css -->
     <link href="{{ asset('assets/css/bootstrap.min.css') }}" id="bootstrap-style" rel="stylesheet" type="text/css" />
-    <!-- Icons Css -->
     <link href="{{ asset('assets/css/icons.min.css') }}" rel="stylesheet" type="text/css" />
-    <!-- App Css-->
     <link href="{{ asset('assets/css/app.min.css') }}" id="app-style" rel="stylesheet" type="text/css" />
-
+    <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
     <style>
-        /* Responsive adjustments */
         .account-pages {
             padding-top: 1rem;
         }
@@ -28,15 +22,12 @@
             box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.5);
         }
 
-        /* Mobile styles */
         @media (max-width: 575.98px) {
             .card-body {
                 padding: 1rem;
             }
-
         }
 
-        /* Tablet styles */
         @media (min-width: 576px) and (max-width: 991.98px) {
             .card-body {
                 padding: 2rem;
@@ -47,12 +38,10 @@
             }
         }
 
-        /* Desktop styles */
         @media (min-width: 992px) {
             .card-body {
                 padding: 2.5rem;
             }
-
         }
     </style>
 </head>
@@ -64,22 +53,13 @@
                 <div class="col-md-8 col-lg-6 col-xl-5">
                     <div class="card overflow-hidden">
                         <div class="row">
-                            @if (session()->has('msg'))
-                                <div class="alert alert-warning alert-dismissible fade show" role="alert">
-                                    <i class="mdi mdi-alert-outline me-2"></i>
-                                    {{ session('msg') }}
-                                    <button type="button" class="btn-close" data-bs-dismiss="alert"
-                                        aria-label="Close"></button>
-                                </div>
-                            @endif
-                            <div class="d-flex align-items-center justify-content-center gap-1 pt-5">
-                                <img src="{{ asset('assets/images/pjsp-logo.png') }}" style="width: 40px"
-                                    alt="Logo">
+                            <div class="d-flex align-items-center justify-content-center pt-5">
+                                <img src="{{ asset('assets/images/pjsp-logo.png') }}" style="width: 40px" alt="Logo">
                                 <p class="mb-0 text-dark fw-bold fs-4 ms-2">PT. Putera Jaya Sakti Perkasa</p>
                             </div>
                         </div>
                         <div class="card-body">
-                            <div class="p-3">
+                            <div class="p-1">
                                 <form class="form-horizontal" action="{{ route('auth.login') }}" method="POST">
                                     @csrf
                                     <div class="mb-3">
@@ -88,7 +68,7 @@
                                             placeholder="Enter username">
                                     </div>
                                     <div class="mb-3">
-                                        <label class="form-label">Password</label>
+                                        <label for="password" class="form-label">Password</label>
                                         <div class="input-group auth-pass-inputgroup">
                                             <input type="password" class="form-control" placeholder="Enter password"
                                                 aria-label="Password" aria-describedby="password-addon" name="password">
@@ -111,22 +91,29 @@
                             </p>
                         </div>
                     </div>
-
                 </div>
             </div>
         </div>
     </div>
-    <!-- end account-pages -->
 
-    <!-- JAVASCRIPT -->
     <script src="{{ asset('assets/libs/jquery/jquery.min.js') }}"></script>
     <script src="{{ asset('assets/libs/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
     <script src="{{ asset('assets/libs/metismenu/metisMenu.min.js') }}"></script>
     <script src="{{ asset('assets/libs/simplebar/simplebar.min.js') }}"></script>
     <script src="{{ asset('assets/libs/node-waves/waves.min.js') }}"></script>
-
-    <!-- App js -->
     <script src="{{ asset('assets/js/app.js') }}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script>
+        @if ($errors->has('login'))
+            Swal.fire({
+                icon: 'error',
+                title: 'Login Gagal',
+                text: '{{ $errors->first('login') }}',
+                confirmButtonText: 'OK'
+            });
+        @endif
+    </script>
 </body>
 
 </html>

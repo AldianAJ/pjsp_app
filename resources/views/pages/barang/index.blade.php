@@ -62,8 +62,11 @@ Barang
         <div class="card">
             <div class="card-body">
                 <div class="d-flex justify-content-end mb-2">
-                    <a href="{{ route('barang.create') }}" class="btn btn-primary my-2"><i
-                            class="bx bx-plus-circle align-middle me-2 font-size-18"></i> Tambah</a>
+                    @if (auth()->user()->role == 'gdb')
+                    <a href="{{ route('barang.create') }}" class="btn btn-primary my-2">
+                        <i class="bx bx-plus-circle align-middle me-2 font-size-18"></i> Tambah
+                    </a>
+                    @endif
                 </div>
                 <div class="table-responsive">
                     <table id="datatable" class="table align-middle table-nowrap">

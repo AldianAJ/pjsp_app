@@ -29,13 +29,13 @@ class UserController extends Controller
 
             return redirect()->route('barang');
         } else {
-            return back()->with("msg", "Username atau password salah!!");
+            return back()->withErrors(['login' => 'Username atau password salah !']);
         }
     }
 
     public function logout(Request $request)
     {
-        Auth::logout();
+        Auth::guard('user')->logout();
 
         $request->session()->invalidate();
         $request->session()->regenerateToken();
