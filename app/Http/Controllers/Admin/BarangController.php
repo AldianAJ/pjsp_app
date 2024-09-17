@@ -24,7 +24,6 @@ class BarangController extends Controller
     {
         $user = $this->userAuth();
         $path = 'barang.';
-        dd($user);
         if($request->ajax()) {
             $barangs = Barang::where('status', 0)->get();
             return DataTables::of($barangs)
