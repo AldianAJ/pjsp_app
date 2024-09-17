@@ -38,9 +38,11 @@ Barang
                 {
                     data: "satuan_kecil"
                 },
+                @if ($user->role == 'gdb')
                 {
                     data: "action"
-                }
+                },
+                @endif
             ],
         });
 </script>
@@ -62,7 +64,7 @@ Barang
         <div class="card">
             <div class="card-body">
                 <div class="d-flex justify-content-end mb-2">
-                    @if (auth()->user()->role == 'gdb')
+                    @if (auth()->user->role == 'gdb')
                     <a href="{{ route('barang.create') }}" class="btn btn-primary my-2">
                         <i class="bx bx-plus-circle align-middle me-2 font-size-18"></i> Tambah
                     </a>
@@ -78,7 +80,9 @@ Barang
                                 <th>Satuan Besar</th>
                                 <th>Konversi</th>
                                 <th>Satuan Kecil</th>
+                                @if (auth()->user->role == 'gdb')
                                 <th>Action</th>
+                                @endif
                             </tr>
                         </thead>
                         <tbody>

@@ -48,8 +48,8 @@ class StokMasukController extends Controller
                     $no = str_replace('/', '-', $object->no_trm);
                     $html = '<a href="' . route($path . "edit", ["no_trm" => $no]) . '" class="btn btn-success waves-effect waves-light mx-1">'
                         . ' <i class="bx bx-edit align-middle me-2 font-size-18"></i> Edit</a>';
-                    $html .= '<button class="btn btn-secondary waves-effect waves-light mx-1 btn-detail" data-no_trm="' . $object->no_trm . '">' .
-                        '<i class="bx bx-show align-middle font-size-18"></i> Detail</button>';
+                    $html = '<button class="btn btn-secondary waves-effect waves-light btn-detail me-2" data-bs-toggle="modal" data-bs-target="#detailModal">'
+                        . '<i class="bx bx-detail font-size-18 align-middle me-2"></i>Detail</button>';
                     return $html;
                 })
                 ->rawColumns(['action'])
@@ -67,17 +67,9 @@ class StokMasukController extends Controller
         $gudang_id = Gudang::where('jenis', 2)->value('gudang_id');
         $suppliers = Supplier::where('status', 0)->get();
 
-        $path = 'stok-masuk.create.';
         if ($request->ajax()) {
             $barangs = Barang::where('status', 0)->get();
-            return DataTables::of($barangs)
-                ->addColumn('action', function ($object) use ($path) {
-                    // $html = '<div class="d-flex justify-content-center"><button class="btn btn-primary waves-effect waves-light btn-add" data-bs-toggle="modal"' .
-                    //         'data-bs-target="#qtyModal"><i class="bx bx-plus-circle align-middle font-size-18"></i></button></div>';
-                    //     return $html;
-                })
-                ->rawColumns(['action'])
-                ->make(true);
+            return DataTables::of($barangs)->make(true);
         }
         return view('pages.stok-masuk.create', compact('user', 'gudang_id', 'suppliers'));
     }
@@ -87,7 +79,7 @@ class StokMasukController extends Controller
 
         $no_trm = 'RCV/GU' . '/' . date('y/m/' . str_pad(StokMasuk::count() + 1, 3, '0', STR_PAD_LEFT));
 
-        $stokMasuk = StokMasuk::create([
+        StokMasuk::create([
             'no_trm' => $no_trm,
             'no_sj' => $request->no_sj,
             'supplier_id' => $request->supplier_id,
@@ -144,19 +136,33 @@ class StokMasukController extends Controller
      */
     public function update(Request $request, string $no_trm)
     {
-        $nama = $qty = '';
-        $no_trm = $request->no_trm;
         $no_trm_supp = str_replace('-', '/', $no_trm);
+        $responseMessage = '';
+
         foreach ($request->items as $item) {
-            $detail_stok_masuks = DetailStokMasuk::where('no_trm', operator: $no_trm_supp)->where('brg_id', $item['brg_id']);
-            $nama = Barang::where('brg_id', $item['brg_id'])->value('nm_brg');
-            $detail_stok_masuks->update([
-                'qty' => $item['qty'],
-            ]);
-            $qty = $item['qty'];
+            $detailStokMasuk = DetailStokMasuk::where('no_trm', $no_trm_supp)
+                ->where('brg_id', $item['brg_id'])
+                ->first();
+
+            if ($detailStokMasuk) {
+                $nama = Barang::where('brg_id', $item['brg_id'])->value('nm_brg');
+                $detailStokMasuk->update(['qty' => $item['qty']]);
+                $responseMessage = 'Data ' . $nama . ' berhasil diubah. Menjadi Qty : ' . $item['qty'];
+            }
         }
-        return response()->json(['success' => true, 'message' => 'Data ' . $nama . ' berhasil diubah. Menjadi Qty : ' . $qty], 200);
+
+        return response()->json(['success' => true, 'message' => $responseMessage], 200);
     }
+
+    public function showDetail($no_trm)
+    {
+        $details = StokMasuk::with('detail_stok_masuk.barang')
+        ->where('no_trm', $no_trm)->get();
+        return DataTables::of($details)->make(true);
+    }
+
+
+
 
 
 

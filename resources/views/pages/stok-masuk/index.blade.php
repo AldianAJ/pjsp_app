@@ -1,27 +1,29 @@
 @extends('layouts.app')
 
 @section('title')
-    Stok Masuk
+Stok Masuk
 @endsection
 
 @push('after-app-style')
-    <!-- Sweet Alert-->
-    <link href="{{ asset('assets/libs/sweetalert2/sweetalert2.min.css') }}" rel="stylesheet" type="text/css" />
-    <link rel="stylesheet"
-        href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.10.0/css/bootstrap-datepicker.min.css">
+<!-- Sweet Alert-->
+<link href="{{ asset('assets/libs/sweetalert2/sweetalert2.min.css') }}" rel="stylesheet" type="text/css" />
+<link rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.10.0/css/bootstrap-datepicker.min.css">
 @endpush
 
 @push('after-app-script')
-    <script src="{{ asset('assets/libs/datatables.net/js/jquery.dataTables.min.js') }}"></script>
-    <script src="{{ asset('assets/libs/datatables.net-bs4/js/dataTables.bootstrap4.min.js') }}"></script>
-    <script src="{{ asset('assets/libs/datatables.net-responsive/js/dataTables.responsive.min.js') }}"></script>
-    <script src="{{ asset('assets/libs/datatables.net-responsive-bs4/js/responsive.bootstrap4.min.js') }}"></script>
-    <script src="{{ asset('assets/js/pages/datatables.init.js') }}"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.10.0/js/bootstrap-datepicker.min.js">
-    </script>
+<script src="{{ asset('assets/libs/datatables.net/js/jquery.dataTables.min.js') }}"></script>
+<script src="{{ asset('assets/libs/datatables.net-bs4/js/dataTables.bootstrap4.min.js') }}"></script>
+<script src="{{ asset('assets/libs/datatables.net-responsive/js/dataTables.responsive.min.js') }}"></script>
+<script src="{{ asset('assets/libs/datatables.net-responsive-bs4/js/responsive.bootstrap4.min.js') }}"></script>
+<script src="{{ asset('assets/js/pages/datatables.init.js') }}"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.10.0/js/bootstrap-datepicker.min.js">
+</script>
 
-    <script>
-        $(document).ready(function() {
+<script>
+    let mainTable;
+
+    $(document).ready(function() {
             $('#filterMonthYear').datepicker({
                 format: "mm-yyyy",
                 autoclose: true,
@@ -38,12 +40,12 @@
                 $('#filterSupplier').trigger('change');
             });
 
-            var today = new Date();
-            var currentMonth = ('0' + (today.getMonth() + 1)).slice(-2);
-            var currentYear = today.getFullYear();
+            let today = new Date();
+            let currentMonth = ('0' + (today.getMonth() + 1)).slice(-2);
+            let currentYear = today.getFullYear();
             $('#filterMonthYear').datepicker('update', new Date(currentYear, today.getMonth(), 1));
 
-            var table = $('#datatable').DataTable({
+            let mainTable = $('#datatable').DataTable({
                 processing: true,
                 serverSide: true,
                 ajax: {
@@ -51,10 +53,10 @@
                     data: function(d) {
                         d.supplier_id = $('#filterSupplier').val();
 
-                        var selectedMonthYear = $('#filterMonthYear').datepicker('getDate');
+                        let selectedMonthYear = $('#filterMonthYear').datepicker('getDate');
                         if (selectedMonthYear) {
-                            var month = ('0' + (selectedMonthYear.getMonth() + 1)).slice(-2);
-                            var year = selectedMonthYear.getFullYear();
+                            let month = ('0' + (selectedMonthYear.getMonth() + 1)).slice(-2);
+                            let year = selectedMonthYear.getFullYear();
                             d.selected_month = month;
                             d.selected_year = year;
                         } else {
@@ -75,7 +77,7 @@
                     {
                         data: 'tgl',
                         render: function(data) {
-                            var date = new Date(data);
+                            let date = new Date(data);
                             return date.toLocaleDateString('id-ID', {
                                 day: 'numeric',
                                 month: 'long',
@@ -91,83 +93,141 @@
             });
 
             $('#filterSupplier').on('change', function() {
-                table.draw();
+                mainTable.draw();
             });
-            table.draw();
+            mainTable.draw();
         });
-    </script>
+
+        $('#datatable').on('click', '.btn-detail', function() {
+            let indexRow = mainTable.rows().nodes().to$().index($(this).closest('tr'));
+            let selectedData = mainTable.row(indexRow).data();
+            $("#id-terima").text(selectedData.no_trm);
+
+            $('#detail-datatable').DataTable({
+                processing: true,
+                serverSide: true,
+                ajax: {
+                    type: "POST",
+                    url: "{{ route('stok-masuk.showDetail') }}",
+                    data: {
+                        _token: "{{ csrf_token() }}",
+                        no_trm: selectedData.no_trm
+                    }
+                },
+                columns: [{
+                        data: "nm_brg"
+                    },
+                    {
+                        data: "qty"
+                    },
+                    {
+                        data: "satuan_beli"
+                    },
+                ],
+            });
+
+            $('#detailModal').modal('show');
+        });
+</script>
 @endpush
 
 @section('content')
-    <!-- start page title -->
-    <div class="row">
-        <div class="col-12">
-            <div class="page-title-box d-sm-flex align-items-center justify-content-between">
-                <h4 class="mb-sm-0 font-size-18">Stok Masuk</h4>
-            </div>
+<!-- start page title -->
+<div class="row">
+    <div class="col-12">
+        <div class="page-title-box d-sm-flex align-items-center justify-content-between">
+            <h4 class="mb-sm-0 font-size-18">Stok Masuk</h4>
         </div>
     </div>
-    <!-- end page title -->
+</div>
+<!-- end page title -->
 
-    <div class="row">
-        <div class="col-12">
-            <div class="card">
-                <div class="card-body">
-                    <div class="d-flex justify-content-end mb-2">
-                        <a href="{{ route('stok-masuk.create') }}" class="btn btn-primary my-2">
-                            <i class="bx bx-plus-circle align-middle me-2 font-size-18"></i> Tambah
-                        </a>
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body">
+                <div class="d-flex justify-content-end mb-2">
+                    <a href="{{ route('stok-masuk.create') }}" class="btn btn-primary my-2">
+                        <i class="bx bx-plus-circle align-middle me-2 font-size-18"></i> Tambah
+                    </a>
+                </div>
+
+                <!-- Filters -->
+                <div class="row mb-3">
+                    <div class="col-md-4">
+                        <label for="filterSupplier">Nama Supplier:</label>
+                        <select id="filterSupplier" class="form-control" style="width: 100%">
+                            <option value="">-- Pilih Supplier --</option>
+                            @foreach ($suppliers as $supplier)
+                            <option value="{{ $supplier->supplier_id }}">{{ $supplier->nama }}</option>
+                            @endforeach
+                        </select>
                     </div>
 
-                    <!-- Filters -->
-                    <div class="row mb-3">
-                        <div class="col-md-4">
-                            <label for="filterSupplier">Nama Supplier:</label>
-                            <select id="filterSupplier" class="form-control" style="width: 100%">
-                                <option value="">-- Pilih Supplier --</option>
-                                @foreach ($suppliers as $supplier)
-                                    <option value="{{ $supplier->supplier_id }}">{{ $supplier->nama }}</option>
-                                @endforeach
-                            </select>
+                    <div class="col-md-4">
+                        <label for="filterMonthYear">Tanggal:</label>
+                        <div class="input-group" id="datepicker2">
+                            <input type="text" id="filterMonthYear" class="form-control"
+                                placeholder="-- Pilih Tanggal --" autocomplete="off" />
+                            <span class="input-group-text">
+                                <i class="mdi mdi-calendar"></i>
+                            </span>
                         </div>
-
-                        <div class="col-md-4">
-                            <label for="filterMonthYear">Tanggal:</label>
-                            <div class="input-group" id="datepicker2">
-                                <input type="text" id="filterMonthYear" class="form-control"
-                                    placeholder="-- Pilih Tanggal --" autocomplete="off" />
-                                <span class="input-group-text">
-                                    <i class="mdi mdi-calendar"></i>
-                                </span>
-                            </div>
-                        </div>
                     </div>
+                </div>
 
-                    <!-- Table -->
-                    <div class="table-responsive">
-                        <table id="datatable" class="table align-middle table-nowrap">
-                            <thead class="table-light">
-                                <tr>
-                                    <th>No. Dokumen</th>
-                                    <th>No. Surat Jalan Supplier</th>
-                                    <th>Nama Supplier</th>
-                                    <th>Tanggal Terima</th>
-                                    <th>Action</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                            </tbody>
-                        </table>
-                    </div>
+                <!-- Table -->
+                <div class="table-responsive">
+                    <table id="datatable" class="table align-middle table-nowrap">
+                        <thead class="table-light">
+                            <tr>
+                                <th>No. Dokumen</th>
+                                <th>No. Surat Jalan Supplier</th>
+                                <th>Nama Supplier</th>
+                                <th>Tanggal Terima</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>
     </div>
+</div>
 
-    @if (session()->has('success'))
-        <script src="{{ asset('assets/libs/sweetalert2/sweetalert2.min.js') }}"></script>
-        <script>
-            document.addEventListener('DOMContentLoaded', function() {
+<div class="modal modal-md fade" id="detailModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Detail Barang<span id="id-terima"></span></h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <table class="table table-bordered dt-responsive nowrap w-100" id="detail-datatable">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Nama Barang</th>
+                            <th>Qty</th>
+                            <th>Satuan</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@if (session()->has('success'))
+<script src="{{ asset('assets/libs/sweetalert2/sweetalert2.min.js') }}"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
                 Swal.fire({
                     toast: true,
                     position: 'bottom-right',
@@ -185,6 +245,6 @@
                     showCloseButton: true
                 });
             });
-        </script>
-    @endif
+</script>
+@endif
 @endsection
