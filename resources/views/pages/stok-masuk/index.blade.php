@@ -53,7 +53,7 @@
             let currentYear = today.getFullYear();
             $('#filterMonthYear').datepicker('update', new Date(currentYear, today.getMonth(), 1));
 
-            let mainTable = $('#datatable').DataTable({
+            mainTable = $('#datatable').DataTable({
                 processing: true,
                 serverSide: true,
                 ajax: {
@@ -101,29 +101,45 @@
         });
 
         $('#datatable').on('click', '.btn-detail', function() {
-            let indexRow = mainTable.rows().nodes().to$().index($(this).closest('tr'));
-            let selectedData = mainTable.row(indexRow).data();
+            let selectedData = mainTable.row($(this).closest('tr')).data();
+            // console.log(selectedData);
+            // return;
             $("#id-terima").text(selectedData.no_trm);
 
+            if ($.fn.DataTable.isDataTable('#detail-datatable')) {
+                $('#detail-datatable').DataTable().destroy();
+            }
             $('#detail-datatable').DataTable({
                 processing: true,
                 serverSide: true,
                 ajax: {
-                    type: "POST",
+                    type: "GET",
                     url: "{{ route('stok-masuk.showDetail') }}",
                     data: {
-                        _token: "{{ csrf_token() }}",
+                        // _token: "{{ csrf_token() }}",
                         no_trm: selectedData.no_trm
                     }
                 },
                 columns: [{
-                        data: "nm_brg"
+                        data: null,
+                        render: function(data, type, row) {
+                            // console.log(row.detail_stok_masuk[0].barang.nm_brg);
+                            return row.detail_stok_masuk[0].barang.nm_brg;
+                        }
                     },
                     {
-                        data: "qty"
+                        data: null,
+                        render: function(data, type, row) {
+                            // console.log(row.detail_stok_masuk[0].barang.nm_brg);
+                            return row.detail_stok_masuk[0].qty;
+                        }
                     },
                     {
-                        data: "satuan_beli"
+                        data: null,
+                        render: function(data, type, row) {
+                            // console.log(row.detail_stok_masuk[0].barang.nm_brg);
+                            return row.detail_stok_masuk[0].barang.satuan_beli;
+                        }
                     },
                 ],
             });
@@ -209,7 +225,7 @@
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalLabel">Detail Barang<span id="id-terima"></span></h5>
+                    <h5 class="modal-title" id="exampleModalLabel">Detail Barang <span id="id-terima"></span></h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">

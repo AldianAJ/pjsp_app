@@ -158,7 +158,6 @@ Route::middleware('user')->group(function () {
         Route::post('/stok-masuk/store', 'store')->name('stok-masuk.store');
         Route::get('/stok-masuk/edit/{no_trm}', 'edit')->name('stok-masuk.edit');
         Route::post('/stok-masuk/update/{no_trm}', 'update')->name('stok-masuk.update');
-        Route::post('/stok-masuk/detail', 'showDetail')->name('stok-masuk.showDetail');
+        Route::get('/stok-masuk/detail', 'showDetail')->name('stok-masuk.showDetail');
     });
-
 });

@@ -119,7 +119,6 @@ class StokMasukController extends Controller
                     ->get();
 
                 return DataTables::of($data_stok_masuks)->make(true);
-
             } elseif ($type == 'data_detail_stok_masuks') {
                 $data_detail_stok_masuks = DetailStokMasuk::with('barang')
                     ->where('no_trm', $no_trm_supp)
@@ -127,7 +126,6 @@ class StokMasukController extends Controller
                     ->get();
                 return DataTables::of($data_detail_stok_masuks)->make(true);
             }
-
         }
         return view('pages.stok-masuk.edit', compact('user', 'datas', 'no_trm', 'no_trm_supp'));
     }
@@ -154,17 +152,11 @@ class StokMasukController extends Controller
         return response()->json(['success' => true, 'message' => $responseMessage], 200);
     }
 
-    public function showDetail($no_trm)
+    public function showDetail(Request $request)
     {
         $details = StokMasuk::with('detail_stok_masuk.barang')
-        ->where('no_trm', $no_trm)->get();
+            ->where('no_trm', $request->no_trm)->get();
+
         return DataTables::of($details)->make(true);
     }
-
-
-
-
-
-
 }
-

@@ -11,7 +11,7 @@ class DetailStokMasuk extends Model
 
     public function stok_masuk()
     {
-        return $this->belongsTo(StokMasuk::class, 'no_trm');
+        return $this->belongsTo(StokMasuk::class, 'no_trm', 'no_trm');
     }
 
     public function barang()
