@@ -18,9 +18,6 @@
             ajax: "{{ url('pengiriman-gudang-utama/create') }}/" + no_reqskm,
             lengthMenu: [5],
             columns: [{
-                    data: "brg_id"
-                },
-                {
                     data: "barang.nm_brg"
                 },
                 {
@@ -29,7 +26,7 @@
                 {
                     data: null,
                     render: function(data, type, row) {
-                        return `<button type="button" class="btn btn-primary btn-sm" onclick="showModal('${row.brg_id}', '${row.barang.nm_brg}', ${row.qty}, '${row.satuan_besar}')">
+                        return `<button type="button" id="btn-add-${row.brg_id}" class="btn btn-primary btn-sm" onclick="showModal('${row.brg_id}', '${row.barang.nm_brg}', ${row.qty}, '${row.satuan_besar}')">
                             <i class="fas fa-plus"></i>
                         </button>`;
                     },
@@ -53,6 +50,68 @@
                 }
             ],
         });
+
+        let selectedItems = [];
+        let addedItems = new Set(); // To track which items have been added
+
+        function showModal(brg_id, nm_brg, qty, satuan_besar) {
+            const modal = document.getElementById('qtyModal');
+            document.getElementById('modal-brg-id').value = brg_id;
+            document.getElementById('modal-nm-brg').value = nm_brg;
+            document.getElementById('modal-satuan-besar').value = satuan_besar;
+            document.getElementById('modal-qty').value = qty;
+
+            // Disable button if item has already been added
+            const addButton = document.getElementById(`btn-add-${brg_id}`);
+            if (addButton) {
+                addButton.disabled = true;
+            }
+
+            new bootstrap.Modal(modal).show();
+        }
+
+        function addItem() {
+            const brg_id = document.getElementById('modal-brg-id').value;
+            const nm_brg = document.getElementById('modal-nm-brg').value;
+            const qty = parseFloat(document.getElementById('modal-qty').value);
+            const satuan_besar = document.getElementById('modal-satuan-besar').value;
+
+            if (qty <= 0) {
+                alert('Jumlah harus lebih dari 0');
+                return;
+            }
+
+            selectedItems.push({
+                brg_id,
+                nm_brg,
+                qty,
+                satuan_besar,
+            });
+            addedItems.add(brg_id);
+            updateItems();
+        }
+
+        function updateItems() {
+            const itemsTable = document.getElementById('selected-items');
+            const itemsContainer = document.getElementById('items-container');
+            const saveButton = document.getElementById('saveButton');
+
+            itemsTable.innerHTML = selectedItems.map((item, index) => `
+                <tr>
+                    <td>${index + 1}</td>
+                    <td>${item.nm_brg}</td>
+                    <td>${item.qty}</td>
+                </tr>
+            `).join('');
+
+            itemsContainer.innerHTML = selectedItems.map((item, index) => `
+                <input type="hidden" name="items[${index}][brg_id]" value="${item.brg_id}">
+                <input type="hidden" name="items[${index}][qty]" value="${item.qty}">
+                <input type="hidden" name="items[${index}][satuan_besar]" value="${item.satuan_besar}">
+            `).join('');
+
+            saveButton.disabled = selectedItems.length === 0;
+        }
     </script>
 @endpush
 
@@ -110,11 +169,6 @@
                     <form action="{{ route('pengiriman-gudang-utama.store') }}" method="post"
                         enctype="multipart/form-data">
                         @csrf
-                        {{-- <div class="form-group mt-3">
-                            <label for="no_trm">No. Dokumen</label>
-                            <input type="text" class="form-control" name="no_trm" value="{{ old('no_trm', $no_trm) }}"
-                                required>
-                        </div> --}}
                         <div class="form-group mt-3">
                             <label for="no_reqskm">No. Dokumen Permintaan SKM</label>
                             <input type="text" name="no_reqskm" id="no_reqskm" class="form-control"
@@ -129,7 +183,7 @@
                             value="{{ old('gudang_id', $gudang_id ?? '') }}">
                         <div id="items-container"></div> <!-- Container for items input fields -->
                         <div class="d-flex justify-content-end mt-3">
-                            <button type="submit" class="btn btn-primary">Simpan</button>
+                            <button type="submit" class="btn btn-primary" id="saveButton" disabled>Simpan</button>
                         </div>
                     </form>
                 </div>
@@ -147,10 +201,9 @@
                         <table id="datatable" class="table align-middle table-nowrap">
                             <thead class="table-light">
                                 <tr>
-                                    <th>ID Barang</th>
                                     <th>Nama Barang</th>
                                     <th>Satuan</th>
-                                    <th style="text-align: center;">Action</th>
+                                    <th>Action</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -171,7 +224,6 @@
                                 <th>No</th>
                                 <th>Nama Barang</th>
                                 <th>Jumlah</th>
-                                <th>Action</th>
                             </tr>
                         </thead>
                         <tbody id="selected-items">
@@ -214,69 +266,4 @@
             </div>
         </div>
     </div>
-
-
-    <script>
-        let selectedItems = [];
-
-        function showModal(brg_id, nm_brg, qty, satuan_besar) {
-            const modal = document.getElementById('qtyModal');
-            document.getElementById('modal-brg-id').value = brg_id;
-            document.getElementById('modal-nm-brg').value = nm_brg;
-            document.getElementById('modal-satuan-besar').value = satuan_besar;
-            document.getElementById('modal-qty').value = qty;
-            new bootstrap.Modal(modal).show();
-        }
-
-        function addItem() {
-            const brg_id = document.getElementById('modal-brg-id').value;
-            const nm_brg = document.getElementById('modal-nm-brg').value;
-            const qty = parseFloat(document.getElementById('modal-qty').value);
-            const satuan_besar = document.getElementById('modal-satuan-besar').value;
-
-            if (qty <= 0) {
-                alert('Jumlah harus lebih dari 0');
-                return;
-            }
-
-            selectedItems.push({
-                brg_id,
-                nm_brg,
-                qty,
-                satuan_besar,
-            });
-            updateItems();
-        }
-
-        function removeItem(index) {
-            selectedItems.splice(index, 1);
-            updateItems();
-        }
-
-        function updateItems() {
-            const itemsTable = document.getElementById('selected-items');
-            const itemsContainer = document.getElementById('items-container');
-
-            itemsTable.innerHTML = selectedItems.map((item, index) => `
-                <tr>
-                    <td>${index + 1}</td>
-                    <td>${item.nm_brg}</td>
-                    <td>${item.qty}</td>
-                    <td>
-                        <button type="button" class="btn btn-danger btn-sm" onclick="removeItem(${index})">
-                            <i class="fas fa-trash-alt"></i>
-                        </button>
-                    </td>
-                </tr>
-            `).join('');
-
-            itemsContainer.innerHTML = selectedItems.map((item, index) => `
-                <input type="hidden" name="items[${index}][brg_id]" value="${item.brg_id}">
-                <input type="hidden" name="items[${index}][qty]" value="${item.qty}">
-                <input type="hidden" name="items[${index}][satuan_besar]" value="${item.satuan_besar}">
-            `).join('');
-        }
-    </script>
-
-
 @endsection

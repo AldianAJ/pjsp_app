@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Admin\Gudang;
+use App\Models\Admin\StokBarang;
 use App\Models\Admin\PengirimanGU;
 use App\Models\Admin\DetailPengirimanGU;
 use App\Models\Admin\PermintaanSKM;
@@ -35,6 +36,7 @@ class PengirimanGUController extends Controller
             ->select('a.no_reqskm as id', 'a.tgl as tgl_minta', 'c.tgl_krm')
             ->where('a.status', 0)
             ->distinct()
+            ->orderBy('a.no_reqskm', 'desc')
             ->get();
 
 
@@ -44,6 +46,7 @@ class PengirimanGUController extends Controller
             ->select('a.no_krmskm as id', 'c.tgl as tgl_minta', 'a.tgl_krm')
             ->where('a.status', 0)
             ->distinct()
+            ->orderBy('a.no_krmskm', 'desc')
             ->get();
 
 
@@ -114,7 +117,7 @@ class PengirimanGUController extends Controller
 
         $no_reqskm = $request->no_reqskm;
 
-        $krmSKM = PengirimanGU::create([
+        PengirimanGU::create([
             'no_krmskm' => $no_krmskm,
             'tgl_krm' => $request->tgl_krm,
             'gudang_id' => $gudang_id,
@@ -128,6 +131,31 @@ class PengirimanGUController extends Controller
                 'qty' => $item['qty'],
                 'satuan_besar' => $item['satuan_besar'],
             ]);
+
+            $lastStok = StokBarang::where('gudang_id', $gudang_id)
+                ->where('brg_id', $item['brg_id'])
+                ->orderBy('stok_id', 'desc')
+                ->first();
+
+            $awal = $lastStok ? $lastStok->akhir : 0;
+            $keluar = $item['qty'];
+            $akhir = $awal - $keluar;
+
+            $id = str_pad(StokBarang::count() + 1, 3, '0', STR_PAD_LEFT);
+            $stok_id = "{$gudang_id}/{$item['brg_id']}/{$id}";
+
+            StokBarang::create([
+                'stok_id' => $stok_id,
+                'tgl' => $request->tgl_krm,
+                'brg_id' => $item['brg_id'],
+                'gudang_id' => $gudang_id,
+                'doc_id' => $no_krmskm,
+                'awal' => $awal,
+                'masuk' => 0,
+                'keluar' => $keluar,
+                'akhir' => $akhir,
+            ]);
+
         }
 
         $permintaan = PermintaanSKM::where('status', 0)->first();

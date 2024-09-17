@@ -16,9 +16,6 @@
             ajax: "{{ route('permintaan-skm.create') }}",
             lengthMenu: [5],
             columns: [{
-                    data: "brg_id"
-                },
-                {
                     data: "nm_brg"
                 },
                 {
@@ -107,7 +104,6 @@
                         <table id="datatable" class="table align-middle table-nowrap">
                             <thead class="table-light">
                                 <tr>
-                                    <th>ID Barang</th>
                                     <th>Nama Barang</th>
                                     <th>Satuan</th>
                                     <th style="text-align: center;">Action</th>

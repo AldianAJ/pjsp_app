@@ -34,7 +34,10 @@ class PermintaanSKMController extends Controller
         $path = 'permintaan-skm.';
 
         if ($request->ajax()) {
-            $permintaans = PermintaanSKM::where('status', 0)->get();
+            $permintaans = PermintaanSKM::where('status', 0)
+            ->orderBy('no_reqskm','desc')
+            ->get();
+
             return DataTables::of($permintaans)
                 ->addColumn('action', function ($object) use ($path) {
                     $no = str_replace('/', '-', $object->no_reqskm);
@@ -83,7 +86,7 @@ class PermintaanSKMController extends Controller
 
         $gudang_id = $request->gudang_id;
 
-        $reqSKM = PermintaanSKM::create([
+        PermintaanSKM::create([
             'no_reqskm' => $no_reqskm,
             'tgl' => $request->tgl,
             'gudang_id' => $gudang_id,
@@ -182,7 +185,10 @@ class PermintaanSKMController extends Controller
         $path = 'penerimaan-barang.';
 
         if ($request->ajax()) {
-            $pengirimans = PengirimanGU::where('status', 0)->get();
+            $pengirimans = PengirimanGU::where('status', 0)
+            ->orderBy('no_krmskm','desc')
+            ->get();
+
             return DataTables::of($pengirimans)
                 ->addColumn('action', function ($object) use ($path) {
                     $no = str_replace('/', '-', $object->no_krmskm);
