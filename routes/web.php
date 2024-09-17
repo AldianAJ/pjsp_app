@@ -43,6 +43,9 @@ Route::middleware('user')->group(function () {
         Route::post('/barang/store', 'store')->name('barang.store');
         Route::post('/barang/update/{brg_id}', 'update')->name('barang.update');
         Route::get('/', [BarangController::class, 'getSidebarData']);
+
+        Route::get('/stok-gudang', 'indexGU')->name('stok-gudang');
+        Route::get('/stok-skm', 'indexSKM')->name('stok-skm');
     });
 
     Route::controller(GudangController::class)->group(function () {

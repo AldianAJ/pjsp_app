@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Admin\user;
 use App\Models\Admin\Barang;
+use App\Models\Admin\StokBarang;
 use App\Models\Admin\PermintaanSKM;
 use App\Models\Admin\DetailPermintaanSKM;
 use App\Models\Admin\Gudang;
@@ -34,7 +35,10 @@ class PermintaanSKMController extends Controller
         $path = 'permintaan-skm.';
 
         if ($request->ajax()) {
-            $permintaans = PermintaanSKM::where('status', 0)->get();
+            $permintaans = PermintaanSKM::where('status', 0)
+            ->orderBy('no_reqskm','desc')
+            ->get();
+
             return DataTables::of($permintaans)
                 ->addColumn('action', function ($object) use ($path) {
                     $no = str_replace('/', '-', $object->no_reqskm);
@@ -83,7 +87,7 @@ class PermintaanSKMController extends Controller
 
         $gudang_id = $request->gudang_id;
 
-        $reqSKM = PermintaanSKM::create([
+        PermintaanSKM::create([
             'no_reqskm' => $no_reqskm,
             'tgl' => $request->tgl,
             'gudang_id' => $gudang_id,
@@ -182,7 +186,10 @@ class PermintaanSKMController extends Controller
         $path = 'penerimaan-barang.';
 
         if ($request->ajax()) {
-            $pengirimans = PengirimanGU::where('status', 0)->get();
+            $pengirimans = PengirimanGU::where('status', 0)
+            ->orderBy('no_krmskm','desc')
+            ->get();
+
             return DataTables::of($pengirimans)
                 ->addColumn('action', function ($object) use ($path) {
                     $no = str_replace('/', '-', $object->no_krmskm);
@@ -265,6 +272,8 @@ class PermintaanSKMController extends Controller
         $no_krmskms = $request->no_krmskm;
         $penerima = $request->user_id;
         $check_barang = $request->brg_id;
+        $gudang_id = PengirimanGU::where('gudang_id')->first();
+        $qty = PengirimanGU::where();
 
         PengirimanGU::where('no_krmskm', $no_krmskms)
             ->update([
@@ -282,6 +291,28 @@ class PermintaanSKMController extends Controller
                     'diterima' => 0,
                 ]);
             }
+
+        $lastStok = StokBarang::where('gudang_id', $gudang_id)
+            ->where('brg_id', $barangId)
+            ->orderBy('stok_id', 'desc')
+            ->first();
+
+        $akhir = ($awal = ($lastStok ? $lastStok->akhir : 0)) + ($masuk = $qty);
+
+        $id = str_pad(StokBarang::count() + 1, 3, '0', STR_PAD_LEFT);
+        $stok_id = "{$gudang_id}/{$barangId}/{$id}";
+
+        StokBarang::create([
+            'stok_id' => $stok_id,
+            'tgl' => $request->tgl_trm,
+            'brg_id' => $barangId,
+            'gudang_id' => $gudang_id,
+            'doc_id' => $no_krmskms,
+            'awal' => $awal,
+            'masuk' => $masuk,
+            'keluar' => 0,
+            'akhir' => $akhir,
+        ]);
         }
 
         return redirect()->route('penerimaan-barang')

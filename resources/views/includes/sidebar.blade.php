@@ -29,6 +29,12 @@
                                 </a>
                             </li>
                             <li>
+                                <a href="{{ route('stok-gudang') }}" class="waves-effect">
+                                    <i class="bx bxs-component"></i>
+                                    <span key="t-stok-gudang">Stok Gudang</span>
+                                </a>
+                            </li>
+                            <li>
                                 <a href="javascript:void(0);" class="has-arrow waves-effect">
                                     <i class="bx bxs-building-house"></i>
                                     <span key="t-gudang">Gudang</span>
@@ -98,7 +104,12 @@
                                     <span key="t-gudang">Barang</span>
                                 </a>
                             </li>
-
+                            <li>
+                                <a href="{{ route('stok-skm') }}" class="waves-effect">
+                                    <i class="bx bxs-component"></i>
+                                    <span key="t-stok-skm">Stok SKM</span>
+                                </a>
+                            </li>
                             <li class="menu-title" key="t-apps">Kinerja SKM</li>
                             <li>
                                 <a href="{{ route('kinerja-minggu') }}" class="waves-effect">

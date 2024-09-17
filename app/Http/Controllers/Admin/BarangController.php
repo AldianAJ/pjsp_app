@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Admin\Barang;
+use App\Models\Admin\StokBarang;
 use App\Models\Admin\Supplier;
 use Illuminate\Http\Request;
 use Yajra\DataTables\DataTables;
@@ -133,5 +134,25 @@ class BarangController extends Controller
         return response()->json([
             'totalBarangs' => $totalBarangs
         ]);
+    }
+
+    public function indexGU(Request $request)
+    {
+        $user = $this->userAuth();
+        if($request->ajax()) {
+            $barangs = StokBarang::with('barang')->get();
+            return DataTables::of($barangs)->make(true);
+        }
+        return view('pages.stok-gudang.index', compact('user'));
+    }
+
+    public function indexSKM(Request $request)
+    {
+        $user = $this->userAuth();
+        if($request->ajax()) {
+            $barangs = StokBarang::with('barang')->get();
+            return DataTables::of($barangs)->make(true);
+        }
+        return view('pages.stok-skm.index', compact('user'));
     }
 }

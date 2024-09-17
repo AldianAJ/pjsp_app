@@ -8,6 +8,7 @@ use App\Models\Admin\DetailStokMasuk;
 use App\Models\Admin\Gudang;
 use App\Models\Admin\Supplier;
 use App\Models\Admin\Barang;
+use App\Models\Admin\StokBarang;
 use Illuminate\Http\Request;
 use Yajra\DataTables\DataTables;
 use Illuminate\Support\Facades\Auth;
@@ -41,6 +42,7 @@ class StokMasukController extends Controller
                     return $query->whereMonth('tgl', $selectedMonth)
                         ->whereYear('tgl', $selectedYear);
                 })
+                ->orderBy('no_trm', 'desc')
                 ->get();
 
             return DataTables::of($stokMasuks)
@@ -79,11 +81,14 @@ class StokMasukController extends Controller
 
         $no_trm = 'RCV/GU' . '/' . date('y/m/' . str_pad(StokMasuk::count() + 1, 3, '0', STR_PAD_LEFT));
 
+        $gudang_id = $request->gudang_id;
+
         StokMasuk::create([
             'no_trm' => $no_trm,
             'no_sj' => $request->no_sj,
             'supplier_id' => $request->supplier_id,
             'tgl' => $request->tgl,
+            'gudang_id' => $gudang_id,
         ]);
 
         foreach ($request->items as $item) {
@@ -94,7 +99,30 @@ class StokMasukController extends Controller
                 'satuan_beli' => $item['satuan_beli'],
                 'ket' => $item['ket'],
             ]);
+
+            $lastStok = StokBarang::where('gudang_id', $gudang_id)
+                ->where('brg_id', $item['brg_id'])
+                ->orderBy('stok_id', 'desc')
+                ->first();
+
+            $akhir = ($awal = ($lastStok ? $lastStok->akhir : 0)) + ($masuk = $item['qty']);
+
+            $id = str_pad(StokBarang::count() + 1, 3, '0', STR_PAD_LEFT);
+            $stok_id = "{$gudang_id}/{$item['brg_id']}/{$id}";
+
+            StokBarang::create([
+                'stok_id' => $stok_id,
+                'tgl' => $request->tgl,
+                'brg_id' => $item['brg_id'],
+                'gudang_id' => $gudang_id,
+                'doc_id' => $no_trm,
+                'awal' => $awal,
+                'masuk' => $masuk,
+                'keluar' => 0,
+                'akhir' => $akhir,
+            ]);
         }
+
 
         return redirect()->route('stok-masuk')->with('success', 'Data stok masuk berhasil ditambahkan.');
     }

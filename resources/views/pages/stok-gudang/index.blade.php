@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('title')
-    Barang
+    Stok Barang Gudang Besar
 @endsection
 
 @push('after-style')
@@ -18,28 +18,38 @@
     <script src="{{ asset('assets/js/pages/datatables.init.js') }}"></script>
     <script>
         $('#datatable').DataTable({
-            ajax: "{{ route('barang') }}",
+            ajax: "{{ route('stok-gudang') }}",
             columns: [{
-                    data: "nm_brg"
+                    data: "stok_id"
                 },
                 {
-                    data: "satuan_beli"
+                    data: "tgl",
+                    render: function(data) {
+                        return new Date(data).toLocaleDateString('id-ID', {
+                            day: 'numeric',
+                            month: 'long',
+                            year: 'numeric'
+                        });
+                    }
                 },
                 {
-                    data: "konversi1"
+                    data: "barang.nm_brg"
                 },
                 {
-                    data: "satuan_besar"
+                    data: "doc_id"
                 },
                 {
-                    data: "konversi2"
+                    data: "awal"
                 },
                 {
-                    data: "satuan_kecil"
+                    data: "masuk"
                 },
                 {
-                    data: "action"
-                }
+                    data: "keluar"
+                },
+                {
+                    data: "akhir"
+                },
             ],
         });
     </script>
@@ -50,7 +60,7 @@
     <div class="row">
         <div class="col-12">
             <div class="page-title-box d-sm-flex align-items-center justify-content-between">
-                <h4 class="mb-sm-0 font-size-18">Barang</h4>
+                <h4 class="mb-sm-0 font-size-18">Stok Barang Gudang Besar</h4>
             </div>
         </div>
     </div>
@@ -61,23 +71,19 @@
             <div class="card">
                 <div class="card-body">
                     <div class="d-flex justify-content-end mb-2">
-                        @if (auth()->user()->role == 'gdb')
-                            <a href="{{ route('barang.create') }}" class="btn btn-primary my-2">
-                                <i class="bx bx-plus-circle align-middle me-2 font-size-18"></i> Tambah
-                            </a>
-                        @endif
                     </div>
                     <div class="table-responsive">
                         <table id="datatable" class="table align-middle table-nowrap">
                             <thead class="table-light">
                                 <tr>
+                                    <th>ID Stok</th>
+                                    <th>Tanggal</th>
                                     <th>Nama Barang</th>
-                                    <th>Satuan Beli</th>
-                                    <th>Konversi</th>
-                                    <th>Satuan Besar</th>
-                                    <th>Konversi</th>
-                                    <th>Satuan Kecil</th>
-                                    <th>Action</th>
+                                    <th>No. Dokumen</th>
+                                    <th>Awal</th>
+                                    <th>Masuk</th>
+                                    <th>Keluar</th>
+                                    <th>Akhir</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -88,28 +94,4 @@
             </div>
         </div>
     </div>
-
-    @if (session()->has('success'))
-        <script src="{{ asset('assets/libs/sweetalert2/sweetalert2.min.js') }}"></script>
-        <script>
-            document.addEventListener('DOMContentLoaded', function() {
-                Swal.fire({
-                    toast: true,
-                    position: 'bottom-right',
-                    icon: 'success',
-                    title: '{{ session('success') }}',
-                    showConfirmButton: false,
-                    timer: 5000,
-                    didOpen: (toast) => {
-                        toast.addEventListener('mouseenter', Swal.stopTimer)
-                        toast.addEventListener('mouseleave', Swal.resumeTimer)
-                    },
-                    customClass: {
-                        popup: 'colored-toast'
-                    },
-                    showCloseButton: true
-                });
-            });
-        </script>
-    @endif
 @endsection

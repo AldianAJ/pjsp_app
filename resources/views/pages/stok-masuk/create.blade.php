@@ -33,9 +33,6 @@
             ajax: "{{ route('stok-masuk.create') }}",
             lengthMenu: [5],
             columns: [{
-                    data: "brg_id"
-                },
-                {
                     data: "nm_brg"
                 },
                 {
@@ -97,6 +94,8 @@
                             <input type="text" class="form-control" name="no_sj" value="{{ old('no_sj') }}"
                                 placeholder="Masukkan No. Surat Jalan dari Supplier" required>
                         </div>
+                        <input type="hidden" name="gudang_id" id="gudang_id"
+                            value="{{ old('gudang_id', $gudang_id ?? '') }}">
                         <div class="form-group mt-3">
                             <label for="supplier_id">Nama Supplier</label>
                             <select name="supplier_id" id="supplier_id" class="form-control" style="width: 100%;" required>
@@ -139,7 +138,6 @@
                         <table id="datatable" class="table align-middle table-nowrap">
                             <thead class="table-light">
                                 <tr>
-                                    <th>ID Barang</th>
                                     <th>Nama Barang</th>
                                     <th>Satuan</th>
                                     <th style="text-align: center;">Action</th>
