@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Admin\user;
 use App\Models\Admin\Barang;
+use App\Models\Admin\StokBarang;
 use App\Models\Admin\PermintaanSKM;
 use App\Models\Admin\DetailPermintaanSKM;
 use App\Models\Admin\Gudang;
@@ -271,6 +272,8 @@ class PermintaanSKMController extends Controller
         $no_krmskms = $request->no_krmskm;
         $penerima = $request->user_id;
         $check_barang = $request->brg_id;
+        $gudang_id = PengirimanGU::where('gudang_id')->first();
+        $qty = PengirimanGU::where();
 
         PengirimanGU::where('no_krmskm', $no_krmskms)
             ->update([
@@ -288,6 +291,28 @@ class PermintaanSKMController extends Controller
                     'diterima' => 0,
                 ]);
             }
+
+        $lastStok = StokBarang::where('gudang_id', $gudang_id)
+            ->where('brg_id', $barangId)
+            ->orderBy('stok_id', 'desc')
+            ->first();
+
+        $akhir = ($awal = ($lastStok ? $lastStok->akhir : 0)) + ($masuk = $qty);
+
+        $id = str_pad(StokBarang::count() + 1, 3, '0', STR_PAD_LEFT);
+        $stok_id = "{$gudang_id}/{$barangId}/{$id}";
+
+        StokBarang::create([
+            'stok_id' => $stok_id,
+            'tgl' => $request->tgl_trm,
+            'brg_id' => $barangId,
+            'gudang_id' => $gudang_id,
+            'doc_id' => $no_krmskms,
+            'awal' => $awal,
+            'masuk' => $masuk,
+            'keluar' => 0,
+            'akhir' => $akhir,
+        ]);
         }
 
         return redirect()->route('penerimaan-barang')
