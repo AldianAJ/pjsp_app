@@ -4,7 +4,7 @@ namespace App\Models\Admin;
 
 use Illuminate\Database\Eloquent\Model;
 
-class StokMasuk extends Model
+class TrTrmSup extends Model
 {
     protected $table = 'tr_trmsup';
     protected $guarded = [];
@@ -12,9 +12,9 @@ class StokMasuk extends Model
     public $incrementing = false;
 
 
-    public function detail_stok_masuk()
+    public function tr_trmsup_detail()
     {
-        return $this->hasMany(DetailStokMasuk::class, 'no_trm', 'no_trm');
+        return $this->hasMany(TrTrmSupDetail::class, 'no_trm', 'no_trm');
     }
 
     public function supplier()

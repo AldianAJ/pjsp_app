@@ -3,17 +3,18 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\Admin\StokMasuk;
-use App\Models\Admin\DetailStokMasuk;
+use App\Models\Admin\TrTrmSup;
+use App\Models\Admin\TrTrmSupDetail;
 use App\Models\Admin\Gudang;
 use App\Models\Admin\Supplier;
 use App\Models\Admin\Barang;
-use App\Models\Admin\StokBarang;
+use App\Models\Admin\TrStok;
 use Illuminate\Http\Request;
 use Yajra\DataTables\DataTables;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 
-class StokMasukController extends Controller
+class TrTrmSupController extends Controller
 {
     public function userAuth()
     {
@@ -29,14 +30,14 @@ class StokMasukController extends Controller
         $suppliers = Supplier::all();
 
         if ($request->ajax()) {
-            $supplierId = $request->get('supplier_id');
+            $supplier_id = $request->get('supplier_id');
             $selectedMonth = $request->get('selected_month');
             $selectedYear = $request->get('selected_year');
 
-            $stokMasuks = StokMasuk::with('supplier')
+            $tr_trmsups = TrTrmSup::with('supplier')
                 ->where('status', 0)
-                ->when($supplierId, function ($query, $supplierId) {
-                    return $query->where('supplier_id', $supplierId);
+                ->when($supplier_id, function ($query, $supplier_id) {
+                    return $query->where('supplier_id', $supplier_id);
                 })
                 ->when($selectedMonth && $selectedYear, function ($query) use ($selectedMonth, $selectedYear) {
                     return $query->whereMonth('tgl', $selectedMonth)
@@ -45,14 +46,15 @@ class StokMasukController extends Controller
                 ->orderBy('no_trm', 'desc')
                 ->get();
 
-            return DataTables::of($stokMasuks)
+            return DataTables::of($tr_trmsups)
                 ->addColumn('action', function ($object) use ($path) {
                     $no = str_replace('/', '-', $object->no_trm);
-                    $html = '<a href="' . route($path . "edit", ["no_trm" => $no]) . '" class="btn btn-success waves-effect waves-light mx-1">'
-                        . ' <i class="bx bx-edit align-middle me-2 font-size-18"></i> Edit</a>';
-                    $html = '<button class="btn btn-secondary waves-effect waves-light btn-detail me-2" data-bs-toggle="modal" data-bs-target="#detailModal">'
+                    $editButton = '<a href="' . route($path . "edit", ["no_trm" => $no]) . '" class="btn btn-success waves-effect waves-light mx-1">'
+                        . '<i class="bx bx-edit align-middle me-2 font-size-18"></i> Edit</a>';
+                    $detailButton = '<button class="btn btn-secondary waves-effect waves-light btn-detail me-2" data-bs-toggle="modal" data-bs-target="#detailModal">'
                         . '<i class="bx bx-detail font-size-18 align-middle me-2"></i>Detail</button>';
-                    return $html;
+
+                    return $editButton . $detailButton;
                 })
                 ->rawColumns(['action'])
                 ->make(true);
@@ -60,6 +62,7 @@ class StokMasukController extends Controller
 
         return view('pages.stok-masuk.index', compact('user', 'suppliers'));
     }
+
 
 
     public function create(Request $request)
@@ -79,11 +82,11 @@ class StokMasukController extends Controller
     public function store(Request $request)
     {
 
-        $no_trm = 'RCV/GU' . '/' . date('y/m/' . str_pad(StokMasuk::count() + 1, 3, '0', STR_PAD_LEFT));
+        $no_trm = 'RCV/GU' . '/' . date('y/m/' . str_pad(TrTrmSup::count() + 1, 3, '0', STR_PAD_LEFT));
 
         $gudang_id = $request->gudang_id;
 
-        StokMasuk::create([
+        TrTrmSup::create([
             'no_trm' => $no_trm,
             'no_sj' => $request->no_sj,
             'supplier_id' => $request->supplier_id,
@@ -92,7 +95,7 @@ class StokMasukController extends Controller
         ]);
 
         foreach ($request->items as $item) {
-            DetailStokMasuk::create([
+            TrTrmSupDetail::create([
                 'no_trm' => $no_trm,
                 'brg_id' => $item['brg_id'],
                 'qty' => $item['qty'],
@@ -100,17 +103,17 @@ class StokMasukController extends Controller
                 'ket' => $item['ket'],
             ]);
 
-            $lastStok = StokBarang::where('gudang_id', $gudang_id)
+            $lastStok = TrStok::where('gudang_id', $gudang_id)
                 ->where('brg_id', $item['brg_id'])
                 ->orderBy('stok_id', 'desc')
                 ->first();
 
             $akhir = ($awal = ($lastStok ? $lastStok->akhir : 0)) + ($masuk = $item['qty']);
 
-            $id = str_pad(StokBarang::count() + 1, 3, '0', STR_PAD_LEFT);
+            $id = str_pad(TrStok::count() + 1, 3, '0', STR_PAD_LEFT);
             $stok_id = "{$gudang_id}/{$item['brg_id']}/{$id}";
 
-            StokBarang::create([
+            TrStok::create([
                 'stok_id' => $stok_id,
                 'tgl' => $request->tgl,
                 'brg_id' => $item['brg_id'],
@@ -131,48 +134,53 @@ class StokMasukController extends Controller
     public function edit(Request $request, string $no_trm)
     {
         $user = $this->userAuth();
-        $no_trm_supp = str_replace('-', '/', $no_trm);
+        $no_trms = str_replace('-', '/', $no_trm);
 
-        $datas = StokMasuk::where('no_trm', $no_trm_supp)
-            ->where('status', 0)
+        $data_supplier = DB::table('tr_trmsup as a')
+            ->join('m_supplier as b', 'a.supplier_id', '=', 'b.supplier_id')
+            ->where('a.no_trm', $no_trms)
+            ->where('a.status', 0)
+            ->select('b.nama')
             ->first();
 
+        $suppliers = Supplier::where('status', 0)->get();
+
+        $tgl = TrTrmSup::where('no_trm', $no_trms)
+            ->where('status', 0)
+            ->select('tgl')
+            ->first();
+
+        $no_sj = TrTrmSup::where('no_trm', $no_trms)
+            ->where('status', 0)
+            ->select('no_sj')
+            ->first();
+
+
         if ($request->ajax()) {
-            $type = $request->input('type');
-
-            if ($type == 'data_stok_masuks') {
-                $data_stok_masuks = StokMasuk::with('supplier')
-                    ->where('no_trm', $no_trm_supp)
-                    ->where('status', 0)
-                    ->get();
-
-                return DataTables::of($data_stok_masuks)->make(true);
-            } elseif ($type == 'data_detail_stok_masuks') {
-                $data_detail_stok_masuks = DetailStokMasuk::with('barang')
-                    ->where('no_trm', $no_trm_supp)
-                    ->where('status', 0)
-                    ->get();
-                return DataTables::of($data_detail_stok_masuks)->make(true);
-            }
+            $data_tr_trmsup_detail = TrTrmSupDetail::with('barang')
+                ->where('no_trm', $no_trms)
+                ->where('status', 0)
+                ->get();
+            return DataTables::of($data_tr_trmsup_detail)->make(true);
         }
-        return view('pages.stok-masuk.edit', compact('user', 'datas', 'no_trm', 'no_trm_supp'));
+        return view('pages.stok-masuk.edit', compact('user', 'no_sj', 'data_supplier', 'suppliers', 'tgl', 'no_trm', 'no_trms'));
     }
     /**
      * Update the specified resource in storage.
      */
     public function update(Request $request, string $no_trm)
     {
-        $no_trm_supp = str_replace('-', '/', $no_trm);
+        $no_trms = str_replace('-', '/', $no_trm);
         $responseMessage = '';
 
         foreach ($request->items as $item) {
-            $detailStokMasuk = DetailStokMasuk::where('no_trm', $no_trm_supp)
+            $data_tr_trmsup_detail = TrTrmSupDetail::where('no_trm', $no_trms)
                 ->where('brg_id', $item['brg_id'])
                 ->first();
 
-            if ($detailStokMasuk) {
+            if ($data_tr_trmsup_detail) {
                 $nama = Barang::where('brg_id', $item['brg_id'])->value('nm_brg');
-                $detailStokMasuk->update(['qty' => $item['qty']]);
+                $data_tr_trmsup_detail->update(['qty' => $item['qty']]);
                 $responseMessage = 'Data ' . $nama . ' berhasil diubah. Menjadi Qty : ' . $item['qty'];
             }
         }
@@ -182,7 +190,7 @@ class StokMasukController extends Controller
 
     public function showDetail(Request $request)
     {
-        $details = StokMasuk::with('detail_stok_masuk.barang')
+        $details = TrTrmSup::with('tr_trmsup_detail.barang')
             ->where('no_trm', $request->no_trm)->get();
 
         return DataTables::of($details)->make(true);

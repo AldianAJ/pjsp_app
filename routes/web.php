@@ -8,11 +8,11 @@ use App\Http\Controllers\Admin\GudangController;
 use App\Http\Controllers\Admin\MesinController;
 use App\Http\Controllers\Admin\JenisMesinController;
 use App\Http\Controllers\Admin\SupplierController;
-use App\Http\Controllers\Admin\StokMasukController;
+use App\Http\Controllers\Admin\TrTrmSupController;
 use App\Http\Controllers\Admin\KinerjaController;
-use App\Http\Controllers\Admin\PermintaanSKMController;
-use App\Http\Controllers\Admin\PengirimanGUController;
-use App\Http\Controllers\Admin\PengirimanSKMController;
+use App\Http\Controllers\Admin\TrReqSKMController;
+use App\Http\Controllers\Admin\TrKrmSKMController;
+use App\Http\Controllers\Admin\TrKrmMsnController;
 use App\Http\Controllers\Admin\ReturnMesinController;
 /*
 |--------------------------------------------------------------------------
@@ -44,8 +44,7 @@ Route::middleware('user')->group(function () {
         Route::post('/barang/update/{brg_id}', 'update')->name('barang.update');
         Route::get('/', [BarangController::class, 'getSidebarData']);
 
-        Route::get('/stok-gudang', 'indexGU')->name('stok-gudang');
-        Route::get('/stok-skm', 'indexSKM')->name('stok-skm');
+        Route::get('/stok', 'indexStok')->name('stok');
     });
 
     Route::controller(GudangController::class)->group(function () {
@@ -115,7 +114,7 @@ Route::middleware('user')->group(function () {
         Route::post('/closing-mesin/update/{closing_id}', 'update')->name('closing-mesin.update');
     });
 
-    Route::controller(PermintaanSKMController::class)->group(function () {
+    Route::controller(TrReqSKMController::class)->group(function () {
         Route::get('/permintaan-skm', 'index')->name('permintaan-skm');
         Route::get('/permintaan-skm/detail/{no_reqskm}', 'indexDetail')->name('permintaan-skm.indexDetail');
         Route::get('/permintaan-skm/create', 'create')->name('permintaan-skm.create');
@@ -133,14 +132,14 @@ Route::middleware('user')->group(function () {
         Route::post('/penerimaan-barang/update/{no_reqskm}', 'update')->name('penerimaan-barang.update');
     });
 
-    Route::controller(PengirimanGUController::class)->group(function () {
+    Route::controller(TrKrmSKMController::class)->group(function () {
         Route::get('/pengiriman-gudang-utama', 'index')->name('pengiriman-gudang-utama');
         Route::get('/pengiriman-gudang-utama/create/{no_reqskm}', 'create')->name('pengiriman-gudang-utama.create');
         Route::post('/pengiriman-gudang-utama/store', 'store')->name('pengiriman-gudang-utama.store');
         Route::get('/pengiriman-gudang-utama/detail/{no_krmskm}', 'detailKRM')->name('pengiriman-gudang-utama.detailKRM');
     });
 
-    Route::controller(PengirimanSKMController::class)->group(function () {
+    Route::controller(TrKrmMsnController::class)->group(function () {
         Route::get('/pengiriman-skm', 'index')->name('pengiriman-skm');
         Route::get('/pengiriman-skm/create', 'create')->name('pengiriman-skm.create');
         Route::post('/pengiriman-skm/store', 'store')->name('pengiriman-skm.store');
@@ -155,7 +154,7 @@ Route::middleware('user')->group(function () {
     });
 
 
-    Route::controller(StokMasukController::class)->group(function () {
+    Route::controller(TrTrmSupController::class)->group(function () {
         Route::get('/stok-masuk', 'index')->name('stok-masuk');
         Route::get('/stok-masuk/create', 'create')->name('stok-masuk.create');
         Route::post('/stok-masuk/store', 'store')->name('stok-masuk.store');

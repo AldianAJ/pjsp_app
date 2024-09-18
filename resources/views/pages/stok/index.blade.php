@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('title')
-    Stok Barang SKM
+    Stok Barang Gudang Besar
 @endsection
 
 @push('after-style')
@@ -18,7 +18,7 @@
     <script src="{{ asset('assets/js/pages/datatables.init.js') }}"></script>
     <script>
         $('#datatable').DataTable({
-            ajax: "{{ route('stok-skm') }}",
+            ajax: "{{ route('stok') }}",
             columns: [{
                     data: "stok_id"
                 },
@@ -60,7 +60,7 @@
     <div class="row">
         <div class="col-12">
             <div class="page-title-box d-sm-flex align-items-center justify-content-between">
-                <h4 class="mb-sm-0 font-size-18">Stok Barang SKM</h4>
+                <h4 class="mb-sm-0 font-size-18">Stok Barang Gudang Besar</h4>
             </div>
         </div>
     </div>

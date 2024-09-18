@@ -4,15 +4,15 @@ namespace App\Models\Admin;
 
 use Illuminate\Database\Eloquent\Model;
 
-class DetailReturnMesin extends Model
+class TrKrmSKMDetail extends Model
 {
-    protected $table = 'tr_returnmsn_detail';
+    protected $table = 'tr_krmskm_detail';
     protected $guarded = [];
 
 
-    public function return()
+    public function tr_krmskm()
     {
-        return $this->belongsTo(ReturnMesin::class, 'no_returnmsn');
+        return $this->belongsTo(TrKrmSKM::class, 'no_krmskm');
     }
 
     public function barang()

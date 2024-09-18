@@ -27,7 +27,7 @@ class UserController extends Controller
             Auth::login($user);
             $request->session()->regenerate();
 
-            return redirect()->route('barang');
+            return redirect()->route('stok');
         } else {
             return back()->withErrors(['login' => 'Username atau password salah !']);
         }

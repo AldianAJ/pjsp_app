@@ -20,18 +20,25 @@
                                 </a>
                             </li>
 
-                            <li class="menu-title" key="t-apps">Data Master</li>
+                            <li class="menu-title" key="t-apps">Laporan</li>
+
                             <li>
+                                <a href="{{ route('stok') }}" class="waves-effect">
+                                    <i class="bx bxs-component"></i>
+                                    <span key="t-stok-gudang">Stok</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="{{ route('stok') }}" class="waves-effect">
+                                    <i class="bx bxs-component"></i>
+                                    <span key="t-mutasi">Mutasi</span>
+                                </a>
+                            </li>
+                            {{-- <li>
                                 <a href="{{ route('barang') }}" class="waves-effect">
                                     <i class="bx bxs-component"></i>
                                     <span key="t-barang">Barang</span>
                                     <span id="total-barangs" class="badge rounded-pill bg-danger float-end"></span>
-                                </a>
-                            </li>
-                            <li>
-                                <a href="{{ route('stok-gudang') }}" class="waves-effect">
-                                    <i class="bx bxs-component"></i>
-                                    <span key="t-stok-gudang">Stok Gudang</span>
                                 </a>
                             </li>
                             <li>
@@ -56,7 +63,7 @@
                                     <i class="bx bxs-business"></i>
                                     <span key="t-supplier">Supplier</span>
                                 </a>
-                            </li>
+                            </li> --}}
 
                             <li class="menu-title" key="t-transactions">Transaksi</li>
 

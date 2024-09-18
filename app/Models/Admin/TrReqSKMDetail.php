@@ -4,9 +4,9 @@ namespace App\Models\Admin;
 
 use Illuminate\Database\Eloquent\Model;
 
-class StokBarang extends Model
+class TrReqSKMDetail extends Model
 {
-    protected $table = 'tr_stok';
+    protected $table = 'tr_reqskm_detail';
     protected $guarded = [];
 
     public function barang()

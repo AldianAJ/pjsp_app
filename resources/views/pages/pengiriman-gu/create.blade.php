@@ -52,7 +52,7 @@
         });
 
         let selectedItems = [];
-        let addedItems = new Set(); // To track which items have been added
+        let addedItems = new Set();
 
         function showModal(brg_id, nm_brg, qty, satuan_besar) {
             const modal = document.getElementById('qtyModal');
@@ -61,7 +61,6 @@
             document.getElementById('modal-satuan-besar').value = satuan_besar;
             document.getElementById('modal-qty').value = qty;
 
-            // Disable button if item has already been added
             const addButton = document.getElementById(`btn-add-${brg_id}`);
             if (addButton) {
                 addButton.disabled = true;
@@ -128,7 +127,6 @@
     <!-- Main Form -->
     <div class="row">
         <div class="col-md-12">
-            <!-- Display validation errors -->
             @if ($errors->any())
                 <div class="alert alert-danger">
                     <ul>
@@ -183,7 +181,12 @@
                             value="{{ old('gudang_id', $gudang_id ?? '') }}">
                         <div id="items-container"></div> <!-- Container for items input fields -->
                         <div class="d-flex justify-content-end mt-3">
-                            <button type="submit" class="btn btn-primary" id="saveButton" disabled>Simpan</button>
+                            <a href="{{ route('pengiriman-gudang-utama') }}"
+                                class="btn btn-secondary waves-effect waves-light me-2">
+                                <i class="bx bx-caret-left align-middle me-2 font-size-18"></i>Kembali
+                            </a>
+                            <button type="submit" class="btn btn-primary waves-effect waves-light" id="saveButton"
+                                disabled><i class="bx bx bxs-save align-middle me-2 font-size-18"></i>Simpan</button>
                         </div>
                     </form>
                 </div>

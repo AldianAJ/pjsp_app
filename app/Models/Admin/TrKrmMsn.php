@@ -4,14 +4,14 @@ namespace App\Models\Admin;
 
 use Illuminate\Database\Eloquent\Model;
 
-class PengirimanSKM extends Model
+class TrKrmMsn extends Model
 {
     protected $table = 'tr_krmmsn';
     protected $guarded = [];
 
-    public function detail_pengiriman()
+    public function tr_krmmsn_detail()
     {
-        return $this->hasMany(DetailPengirimanSKM::class);
+        return $this->hasMany(TrKrmMsnDetail::class);
     }
 }
 

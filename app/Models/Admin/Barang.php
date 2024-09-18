@@ -12,13 +12,13 @@ class Barang extends Model
     protected $guarded = [];
 
 
-    public function detail_permintaan()
+    public function tr_reqskm_detail()
     {
-        return $this->hasMany(DetailPermintaanSKM::class);
+        return $this->hasMany(TrReqSKMDetail::class);
     }
 
-    public function detail_stok_masuk()
+    public function tr_trmsup()
     {
-        return $this->hasMany(DetailStokMasuk::class);
+        return $this->hasMany(TrTrmSup::class);
     }
 }

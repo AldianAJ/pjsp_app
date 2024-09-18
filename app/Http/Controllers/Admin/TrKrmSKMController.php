@@ -5,16 +5,16 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Admin\Gudang;
-use App\Models\Admin\StokBarang;
-use App\Models\Admin\PengirimanGU;
-use App\Models\Admin\DetailPengirimanGU;
-use App\Models\Admin\PermintaanSKM;
-use App\Models\Admin\DetailPermintaanSKM;
+use App\Models\Admin\TrStok;
+use App\Models\Admin\TrKrmSKM;
+use App\Models\Admin\TrKrmSKMDetail;
+use App\Models\Admin\TrReqSKM;
+use App\Models\Admin\TrReqSKMDetail;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Yajra\DataTables\DataTables;
 
-class PengirimanGUController extends Controller
+class TrKrmSKMController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -84,7 +84,7 @@ class PengirimanGUController extends Controller
         $user = $this->userAuth();
         $no_req = str_replace('-', '/', $no_reqskm);
 
-        $datas = DetailPermintaanSKM::with('barang')
+        $datas = TrReqSKMDetail::with('barang')
             ->where('no_reqskm', $no_req)
             ->where('status', 0)
             ->get();
@@ -93,7 +93,7 @@ class PengirimanGUController extends Controller
         $path = 'pengiriman-gudang-utama.create.';
 
         if ($request->ajax()) {
-            $data_mintas = DetailPermintaanSKM::with('barang')
+            $data_mintas = TrReqSKMDetail::with('barang')
                 ->where('no_reqskm', $no_req)
                 ->where('status', 0)
                 ->get();
@@ -111,20 +111,20 @@ class PengirimanGUController extends Controller
      */
     public function store(Request $request)
     {
-        $no_krmskm = 'SJ/GU' . '/' . date('y/m/' . str_pad(PengirimanGU::count() + 1, 3, '0', STR_PAD_LEFT));
+        $no_krmskm = 'SJ/GU' . '/' . date('y/m/' . str_pad(TrKrmSKM::count() + 1, 3, '0', STR_PAD_LEFT));
 
         $gudang_id = $request->gudang_id;
 
         $no_reqskm = $request->no_reqskm;
 
-        PengirimanGU::create([
+        TrKrmSKM::create([
             'no_krmskm' => $no_krmskm,
             'tgl_krm' => $request->tgl_krm,
             'gudang_id' => $gudang_id,
         ]);
 
         foreach ($request->items as $item) {
-            DetailPengirimanGU::create([
+            TrKrmSKMDetail::create([
                 'no_krmskm' => $no_krmskm,
                 'no_reqskm' => $no_reqskm,
                 'brg_id' => $item['brg_id'],
@@ -132,7 +132,7 @@ class PengirimanGUController extends Controller
                 'satuan_besar' => $item['satuan_besar'],
             ]);
 
-            $lastStok = StokBarang::where('gudang_id', $gudang_id)
+            $lastStok = TrStok::where('gudang_id', $gudang_id)
                 ->where('brg_id', $item['brg_id'])
                 ->orderBy('stok_id', 'desc')
                 ->first();
@@ -141,10 +141,10 @@ class PengirimanGUController extends Controller
             $keluar = $item['qty'];
             $akhir = $awal - $keluar;
 
-            $id = str_pad(StokBarang::count() + 1, 3, '0', STR_PAD_LEFT);
+            $id = str_pad(TrStok::count() + 1, 3, '0', STR_PAD_LEFT);
             $stok_id = "{$gudang_id}/{$item['brg_id']}/{$id}";
 
-            StokBarang::create([
+            TrStok::create([
                 'stok_id' => $stok_id,
                 'tgl' => $request->tgl_krm,
                 'brg_id' => $item['brg_id'],
@@ -158,14 +158,14 @@ class PengirimanGUController extends Controller
 
         }
 
-        $permintaan = PermintaanSKM::where('status', 0)->first();
+        $permintaan = TrReqSKM::where('status', 0)->first();
         if ($permintaan) {
             $permintaan->update([
                 'status' => 1,
             ]);
         }
 
-        DetailPermintaanSKM::where('status', 0)->update([
+        TrReqSKMDetail::where('status', 0)->update([
             'status' => 1,
         ]);
 

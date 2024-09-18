@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Admin\Barang;
-use App\Models\Admin\StokBarang;
+use App\Models\Admin\TrStok;
 use App\Models\Admin\Supplier;
 use Illuminate\Http\Request;
 use Yajra\DataTables\DataTables;
@@ -136,23 +136,13 @@ class BarangController extends Controller
         ]);
     }
 
-    public function indexGU(Request $request)
+    public function indexStok(Request $request)
     {
         $user = $this->userAuth();
         if($request->ajax()) {
-            $barangs = StokBarang::with('barang')->get();
+            $barangs = TrStok::with('barang')->get();
             return DataTables::of($barangs)->make(true);
         }
-        return view('pages.stok-gudang.index', compact('user'));
-    }
-
-    public function indexSKM(Request $request)
-    {
-        $user = $this->userAuth();
-        if($request->ajax()) {
-            $barangs = StokBarang::with('barang')->get();
-            return DataTables::of($barangs)->make(true);
-        }
-        return view('pages.stok-skm.index', compact('user'));
+        return view('pages.stok.index', compact('user'));
     }
 }

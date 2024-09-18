@@ -11,8 +11,8 @@ class Supplier extends Model
     protected $primaryKey = 'supplier_id';
     public $incrementing = false;
 
-    public function stok_masuk()
+    public function tr_trmsup()
     {
-        return $this->hasMany(StokMasuk::class);
+        return $this->hasMany(TrTrmSup::class);
     }
 }

@@ -4,18 +4,20 @@ namespace App\Models\Admin;
 
 use Illuminate\Database\Eloquent\Model;
 
-class DetailStokMasuk extends Model
+class TrKrmMsnDetail extends Model
 {
-    protected $table = 'tr_trmsup_detail';
+    protected $table = 'tr_krmmsn_detail';
     protected $guarded = [];
 
-    public function stok_masuk()
+
+    public function tr_krmmsn()
     {
-        return $this->belongsTo(StokMasuk::class, 'no_trm', 'no_trm');
+        return $this->belongsTo(TrKrmMsn::class, 'no_krmmsn');
     }
 
     public function barang()
     {
         return $this->belongsTo(Barang::class, 'brg_id');
     }
+
 }

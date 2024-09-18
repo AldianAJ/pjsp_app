@@ -6,12 +6,12 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Admin\Barang;
 use App\Models\Admin\TargetMesin;
-use App\Models\Admin\PengirimanSKM;
-use App\Models\Admin\DetailPengirimanSKM;
+use App\Models\Admin\TrKrmMsn;
+use App\Models\Admin\TrKrmMsnDetail;
 use Illuminate\Support\Facades\Auth;
 use Yajra\DataTables\DataTables;
 
-class PengirimanSKMController extends Controller
+class TrKrmMsnController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -28,7 +28,7 @@ class PengirimanSKMController extends Controller
         $path = 'pengiriman-skm.';
 
         if ($request->ajax()) {
-            $pengirimans = PengirimanSKM::where('status', 0)->get();
+            $pengirimans = TrKrmMsn::where('status', 0)->get();
             return DataTables::of($pengirimans)
                 ->addColumn('action', function ($object) use ($path) {
                     $html = '<a href="' . route($path . "edit", ["no_krmmsn" => $object->no_krmmsn]) . '" class="btn btn-secondary waves-effect waves-light mx-1">'
@@ -86,18 +86,18 @@ class PengirimanSKMController extends Controller
      */
     public function store(Request $request)
     {
-        $no_krmmsn = 'TBI/SKM' . '/' . date('y/m/' . str_pad(PengirimanSKM::count() + 1, 3, '0', STR_PAD_LEFT));
+        $no_krmmsn = 'TBI/SKM' . '/' . date('y/m/' . str_pad(TrKrmMsn::count() + 1, 3, '0', STR_PAD_LEFT));
 
         $msn_trgt_id = $request->msn_trgt_id;
 
-        $krmMSN = PengirimanSKM::create([
+        $krmMSN = TrKrmMsn::create([
             'no_krmmsn' => $no_krmmsn,
             'tgl' => $request->tgl,
             'msn_trgt_id' => $msn_trgt_id,
         ]);
 
         foreach ($request->items as $item) {
-            DetailPengirimanSKM::create([
+            TrKrmMsnDetail::create([
                 'no_krmmsn' => $no_krmmsn,
                 'brg_id' => $item['brg_id'],
                 'qty' => $item['qty'],

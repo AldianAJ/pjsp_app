@@ -4,14 +4,14 @@ namespace App\Models\Admin;
 
 use Illuminate\Database\Eloquent\Model;
 
-class ReturnMesin extends Model
+class TrReturnMsn extends Model
 {
     protected $table = 'tr_returnmsn';
     protected $guarded = [];
 
-    public function detail_return()
+    public function tr_returnmsn_detail()
     {
-        return $this->hasMany(DetailReturnMesin::class);
+        return $this->hasMany(TrReturnMsnDetail::class);
     }
 }
 
