@@ -16,7 +16,9 @@
         <script src="{{ asset('assets/libs/datatables.net-responsive-bs4/js/responsive.bootstrap4.min.js') }}"></script>
         <script src="{{ asset('assets/js/pages/datatables.init.js') }}"></script>
         <script>
-            $('#datatable').DataTable({
+            let mainTable;
+
+            mainTable = $('#datatable').DataTable({
                 ajax: "{{ route('permintaan-skm') }}",
                 columns: [{
                         data: "no_reqskm"
@@ -38,33 +40,46 @@
             });
 
 
-            $("datatable").on("click", ".btn-detail", function() {
-                let selectData = detailDatatable.row($(this).parents('tr')).data();
-                let no_reqskm = selectData.no_reqskm;
-                $.ajax({
-                    url: '/permintaan/detail/' + no_reqskm,
-                    method: 'GET',
-                    success: function(data) {
-                        $('detailModal .modal-body').html(
-                            `<table class="table table-bordered">
-            <thead class="table-light">
-                <tr>
-                    <th>Nama Barang</th>
-                    <th>Qty</th>
-                    <th>Satuan Besar</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td>${data.nm_brg}</td>
-                    <td>${data.qty}</td>
-                    <td>${data.satuan_besar}</td>
-                </tr>
-            </tbody></table>`
-                        );
-                        $('#detailModal').modal('show')
-                    }
-                })
+            $('#datatable').on('click', '.btn-detail', function() {
+                let selectedData = mainTable.row($(this).closest('tr')).data();
+                $("#id-req").text(selectedData.no_reqskm);
+
+                if ($.fn.DataTable.isDataTable('#detail-datatable')) {
+                    $('#detail-datatable').DataTable().destroy();
+                }
+                $('#detail-datatable').DataTable({
+                    processing: true,
+                    serverSide: true,
+                    ajax: {
+                        type: "GET",
+                        url: "{{ route('permintaan-skm.showDetail') }}",
+                        data: {
+                            no_reqskm: selectedData.no_reqskm
+                        }
+                    },
+                    lengthMenu: [5],
+                    columns: [{
+                            data: 'nm_brg',
+                            // render: function(data, type, row) {
+                            //     return row.tr_trmsup_detail[0].barang.nm_brg;
+                            // }
+                        },
+                        {
+                            data: 'qty',
+                            // render: function(data, type, row) {
+                            //     return row.tr_trmsup_detail[0].qty;
+                            // }
+                        },
+                        {
+                            data: 'satuan_besar',
+                            // render: function(data, type, row) {
+                            //     return row.tr_trmsup_detail[0].barang.satuan_beli;
+                            // }
+                        },
+                    ],
+                });
+
+                $('#detailModal').modal('show');
             });
         </script>
     @endpush
@@ -106,16 +121,25 @@
             </div>
         </div>
 
-        <div class="modal modal-md fade" id="detailModal" tabindex="-1" aria-labelledby="detailModalLabel" aria-hidden="true">
+        <div class="modal modal-md fade" id="detailModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
             <div class="modal-dialog">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title" id="detailModalLabel">Detail Permintaan</h5>
+                        <h5 class="modal-title" id="exampleModalLabel">Detail Barang - <span id="id-req"></span></h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
-                    <div class="modal-body"></div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <div class="modal-body">
+                        <table class="table table-bordered dt-responsive nowrap w-100" id="detail-datatable">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Nama Barang</th>
+                                    <th>Qty</th>
+                                    <th>Satuan</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             </div>
@@ -128,7 +152,7 @@
                 document.addEventListener('DOMContentLoaded', function() {
                     Swal.fire({
                         toast: true,
-                        position: 'bottom-right',
+                        position: 'top-right',
                         icon: 'success',
                         title: '{{ session('success') }}',
                         showConfirmButton: false,

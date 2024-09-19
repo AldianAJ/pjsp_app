@@ -84,10 +84,10 @@ class TrKrmSKMController extends Controller
         $user = $this->userAuth();
         $no_req = str_replace('-', '/', $no_reqskm);
 
-        $datas = TrReqSKMDetail::with('barang')
-            ->where('no_reqskm', $no_req)
-            ->where('status', 0)
-            ->get();
+        // $datas = TrReqSKMDetail::with('barang')
+        //     ->where('no_reqskm', $no_req)
+        //     ->where('status', 0)
+        //     ->get();
 
         $gudang_id = Gudang::where('jenis', 2)->value('gudang_id');
         $path = 'pengiriman-gudang-utama.create.';
@@ -101,7 +101,7 @@ class TrKrmSKMController extends Controller
         }
 
 
-        return view('pages.pengiriman-gu.create', compact('user', 'datas', 'no_reqskm', 'no_req', 'gudang_id'));
+        return view('pages.pengiriman-gu.create', compact('user',  'no_reqskm', 'no_req', 'gudang_id'));
     }
 
 

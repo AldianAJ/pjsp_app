@@ -44,8 +44,8 @@ class TrReqSKMController extends Controller
                     $no = str_replace('/', '-', $object->no_reqskm);
                     $html = '<a href="' . route($path . "edit", ["no_reqskm" => $no]) . '" class="btn btn-success waves-effect waves-light mx-1">'
                         . ' <i class="bx bx-edit align-middle me-2 font-size-18"></i> Edit</a>';
-                    $html .= '<button class="btn btn-secondary waves-effect waves-light mx-1 btn-detail" data-no_reqskm="' . $object->no_reqskm . '">' .
-                        '<i class="bx bx-show align-middle font-size-18"></i> Detail</button>';
+                    $html .= '<button class="btn btn-secondary waves-effect waves-light btn-detail me-2" data-bs-toggle="modal" data-bs-target="#detailModal">'
+                        . '<i class="bx bx-detail font-size-18 align-middle me-2"></i>Detail</button>';
                     return $html;
                 })
                 ->rawColumns(['action'])
@@ -109,12 +109,17 @@ class TrReqSKMController extends Controller
     /**
      * Display the specified resource.
      */
-    public function indexDetail($no_reqskm)
+    public function showDetail(Request $request)
     {
-        $details = TrReqSKMDetail::where('no_reqskm', $no_reqskm)->first();
-        return response()->json($details);
-    }
+        $details = DB::table('tr_reqskm as a')
+            ->join('tr_reqskm_detail as b', 'a.no_reqskm', '=', 'b.no_reqskm')
+            ->join('m_brg as c', 'b.brg_id', '=', 'c.brg_id')
+            ->where('a.no_reqskm', $request->no_reqskm)
+            ->select('c.nm_brg', 'b.qty', 'b.satuan_besar')
+            ->get();
 
+        return DataTables::of($details)->make(true);
+    }
     /**
      * Show the form for editing the specified resource.
      */
@@ -123,11 +128,9 @@ class TrReqSKMController extends Controller
         $user = $this->userAuth();
         $no_req = str_replace('-', '/', $no_reqskm);
 
-        $datas = TrReqSKM::where('no_reqskm', $no_req)
+        $tgl = TrReqSKM::where('no_reqskm', $no_req)
             ->where('status', 0)
-            ->first();
-
-        $path = 'permintaan-skm.edit.';
+            ->value('tgl');
 
         if ($request->ajax()) {
             $data_mintas = TrReqSKMDetail::with('barang')
@@ -138,7 +141,7 @@ class TrReqSKMController extends Controller
         }
 
 
-        return view('pages.permintaan-skm.edit', compact('user', 'datas', 'no_reqskm', 'no_req'));
+        return view('pages.permintaan-skm.edit', compact('user', 'tgl', 'no_reqskm', 'no_req'));
     }
 
     /**
@@ -146,15 +149,29 @@ class TrReqSKMController extends Controller
      */
     public function update(Request $request, string $no_reqskm)
     {
-        $no_reqskm = $request->no_reqskm;
         $no_req = str_replace('-', '/', $no_reqskm);
-        foreach ($request->items as $item) {
-            $detail_mintas = TrReqSKMDetail::where('no_reqskm', operator: $no_req)->where('brg_id', $item['brg_id']);
-            $detail_mintas->update([
-                'qty' => $item['qty'],
+        $responseMessage = '';
+
+        if (!empty($request->items)) {
+            foreach ($request->items as $item) {
+                $data_tr_reqskm_detail = TrReqSKMDetail::where('no_reqskm', operator: $no_req)
+                    ->where('brg_id', $item['brg_id'])
+                    ->first();
+
+                if ($data_tr_reqskm_detail) {
+                    $nama = Barang::where('brg_id', $item['brg_id'])->value('nm_brg');
+                    $data_tr_reqskm_detail->update(['qty' => $item['qty']]);
+                    $responseMessage = 'Data ' . $nama . ' berhasil diubah. Menjadi Qty : ' . $item['qty'];
+                }
+            }
+        } else {
+            $data_tr_reqskm = TrReqSKM::where('no_reqskm', $no_req)->first();
+            $data_tr_reqskm->update([
+                'tgl' => $request->tgl,
             ]);
+            $responseMessage = 'Data transaksi berhasil diubah.';
         }
-        return redirect()->route('permintaan-skm')->with('success', 'Data permintaan berhasil di update.');
+        return response()->json(['success' => true, 'message' => $responseMessage], 200);
     }
 
     public function indexHistory(Request $request)

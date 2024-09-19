@@ -108,7 +108,6 @@ class TrTrmSupController extends Controller
                 ->orderBy('stok_id', 'desc')
                 ->first();
 
-            $akhir = ($awal = ($lastStok ? $lastStok->akhir : 0)) + ($masuk = $item['qty']);
 
             $id = str_pad(TrStok::count() + 1, 3, '0', STR_PAD_LEFT);
             $stok_id = "{$gudang_id}/{$item['brg_id']}/{$id}";
@@ -119,10 +118,10 @@ class TrTrmSupController extends Controller
                 'brg_id' => $item['brg_id'],
                 'gudang_id' => $gudang_id,
                 'doc_id' => $no_trm,
-                'awal' => $awal,
-                'masuk' => $masuk,
+                'awal' => $request->awal,
+                'masuk' => $request->masuk,
                 'keluar' => 0,
-                'akhir' => $akhir,
+                'akhir' => $request->akhir,
             ]);
         }
 
@@ -139,21 +138,17 @@ class TrTrmSupController extends Controller
         $data_supplier = DB::table('tr_trmsup as a')
             ->join('m_supplier as b', 'a.supplier_id', '=', 'b.supplier_id')
             ->where('a.no_trm', $no_trms)
-            ->where('a.status', 0)
-            ->select('b.nama')
-            ->first();
+            ->value('a.supplier_id');
 
         $suppliers = Supplier::where('status', 0)->get();
 
         $tgl = TrTrmSup::where('no_trm', $no_trms)
             ->where('status', 0)
-            ->select('tgl')
-            ->first();
+            ->value('tgl');
 
         $no_sj = TrTrmSup::where('no_trm', $no_trms)
             ->where('status', 0)
-            ->select('no_sj')
-            ->first();
+            ->value('no_sj');
 
 
         if ($request->ajax()) {
@@ -173,25 +168,40 @@ class TrTrmSupController extends Controller
         $no_trms = str_replace('-', '/', $no_trm);
         $responseMessage = '';
 
-        foreach ($request->items as $item) {
-            $data_tr_trmsup_detail = TrTrmSupDetail::where('no_trm', $no_trms)
-                ->where('brg_id', $item['brg_id'])
-                ->first();
+        if (!empty($request->items)) {
+            foreach ($request->items as $item) {
+                $data_tr_trmsup_detail = TrTrmSupDetail::where('no_trm', $no_trms)
+                    ->where('brg_id', $item['brg_id'])
+                    ->first();
 
-            if ($data_tr_trmsup_detail) {
-                $nama = Barang::where('brg_id', $item['brg_id'])->value('nm_brg');
-                $data_tr_trmsup_detail->update(['qty' => $item['qty']]);
-                $responseMessage = 'Data ' . $nama . ' berhasil diubah. Menjadi Qty : ' . $item['qty'];
+                if ($data_tr_trmsup_detail) {
+                    $nama = Barang::where('brg_id', $item['brg_id'])->value('nm_brg');
+                    $data_tr_trmsup_detail->update(['qty' => $item['qty']]);
+                    $responseMessage = 'Data ' . $nama . ' berhasil diubah. Menjadi Qty : ' . $item['qty'];
+                }
             }
+        } else {
+            $data_tr_trmsup = TrTrmSup::where('no_trm', $no_trms)->first();
+            $data_tr_trmsup->update([
+                'no_sj' => $request->no_sj,
+                'supplier_id' => $request->supplier_id,
+                'tgl' => $request->tgl,
+            ]);
+            $responseMessage = 'Data transaksi berhasil diubah.';
         }
 
         return response()->json(['success' => true, 'message' => $responseMessage], 200);
     }
 
+
     public function showDetail(Request $request)
     {
-        $details = TrTrmSup::with('tr_trmsup_detail.barang')
-            ->where('no_trm', $request->no_trm)->get();
+        $details = DB::table('tr_trmsup as a')
+            ->join('tr_trmsup_detail as b', 'a.no_trm', '=', 'b.no_trm')
+            ->join('m_brg as c', 'b.brg_id', '=', 'c.brg_id')
+            ->where('a.no_trm', $request->no_trm)
+            ->select('c.nm_brg', 'b.qty', 'b.satuan_beli')
+            ->get();
 
         return DataTables::of($details)->make(true);
     }

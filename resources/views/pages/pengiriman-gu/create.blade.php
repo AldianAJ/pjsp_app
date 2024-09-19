@@ -12,43 +12,70 @@
     <script src="{{ asset('assets/libs/datatables.net-responsive-bs4/js/responsive.bootstrap4.min.js') }}"></script>
     <script src="{{ asset('assets/js/pages/datatables.init.js') }}"></script>
     <script>
-        var no_reqskm = "{{ $no_reqskm }}";
+        $(document).ready(function() {
+            var no_reqskm = "{{ $no_reqskm }}";
 
-        $('#datatable').DataTable({
-            ajax: "{{ url('pengiriman-gudang-utama/create') }}/" + no_reqskm,
-            lengthMenu: [5],
-            columns: [{
-                    data: "barang.nm_brg"
-                },
-                {
-                    data: "satuan_besar"
-                },
-                {
-                    data: null,
-                    render: function(data, type, row) {
-                        return `<button type="button" id="btn-add-${row.brg_id}" class="btn btn-primary btn-sm" onclick="showModal('${row.brg_id}', '${row.barang.nm_brg}', ${row.qty}, '${row.satuan_besar}')">
-                            <i class="fas fa-plus"></i>
-                        </button>`;
-                    },
+            $('#showDataBarangButton').on('click', function() {
+                if ($.fn.DataTable.isDataTable('#datatable')) {
+                    $('#datatable').DataTable().clear().destroy();
                 }
-            ],
-        });
+                $('#datatable').DataTable({
+                    ajax: "{{ url('pengiriman-gudang-utama/create') }}/" + no_reqskm,
+                    lengthMenu: [5],
+                    columns: [{
+                            data: "barang.nm_brg"
+                        },
+                        {
+                            data: "satuan_besar"
+                        },
+                        {
+                            data: null,
+                            render: function(data, type, row) {
+                                return `<button type="button" id="btn-add-${row.brg_id}" class="btn btn-primary btn-sm" onclick="showModal('${row.brg_id}', '${row.barang.nm_brg}', ${row.qty}, '${row.satuan_besar}')">
+                    <i class="fas fa-plus"></i>
+                </button>`;
+                            },
+                        }
+                    ],
+                });
+                $('#dataModal').modal('show');
+            });
 
-        $('#datatable-minta').DataTable({
-            ajax: {
-                ajax: "{{ url('pengiriman/create') }}/" + no_reqskm,
-            },
-            lengthMenu: [5],
-            columns: [{
-                    data: "barang.nm_brg"
-                },
-                {
-                    data: "qty"
-                },
-                {
-                    data: "satuan_besar"
+            $('#showDataPermintaanButton').on('click', function() {
+                if ($.fn.DataTable.isDataTable('#datatable-permintaan')) {
+                    $('#datatable-permintaan').DataTable().clear().destroy();
                 }
-            ],
+
+                $('#datatable-permintaan').DataTable({
+                    ajax: "{{ url('pengiriman/create') }}/" + no_reqskm,
+                    lengthMenu: [5],
+                    columns: [{
+                            data: "barang.nm_brg"
+                        },
+                        {
+                            data: "qty"
+                        },
+                        {
+                            data: "satuan_besar"
+                        }
+                    ],
+                });
+
+                $('#permintaanModal').modal('show');
+            });
+
+            $('#dataModal').on('hidden.bs.modal', function() {
+                if ($.fn.DataTable.isDataTable('#datatable')) {}
+            });
+
+            $('#qtyModal').on('hidden.bs.modal', function() {
+                $('#showDataBarangButton').show();
+                $('#dataModal').modal('show');
+            });
+
+            $('#qtyModal .btn-primary').on('click', function() {
+                $('#showDataBarangButton').hide();
+            });
         });
 
         let selectedItems = [];
@@ -67,6 +94,7 @@
             }
 
             new bootstrap.Modal(modal).show();
+            $('#dataModal').modal('hide');
         }
 
         function addItem() {
@@ -88,26 +116,36 @@
             });
             addedItems.add(brg_id);
             updateItems();
+
+            const qtyModal = bootstrap.Modal.getInstance(document.getElementById('qtyModal'));
+            qtyModal.hide();
+        }
+
+        function removeItem(index) {
+            selectedItems.splice(index, 1);
+            updateItems();
         }
 
         function updateItems() {
             const itemsTable = document.getElementById('selected-items');
             const itemsContainer = document.getElementById('items-container');
-            const saveButton = document.getElementById('saveButton');
 
             itemsTable.innerHTML = selectedItems.map((item, index) => `
-                <tr>
-                    <td>${index + 1}</td>
-                    <td>${item.nm_brg}</td>
-                    <td>${item.qty}</td>
-                </tr>
-            `).join('');
+        <tr>
+            <td>${index + 1}</td>
+            <td>${item.nm_brg}</td>
+            <td>${item.qty}</td>
+            <td>
+                    <button class="btn btn-danger waves-effect waves-light" onclick="removeItem(${index})"><i class="bx bxs-trash align-middle font-size-14"></i></button>
+                </td>
+        </tr>
+    `).join('');
 
             itemsContainer.innerHTML = selectedItems.map((item, index) => `
-                <input type="hidden" name="items[${index}][brg_id]" value="${item.brg_id}">
-                <input type="hidden" name="items[${index}][qty]" value="${item.qty}">
-                <input type="hidden" name="items[${index}][satuan_besar]" value="${item.satuan_besar}">
-            `).join('');
+        <input type="hidden" name="items[${index}][brg_id]" value="${item.brg_id}">
+        <input type="hidden" name="items[${index}][qty]" value="${item.qty}">
+        <input type="hidden" name="items[${index}][satuan_besar]" value="${item.satuan_besar}">
+    `).join('');
 
             saveButton.disabled = selectedItems.length === 0;
         }
@@ -143,26 +181,6 @@
         <div class="col-md-6">
             <div class="card">
                 <div class="card-body">
-                    <h4 class="card-title mb-3">Data Permintaan</h4>
-                    <div class="table-responsive">
-                        <table id="datatable-minta" class="table align-middle table-nowrap">
-                            <thead class="table-light">
-                                <tr>
-                                    <th>Nama Barang</th>
-                                    <th>Qty</th>
-                                    <th>Satuan</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-6">
-            <div class="card">
-                <div class="card-body">
                     <h5 class="card-title">Data Transaksi</h5>
                     <form action="{{ route('pengiriman-gudang-utama.store') }}" method="post"
                         enctype="multipart/form-data">
@@ -194,19 +212,30 @@
         </div>
     </div>
 
-    <div class="row">
-        <div class="col-md-6">
-            <!-- Data Barang Table -->
-            <div class="card">
-                <div class="card-body">
-                    <h4 class="card-title mb-3">Data Barang</h4>
+    <button type="button" class="btn btn-dark waves-effect waves-light me-2" id="showDataPermintaanButton">
+        <i class="bx bx-list align-middle me-2 font-size-18"></i> Lihat Data Permintaan
+    </button>
+
+    <button type="button" class="btn btn-dark waves-effect waves-light" id="showDataBarangButton">
+        <i class="bx bx-plus-circle align-middle me-2 font-size-18"></i>Tambah Data Barang
+    </button>
+
+    <div class="modal fade" id="permintaanModal" tabindex="-1" role="dialog" aria-labelledby="permintaanModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="permintaanModalLabel">Data Permintaan</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
                     <div class="table-responsive">
-                        <table id="datatable" class="table align-middle table-nowrap">
+                        <table id="datatable-permintaan" class="table align-middle table-nowrap">
                             <thead class="table-light">
                                 <tr>
                                     <th>Nama Barang</th>
+                                    <th>Qty</th>
                                     <th>Satuan</th>
-                                    <th>Action</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -214,31 +243,49 @@
                         </table>
                     </div>
                 </div>
-            </div>
-        </div>
-
-        <div class="col-md-6">
-            <div class="card">
-                <div class="card-body">
-                    <h5 class="card-title">List Pengiriman</h5>
-                    <table class="table table-striped" id="selected-items-table">
-                        <thead>
-                            <tr>
-                                <th>No</th>
-                                <th>Nama Barang</th>
-                                <th>Jumlah</th>
-                            </tr>
-                        </thead>
-                        <tbody id="selected-items">
-                        </tbody>
-                    </table>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Modal for Input Quantity -->
-    <div class="modal fade" id="qtyModal" tabindex="-1" role="dialog" aria-labelledby="qtyModalLabel" aria-hidden="true">
+    <div class="modal fade" id="dataModal" tabindex="-1" role="dialog" aria-labelledby="dataModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="dataModalLabel">Data Barang</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <div class="table-responsive">
+                                <table id="datatable" class="table align-middle table-nowrap">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th>Nama Barang</th>
+                                            <th>Satuan</th>
+                                            <th>Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Selesai</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="qtyModal" tabindex="-1" role="dialog" aria-labelledby="qtyModalLabel"
+        aria-hidden="true">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
@@ -263,8 +310,30 @@
                     </form>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-primary" data-bs-dismiss="modal"
-                        onclick="addItem()">Tambah</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
+                    <button type="button" class="btn btn-primary" onclick="addItem()">Tambah</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-12 mt-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">List Pengiriman</h5>
+                    <table class="table table-striped" id="selected-items-table">
+                        <thead class="table-light">
+                            <tr>
+                                <th>No</th>
+                                <th>Nama Barang</th>
+                                <th>Qty</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="selected-items">
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>

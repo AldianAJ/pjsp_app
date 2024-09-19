@@ -116,7 +116,7 @@ Route::middleware('user')->group(function () {
 
     Route::controller(TrReqSKMController::class)->group(function () {
         Route::get('/permintaan-skm', 'index')->name('permintaan-skm');
-        Route::get('/permintaan-skm/detail/{no_reqskm}', 'indexDetail')->name('permintaan-skm.indexDetail');
+        Route::get('/permintaan-skm/detail', 'showDetail')->name('permintaan-skm.showDetail');
         Route::get('/permintaan-skm/create', 'create')->name('permintaan-skm.create');
         Route::post('/permintaan-skm/store', 'store')->name('permintaan-skm.store');
         Route::get('/permintaan-skm/edit/{no_reqskm}', 'edit')->name('permintaan-skm.edit');
