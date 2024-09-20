@@ -103,7 +103,7 @@
         $('#datatable').on('click', '.btn-detail', function() {
             let selectedData = mainTable.row($(this).closest('tr')).data();
             $("#id-terima").text(selectedData.no_trm);
-            $("#id-supplier").text(selectedData.supplier_id);
+            $("#id-supplier").text(selectedData.supplier.nama);
 
             if ($.fn.DataTable.isDataTable('#detail-datatable')) {
                 $('#detail-datatable').DataTable().destroy();
@@ -126,7 +126,7 @@
                         // }
                     },
                     {
-                        data: 'qty',
+                        data: 'qty_beli',
                         // render: function(data, type, row) {
                         //     return row.tr_trmsup_detail[0].qty;
                         // }
@@ -225,8 +225,8 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <div class="mb-2">
-                        <strong>Nama Supplier:</strong> <span id="id-supplier"></span>
+                    <div class="font-size-14 mb-2">
+                        <strong>Nama Supplier :</strong> <span id="id-supplier"></span>
                     </div>
                     <table class="table table-bordered dt-responsive nowrap w-100" id="detail-datatable">
                         <thead class="table-light">

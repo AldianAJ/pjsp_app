@@ -28,117 +28,186 @@
             });
 
             $('#showDataBarangButton').on('click', function() {
-                if ($.fn.DataTable.isDataTable('#datatable')) {
-                    $('#datatable').DataTable().clear().destroy();
+                if ($.fn.DataTable.isDataTable('#datatable-barang')) {
+                    $('#datatable-barang').DataTable().clear().destroy();
                 }
 
-                $('#datatable').DataTable({
-                    ajax: "{{ route('stok-masuk.create') }}",
+                $('#datatable-barang').DataTable({
+                    ajax: {
+                        url: "{{ route('stok-masuk.create') }}",
+                        data: {
+                            type: 'barangs'
+                        }
+                    },
                     lengthMenu: [5],
+                    ordering: false,
                     columns: [{
                             data: "nm_brg"
                         },
                         {
-                            data: "satuan_beli"
-                        },
-                        {
                             data: null,
                             render: function(data, type, row) {
-                                return `<button type="button" class="btn btn-primary waves-effect waves-light" onclick="showModal('${row.brg_id}', '${row.nm_brg}', '${row.satuan_beli}')">
-                                        <i class="fas fa-plus align-middle font-size-14"></i>
+                                return `<button type="button" class="btn btn-primary font-size-10 waves-effect waves-light" onclick="showSpecs('${row.brg_id}', '${row.nm_brg}')">
+                                        <i class="fas fa-plus align-middle"></i>
                                     </button>`;
                             },
                         }
                     ],
                 });
 
-                $('#dataModal').modal('show');
+                $('#dataBarang').modal('show');
             });
 
-            $('#dataModal').on('hidden.bs.modal', function() {
-                if ($.fn.DataTable.isDataTable('#datatable')) {}
+            window.showSpecs = function(brg_id, nm_brg) {
+                if ($.fn.DataTable.isDataTable('#datatable-spek')) {
+                    $('#datatable-spek').DataTable().clear().destroy();
+                }
+
+                $('#datatable-spek').DataTable({
+                    ajax: {
+                        url: "{{ route('stok-masuk.create') }}",
+                        data: {
+                            type: 'speks',
+                            brg_id: brg_id,
+                            nm_brg: nm_brg
+                        }
+                    },
+                    lengthMenu: [5],
+                    columns: [{
+                            data: "spek"
+                        },
+                        {
+                            data: "satuan1"
+                        },
+                        {
+                            data: null,
+                            render: function(data, type, row) {
+                                return `<button type="button" class="btn btn-primary font-size-10 waves-effect waves-light" onclick="showModal('${row.brg_id}', '${row.nm_brg}', '${row.satuan1}', '${row.satuan2}', '${row.konversi1}', '${row.spek_id}')">
+                                        <i class="fas fa-plus align-middle"></i>
+                                    </button>`;
+                            },
+                        }
+                    ],
+                });
+
+                $('#dataSpek').modal('show');
+            };
+
+            $('#dataSpek').on('hidden.bs.modal', function() {
+                $('#dataBarang').modal('show'); // Return to the dataBarang modal
             });
 
             $('#qtyModal').on('hidden.bs.modal', function() {
-                $('#showDataBarangButton').show();
-                $('#dataModal').modal('show');
+                $('#dataSpek').modal('show'); // Return to the dataSpek modal
             });
 
+            // Existing functions for qtyModal, addItem, etc.
             $('#qtyModal .btn-primary').on('click', function() {
                 $('#showDataBarangButton').hide();
             });
-        });
 
-        let selectedItems = [];
+            $('#modal-qty-beli').on('input', function() {
+                const qtyBeli = parseFloat($(this).val()) || 0;
+                const konversi1 = parseFloat($('#qtyModal').data('konversi1')) || 0;
+                const qtyStd = qtyBeli * konversi1;
 
-        function showModal(brg_id, nm_brg, satuan_beli) {
-            const modal = document.getElementById('qtyModal');
-            document.getElementById('modal-brg-id').value = brg_id;
-            document.getElementById('modal-nm-brg').value = nm_brg;
-            document.getElementById('modal-satuan-beli').value = satuan_beli;
-            document.getElementById('modal-qty').value = '';
-            document.getElementById('modal-ket').value = '';
+                $('#modal-qty-std').val(qtyStd);
+            });
 
-            new bootstrap.Modal(modal).show();
-            $('#dataModal').modal('hide');
-        }
+            $('#modal-qty-std').on('input', function() {
+                const qtyStd = parseFloat($(this).val()) || 0;
+                const konversi1 = parseFloat($('#qtyModal').data('konversi1')) || 0;
+                const qtyBeli = qtyStd / konversi1;
 
-        function addItem() {
-            const brg_id = document.getElementById('modal-brg-id').value;
-            const nm_brg = document.getElementById('modal-nm-brg').value;
-            const qty = parseFloat(document.getElementById('modal-qty').value);
-            const satuan_beli = document.getElementById('modal-satuan-beli').value;
-            const ket = document.getElementById('modal-ket').value;
+                $('#modal-qty-beli').val(qtyBeli);
+            });
 
-            if (qty <= 0) {
-                alert('Jumlah harus lebih dari 0');
-                return;
+            // Function to show the quantity modal
+            window.showModal = function(brg_id, nm_brg, satuan1, satuan2, konversi1, spek_id) {
+                const modal = document.getElementById('qtyModal');
+                modal.dataset.konversi1 = konversi1;
+                document.getElementById('modal-brg-id').value = brg_id;
+                document.getElementById('modal-nm-brg').value = nm_brg;
+                document.getElementById('modal-qty-beli').value = '';
+                document.getElementById('modal-satuan1').innerText = satuan1;
+                document.getElementById('modal-qty-std').value = '';
+                document.getElementById('modal-satuan2').innerText = satuan2;
+                document.getElementById('modal-ket').value = '';
+                document.getElementById('modal-spek-id').value = spek_id;
+
+                console.log("Barang ID:", brg_id, "Nama Barang:", nm_brg);
+                new bootstrap.Modal(modal).show();
+                $('#dataSpek').modal('hide');
+            };
+
+            let selectedItems = [];
+
+            function addItem() {
+                const brg_id = document.getElementById('modal-brg-id').value;
+                const nm_brg = document.getElementById('modal-nm-brg').value;
+                const qty_beli = parseFloat(document.getElementById('modal-qty-beli').value);
+                const satuan1 = document.getElementById('modal-satuan1').innerText;
+                const qty_std = parseFloat(document.getElementById('modal-qty-std').value);
+                const satuan2 = document.getElementById('modal-satuan2').innerText;
+                const ket = document.getElementById('modal-ket').value;
+                const spek_id = document.getElementById('modal-spek-id').value;
+
+                if (qty_beli <= 0 || qty_std <= 0) {
+                    alert('Jumlah harus lebih dari 0');
+                    return;
+                }
+
+                selectedItems.push({
+                    brg_id,
+                    nm_brg,
+                    qty_beli,
+                    satuan1,
+                    qty_std,
+                    satuan2,
+                    ket,
+                    spek_id
+                });
+                updateItems();
+
+                const qtyModal = bootstrap.Modal.getInstance(document.getElementById('qtyModal'));
+                qtyModal.hide();
             }
 
-            selectedItems.push({
-                brg_id,
-                nm_brg,
-                qty,
-                satuan_beli,
-                ket
-            });
-            updateItems();
+            function removeItem(index) {
+                selectedItems.splice(index, 1);
+                updateItems();
+            }
 
-            const qtyModal = bootstrap.Modal.getInstance(document.getElementById('qtyModal'));
-            qtyModal.hide();
-        }
+            function updateItems() {
+                const itemsTable = document.getElementById('selected-items');
+                const itemsContainer = document.getElementById('items-container');
+                const saveButton = document.getElementById('saveButton');
 
-        function removeItem(index) {
-            selectedItems.splice(index, 1);
-            updateItems();
-        }
+                itemsTable.innerHTML = selectedItems.map((item, index) => `
+                    <tr>
+                        <td>${index + 1}</td>
+                        <td>${item.nm_brg}</td>
+                        <td>${item.qty_beli}</td>
+                        <td>${item.satuan1}</td>
+                        <td>
+                            <button class="btn btn-danger waves-effect waves-light" onclick="removeItem(${index})"><i class="bx bxs-trash align-middle font-size-14"></i></button>
+                        </td>
+                    </tr>
+                `).join('');
 
-        function updateItems() {
-            const itemsTable = document.getElementById('selected-items');
-            const itemsContainer = document.getElementById('items-container');
-            const saveButton = document.getElementById('saveButton');
-            const selectedItemsTable = document.getElementById('selected-items-table');
+                itemsContainer.innerHTML = selectedItems.map((item, index) => `
+                    <input type="hidden" name="items[${index}][brg_id]" value="${item.brg_id}">
+                    <input type="hidden" name="items[${index}][qty_beli]" value="${item.qty_beli}">
+                    <input type="hidden" name="items[${index}][satuan_beli]" value="${item.satuan1}">
+                    <input type="hidden" name="items[${index}][qty_std]" value="${item.qty_std}">
+                    <input type="hidden" name="items[${index}][satuan_std]" value="${item.satuan2}">
+                    <input type="hidden" name="items[${index}][ket]" value="${item.ket}">
+                    <input type="hidden" name="items[${index}][spek_id]" value="${item.spek_id}">
+                `).join('');
 
-            itemsTable.innerHTML = selectedItems.map((item, index) => `
-            <tr>
-                <td>${index + 1}</td>
-                <td>${item.nm_brg}</td>
-                <td>${item.qty}</td>
-                <td>
-                    <button class="btn btn-danger waves-effect waves-light" onclick="removeItem(${index})"><i class="bx bxs-trash align-middle font-size-14"></i></button>
-                </td>
-            </tr>
-        `).join('');
-
-            itemsContainer.innerHTML = selectedItems.map((item, index) => `
-            <input type="hidden" name="items[${index}][brg_id]" value="${item.brg_id}">
-            <input type="hidden" name="items[${index}][qty]" value="${item.qty}">
-            <input type="hidden" name="items[${index}][satuan_beli]" value="${item.satuan_beli}">
-            <input type="hidden" name="items[${index}][ket]" value="${item.ket}">
-        `).join('');
-
-            saveButton.disabled = selectedItems.length === 0;
-        }
+                saveButton.disabled = selectedItems.length === 0;
+            }
+        });
     </script>
 @endpush
 
@@ -218,9 +287,9 @@
         <i class="bx bx-plus-circle align-middle me-2 font-size-18"></i>Tambah Data Barang
     </button>
 
-    <div class="modal fade" id="dataModal" tabindex="-1" role="dialog" aria-labelledby="dataModalLabel"
+    <div class="modal fade" id="dataBarang" tabindex="-1" role="dialog" aria-labelledby="dataModalLabel"
         aria-hidden="true">
-        <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="dataModalLabel">Data Barang</h5>
@@ -228,13 +297,12 @@
                 </div>
                 <div class="modal-body">
                     <div class="row">
-                        <div class="col-lg-12">
+                        <div class="col-sm-12">
                             <div class="table-responsive">
-                                <table id="datatable" class="table align-middle table-nowrap">
+                                <table id="datatable-barang" class="table align-middle table-nowrap">
                                     <thead class="table-light">
                                         <tr>
                                             <th>Nama Barang</th>
-                                            <th>Satuan</th>
                                             <th>Action</th>
                                         </tr>
                                     </thead>
@@ -252,7 +320,41 @@
         </div>
     </div>
 
-    <div class="modal fade" id="qtyModal" tabindex="-1" role="dialog" aria-labelledby="qtyModalLabel" aria-hidden="true">
+    <div class="modal fade" id="dataSpek" tabindex="-1" role="dialog" aria-labelledby="dataSpekLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="dataSpekLabel">Data Spesifikasi</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="table-responsive">
+                                <table id="datatable-spek" class="table align-middle table-nowrap">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th>Spesifikasi</th>
+                                            <th>Satuan</th>
+                                            <th>Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Batal</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="qtyModal" tabindex="-1" role="dialog" aria-labelledby="qtyModalLabel"
+        aria-hidden="true">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
@@ -265,14 +367,22 @@
                         <label for="modal-nm-brg" class="form-label">Nama Barang</label>
                         <input type="text" class="form-control" id="modal-nm-brg" readonly>
                     </div>
+                    <input type="hidden" id="modal-spek-id">
                     <div class="mb-3">
-                        <label for="modal-qty" class="form-label">Jumlah</label>
-                        <input type="number" class="form-control" id="modal-qty" min="1" required>
+                        <label for="modal-qty" class="form-label">Qty</label>
+                        <div class="d-flex align-items-center">
+                            <input type="number" class="form-control me-2" id="modal-qty-beli" min="1" required>
+                            <label for="modal-satuan1" class="form-label fw-bolder" id="modal-satuan1"></label>
+                        </div>
                     </div>
                     <div class="mb-3">
-                        <label for="modal-satuan-beli" class="form-label">Satuan</label>
-                        <input type="text" class="form-control" id="modal-satuan-beli" readonly>
+                        <label for="modal-qty-std" class="form-label">Qty Konversi</label>
+                        <div class="d-flex align-items-center">
+                            <input type="number" class="form-control me-2" id="modal-qty-std" min="1" required>
+                            <label for="modal-satuan2" class="form-label fw-bolder" id="modal-satuan2"></label>
+                        </div>
                     </div>
+
                     <div class="mb-3">
                         <label for="modal-ket" class="form-label">Keterangan</label>
                         <textarea class="form-control" id="modal-ket"></textarea>
@@ -297,6 +407,7 @@
                                 <th>No</th>
                                 <th>Nama Barang</th>
                                 <th>Qty</th>
+                                <th>Satuan</th>
                                 <th>Action</th>
                             </tr>
                         </thead>

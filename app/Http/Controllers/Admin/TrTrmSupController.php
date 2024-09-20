@@ -8,6 +8,7 @@ use App\Models\Admin\TrTrmSupDetail;
 use App\Models\Admin\Gudang;
 use App\Models\Admin\Supplier;
 use App\Models\Admin\Barang;
+use App\Models\Admin\BarangSpek;
 use App\Models\Admin\TrStok;
 use Illuminate\Http\Request;
 use Yajra\DataTables\DataTables;
@@ -73,8 +74,24 @@ class TrTrmSupController extends Controller
         $suppliers = Supplier::where('status', 0)->get();
 
         if ($request->ajax()) {
-            $barangs = Barang::where('status', 0)->get();
-            return DataTables::of($barangs)->make(true);
+            $type = $request->input('type');
+
+            if ($type == 'barangs') {
+                $barangs = Barang::where('status', 0)
+                ->orderBy('brg_id','asc')
+                ->get();
+                return DataTables::of($barangs)->make(true);
+
+            } elseif ($type == 'speks') {
+                $speks = DB::table('m_brg_spek as a')
+                    ->join('m_brg as b', 'a.brg_id', '=', 'b.brg_id')
+                    ->select('b.brg_id','b.nm_brg', 'a.spek', 'a.satuan1', 'a.satuan2', 'a.konversi1', 'a.spek_id')
+                    ->where('a.brg_id', $request->brg_id)
+                    ->where('a.status', 0)
+                    ->get();
+
+                return DataTables::of($speks)->make(true);
+            }
         }
         return view('pages.stok-masuk.create', compact('user', 'gudang_id', 'suppliers'));
     }
@@ -98,8 +115,11 @@ class TrTrmSupController extends Controller
             TrTrmSupDetail::create([
                 'no_trm' => $no_trm,
                 'brg_id' => $item['brg_id'],
-                'qty' => $item['qty'],
+                'spek_id' => $item['spek_id'],
+                'qty_beli' => $item['qty_beli'],
                 'satuan_beli' => $item['satuan_beli'],
+                'qty_std' => $item['qty_std'],
+                'satuan_std' => $item['satuan_std'],
                 'ket' => $item['ket'],
             ]);
 
@@ -200,7 +220,7 @@ class TrTrmSupController extends Controller
             ->join('tr_trmsup_detail as b', 'a.no_trm', '=', 'b.no_trm')
             ->join('m_brg as c', 'b.brg_id', '=', 'c.brg_id')
             ->where('a.no_trm', $request->no_trm)
-            ->select('c.nm_brg', 'b.qty', 'b.satuan_beli')
+            ->select('c.nm_brg', 'b.qty_beli', 'b.satuan_beli')
             ->get();
 
         return DataTables::of($details)->make(true);

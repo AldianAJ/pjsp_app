@@ -21,4 +21,5 @@ class Barang extends Model
     {
         return $this->hasMany(TrTrmSup::class);
     }
+
 }
