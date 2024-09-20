@@ -27,5 +27,9 @@ class Mesin extends Model
 
         return "MKREG{$newId}";
     }
-}
 
+    public function jenis()
+    {
+        return $this->belongsTo(JenisMesin::class, 'jenis_id', 'jenis_id');
+    }
+}

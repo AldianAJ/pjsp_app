@@ -17,7 +17,9 @@
     <script src="{{ asset('assets/libs/datatables.net-responsive-bs4/js/responsive.bootstrap4.min.js') }}"></script>
     <script src="{{ asset('assets/js/pages/datatables.init.js') }}"></script>
     <script src="{{ asset('assets/libs/sweetalert2/sweetalert2.min.js') }}"></script>
-    <script src="{{ asset('assets/js/pages/form-wizard.init.js') }}"></script>
+    <!-- jquery step -->
+    <script src="{{ asset('assets/libs/jquery-steps/build/jquery.steps.min.js') }}"></script>
+
     <script>
         $('#datatableDetail').DataTable({
             ajax: {
@@ -45,11 +47,50 @@
             const weekId = $(this).data('msn-trgt-id');
             const row = $(this).closest('tr');
             const data = $('#datatableDetail').DataTable().row(row).data();
+            const jenis = data.mesin.jenis_id;
             if ($(this).hasClass('btn-process') || $(this).hasClass('btn-detailHari')) {
                 $('#week_id').val(weekId);
                 window.currentWeekId = weekId;
-                $('#createModal').modal('show');
+                if (jenis.substring(0, 3) == 'HLP') {
+                    $('#makerModal').modal('show');
+                } else if (jenis.substring(0, 2) == 'MK') {
+                    $('#hlpModal').modal('show');
+                }
             }
+        });
+
+        var settings = {
+            labels: {
+                current: "current step:",
+                pagination: "Pagination",
+                finish: "Finish",
+                next: "Selanjutnya",
+                previous: "Sebelumnya",
+                loading: "Loading ..."
+            }
+        };
+        // form wizard init
+        $(function() {
+            $("#form-wizard").steps({
+                headerTag: "h3",
+                bodyTag: "section",
+                transitionEffect: "slide",
+                labels: {
+                    finish: "Finish",
+                    next: "Selanjutnya",
+                    previous: "Sebelumnya",
+                }
+            })
+            $("#form-hlp").steps({
+                headerTag: "h3",
+                bodyTag: "section",
+                transitionEffect: "slide",
+                labels: {
+                    finish: "Finish",
+                    next: "Selanjutnya",
+                    previous: "Sebelumnya",
+                }
+            })
         });
     </script>
 @endpush
@@ -99,8 +140,8 @@
         </div>
     </div>
 
-    <!-- Modal create-->
-    <div class="modal fade" id="createModal" tabindex="-1" aria-hidden="true">
+    <!-- Modal Maker-->
+    <div class="modal fade" id="makerModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-xl">
             <div class="modal-content">
                 <div class="modal-header">
@@ -112,133 +153,373 @@
                         <div class="col-md-12">
                             <div class="card">
                                 <div class="card-body">
-                                    <h4 class="card-title mb-4">Basic Wizard</h4>
+                                    <h4 class="card-title mb-4">Closing MAKER</h4>
 
-                                    <div id="basic-example" role="application" class="wizard clearfix">
-                                        <div class="steps clearfix">
-                                            <ul role="tablist">
-                                                <li role="tab" class="first current" aria-disabled="false"
-                                                    aria-selected="true"><a id="basic-example-t-0" href="#basic-example-h-0"
-                                                        aria-controls="basic-example-p-0"><span
-                                                            class="current-info audible">current step: </span><span
-                                                            class="number">1.</span> Hasil</a></li>
-                                                <li role="tab" class="disabled" aria-disabled="true"><a
-                                                        id="basic-example-t-1" href="#basic-example-h-1"
-                                                        aria-controls="basic-example-p-1"><span class="number">2.</span>
-                                                        Reject</a></li>
-                                            </ul>
-                                        </div>
-                                        <div class="content clearfix">
-                                            <!-- Hasil -->
-                                            <h3 id="basic-example-h-0" tabindex="-1" class="title current">Hasil
-                                            </h3>
-                                            <section id="basic-example-p-0" role="tabpanel"
-                                                aria-labelledby="basic-example-h-0" class="body current"
-                                                aria-hidden="false">
+                                    <div id="form-wizard">
+                                        <!-- Seller Details -->
+                                        <h3>Sisa Hasil</h3>
+                                        <section>
+                                            <form>
+                                                <div class="row">
+                                                    <div class="col-lg-4">
+                                                        <div class="mb-3">
+                                                            <label for="basicpill-firstname-input">TRAY</label>
+                                                            <input type="text" class="form-control"
+                                                                id="basicpill-firstname-input"
+                                                                placeholder="Enter Your First Name">
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-lg-4">
+                                                        <div class="mb-3">
+                                                            <label for="basicpill-lastname-input">Batangan</label>
+                                                            <input type="text" class="form-control"
+                                                                id="basicpill-lastname-input"
+                                                                placeholder="Enter Your Last Name">
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-lg-4">
+                                                        <div class="mb-3">
+                                                            <label for="basicpill-lastname-input">Batangan Reject</label>
+                                                            <input type="text" class="form-control"
+                                                                id="basicpill-lastname-input"
+                                                                placeholder="Enter Your Last Name">
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                            </form>
+                                        </section>
+
+                                        <!-- Company Document -->
+                                        <h3>Reject</h3>
+                                        <section>
+                                            <form>
+                                                <div class="row">
+                                                    <div class="col-lg-6">
+                                                        <div class="mb-3">
+                                                            <label for="basicpill-pancard-input">Debu</label>
+                                                            <input type="text" class="form-control"
+                                                                id="basicpill-pancard-input"
+                                                                placeholder="Enter Your PAN No.">
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="col-lg-6">
+                                                        <div class="mb-3">
+                                                            <label for="basicpill-vatno-input">Sapon</label>
+                                                            <input type="text" class="form-control"
+                                                                id="basicpill-vatno-input"
+                                                                placeholder="Enter Your VAT/TIN No.">
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="row">
+                                                    <div class="col-lg-6">
+                                                        <div class="mb-3">
+                                                            <label for="basicpill-cstno-input">CP Reject</label>
+                                                            <input type="text" class="form-control"
+                                                                id="basicpill-cstno-input" placeholder="Enter Your CST No.">
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="col-lg-6">
+                                                        <div class="mb-3">
+                                                            <label for="basicpill-servicetax-input">Filter Reject</label>
+                                                            <input type="text" class="form-control"
+                                                                id="basicpill-servicetax-input"
+                                                                placeholder="Enter Your Service Tax No.">
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="row">
+                                                    <div class="col-lg-6">
+                                                        <div class="mb-3">
+                                                            <label for="basicpill-companyuin-input">CTP Reject</label>
+                                                            <input type="text" class="form-control"
+                                                                id="basicpill-companyuin-input"
+                                                                placeholder="Enter Your Company UIN">
+                                                        </div>
+                                                    </div>
+
+                                                </div>
+                                            </form>
+                                        </section>
+
+                                        <!-- Bank Details -->
+                                        <h3>Bahan</h3>
+                                        <section>
+                                            <div>
                                                 <form>
                                                     <div class="row">
                                                         <div class="col-lg-6">
                                                             <div class="mb-3">
-                                                                <label for="basicpill-firstname-input">Tray</label>
+                                                                <label for="basicpill-namecard-input">TSG</label>
                                                                 <input type="text" class="form-control"
-                                                                    id="basicpill-firstname-input"
-                                                                    placeholder="Enter Your First Name">
+                                                                    id="basicpill-namecard-input"
+                                                                    placeholder="Enter Your Name on Card">
                                                             </div>
                                                         </div>
+
                                                         <div class="col-lg-6">
                                                             <div class="mb-3">
-                                                                <label for="basicpill-lastname-input">Batangan</label>
+                                                                <label for="basicpill-namecard-input">CP</label>
                                                                 <input type="text" class="form-control"
-                                                                    id="basicpill-lastname-input"
-                                                                    placeholder="Enter Your Last Name">
+                                                                    id="basicpill-namecard-input"
+                                                                    placeholder="Enter Your Name on Card">
                                                             </div>
                                                         </div>
                                                     </div>
+                                                    <div class="row">
+                                                        <div class="col-lg-6">
+                                                            <div class="mb-3">
+                                                                <label for="basicpill-cardno-input">Filter</label>
+                                                                <input type="text" class="form-control"
+                                                                    id="basicpill-cardno-input"
+                                                                    placeholder="Credit Card Number">
+                                                            </div>
+                                                        </div>
+
+                                                        <div class="col-lg-6">
+                                                            <div class="mb-3">
+                                                                <label for="basicpill-card-verification-input">CTP</label>
+                                                                <input type="text" class="form-control"
+                                                                    id="basicpill-card-verification-input"
+                                                                    placeholder="Credit Verification Number">
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
                                                 </form>
-                                            </section>
+                                            </div>
+                                        </section>
 
-                                            <!-- Company Document -->
-                                            <h3 id="basic-example-h-1" tabindex="-1" class="title">Company Document
-                                            </h3>
-                                            <section id="basic-example-p-1" role="tabpanel"
-                                                aria-labelledby="basic-example-h-1" class="body" aria-hidden="true"
-                                                style="display: none;">
-                                                <form>
-                                                    <div class="row">
-                                                        <div class="col-lg-6">
-                                                            <div class="mb-3">
-                                                                <label for="basicpill-pancard-input">PAN Card</label>
-                                                                <input type="text" class="form-control"
-                                                                    id="basicpill-pancard-input"
-                                                                    placeholder="Enter Your PAN No.">
-                                                            </div>
-                                                        </div>
-
-                                                        <div class="col-lg-6">
-                                                            <div class="mb-3">
-                                                                <label for="basicpill-vatno-input">VAT/TIN No.</label>
-                                                                <input type="text" class="form-control"
-                                                                    id="basicpill-vatno-input"
-                                                                    placeholder="Enter Your VAT/TIN No.">
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                    <div class="row">
-                                                        <div class="col-lg-6">
-                                                            <div class="mb-3">
-                                                                <label for="basicpill-cstno-input">CST No.</label>
-                                                                <input type="text" class="form-control"
-                                                                    id="basicpill-cstno-input"
-                                                                    placeholder="Enter Your CST No.">
-                                                            </div>
-                                                        </div>
-
-                                                        <div class="col-lg-6">
-                                                            <div class="mb-3">
-                                                                <label for="basicpill-servicetax-input">Service Tax
-                                                                    No.</label>
-                                                                <input type="text" class="form-control"
-                                                                    id="basicpill-servicetax-input"
-                                                                    placeholder="Enter Your Service Tax No.">
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                    <div class="row">
-                                                        <div class="col-lg-6">
-                                                            <div class="mb-3">
-                                                                <label for="basicpill-companyuin-input">Company UIN</label>
-                                                                <input type="text" class="form-control"
-                                                                    id="basicpill-companyuin-input"
-                                                                    placeholder="Enter Your Company UIN">
-                                                            </div>
-                                                        </div>
-
-                                                        <div class="col-lg-6">
-                                                            <div class="mb-3">
-                                                                <label
-                                                                    for="basicpill-declaration-input">Declaration</label>
-                                                                <input type="text" class="form-control"
-                                                                    id="basicpill-Declaration-input"
-                                                                    placeholder="Declaration Details">
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </form>
-                                            </section>
-                                        </div>
-                                        <div class="actions clearfix">
-                                            <ul role="menu" aria-label="Pagination">
-                                                <li class="disabled" aria-disabled="true"><a href="#previous"
-                                                        role="menuitem">Previous</a></li>
-                                                <li aria-hidden="false" aria-disabled="false"><a href="#next"
-                                                        role="menuitem">Next</a></li>
-                                                <li aria-hidden="true" style="display: none;"><a href="#finish"
-                                                        role="menuitem">Finish</a></li>
-                                            </ul>
-                                        </div>
                                     </div>
 
                                 </div>
+                                <!-- end card body -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Modal HLP-->
+    <div class="modal fade" id="hlpModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 id="modalTitle" class="modal-title">Hasil dan Reject</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="card">
+                                <div class="card-body">
+                                    <h4 class="card-title mb-4">Closing HLP</h4>
+
+                                    <div id="form-hlp">
+                                        <!-- Seller Details -->
+                                        <h3>Sisa Hasil</h3>
+                                        <section>
+                                            <form>
+                                                <div class="row">
+                                                    <div class="col-lg-4">
+                                                        <div class="mb-3">
+                                                            <label for="basicpill-firstname-input">Karton</label>
+                                                            <input type="text" class="form-control"
+                                                                id="basicpill-firstname-input"
+                                                                placeholder="Enter Your First Name">
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-lg-4">
+                                                        <div class="mb-3">
+                                                            <label for="basicpill-lastname-input">Ball</label>
+                                                            <input type="text" class="form-control"
+                                                                id="basicpill-lastname-input"
+                                                                placeholder="Enter Your Last Name">
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-lg-4">
+                                                        <div class="mb-3">
+                                                            <label for="basicpill-lastname-input">Slop</label>
+                                                            <input type="text" class="form-control"
+                                                                id="basicpill-lastname-input"
+                                                                placeholder="Enter Your Last Name">
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <div class="row">
+                                                    <div class="col-lg-4">
+                                                        <div class="mb-3">
+                                                            <label for="basicpill-firstname-input">Pack OPP</label>
+                                                            <input type="text" class="form-control"
+                                                                id="basicpill-firstname-input"
+                                                                placeholder="Enter Your First Name">
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-lg-4">
+                                                        <div class="mb-3">
+                                                            <label for="basicpill-lastname-input">NPC</label>
+                                                            <input type="text" class="form-control"
+                                                                id="basicpill-lastname-input"
+                                                                placeholder="Enter Your Last Name">
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-lg-4">
+                                                        <div class="mb-3">
+                                                            <label for="basicpill-lastname-input">Pack Reject</label>
+                                                            <input type="text" class="form-control"
+                                                                id="basicpill-lastname-input"
+                                                                placeholder="Enter Your Last Name">
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                            </form>
+                                        </section>
+
+                                        <!-- Company Document -->
+                                        <h3>Reject</h3>
+                                        <section>
+                                            <form>
+                                                <div class="row">
+                                                    <div class="col-lg-4">
+                                                        <div class="mb-3">
+                                                            <label for="basicpill-firstname-input">Foil</label>
+                                                            <input type="text" class="form-control"
+                                                                id="basicpill-firstname-input"
+                                                                placeholder="Enter Your First Name">
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-lg-4">
+                                                        <div class="mb-3">
+                                                            <label for="basicpill-lastname-input">Inner</label>
+                                                            <input type="text" class="form-control"
+                                                                id="basicpill-lastname-input"
+                                                                placeholder="Enter Your Last Name">
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-lg-4">
+                                                        <div class="mb-3">
+                                                            <label for="basicpill-lastname-input">Etiket</label>
+                                                            <input type="text" class="form-control"
+                                                                id="basicpill-lastname-input"
+                                                                placeholder="Enter Your Last Name">
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="row">
+                                                    <div class="col-lg-4">
+                                                        <div class="mb-3">
+                                                            <label for="basicpill-firstname-input">Pita Cukai</label>
+                                                            <input type="text" class="form-control"
+                                                                id="basicpill-firstname-input"
+                                                                placeholder="Enter Your First Name">
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-lg-4">
+                                                        <div class="mb-3">
+                                                            <label for="basicpill-lastname-input">OPP Pack</label>
+                                                            <input type="text" class="form-control"
+                                                                id="basicpill-lastname-input"
+                                                                placeholder="Enter Your Last Name">
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-lg-4">
+                                                        <div class="mb-3">
+                                                            <label for="basicpill-lastname-input">Teartape</label>
+                                                            <input type="text" class="form-control"
+                                                                id="basicpill-lastname-input"
+                                                                placeholder="Enter Your Last Name">
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="row">
+                                                    <div class="col-lg-4">
+                                                        <div class="mb-3">
+                                                            <label for="basicpill-firstname-input">OPP Slop</label>
+                                                            <input type="text" class="form-control"
+                                                                id="basicpill-firstname-input"
+                                                                placeholder="Enter Your First Name">
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-lg-4">
+                                                        <div class="mb-3">
+                                                            <label for="basicpill-lastname-input">Segel Slop</label>
+                                                            <input type="text" class="form-control"
+                                                                id="basicpill-lastname-input"
+                                                                placeholder="Enter Your Last Name">
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-lg-4">
+                                                        <div class="mb-3">
+                                                            <label for="basicpill-lastname-input">Pack Reject</label>
+                                                            <input type="text" class="form-control"
+                                                                id="basicpill-lastname-input"
+                                                                placeholder="Enter Your Last Name">
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </form>
+                                        </section>
+
+                                        <!-- Bank Details -->
+                                        <h3>Bahan</h3>
+                                        <section>
+                                            <div>
+                                                <form>
+                                                    <div class="row">
+                                                        <div class="col-lg-6">
+                                                            <div class="mb-3">
+                                                                <label for="basicpill-namecard-input">TSG</label>
+                                                                <input type="text" class="form-control"
+                                                                    id="basicpill-namecard-input"
+                                                                    placeholder="Enter Your Name on Card">
+                                                            </div>
+                                                        </div>
+
+                                                        <div class="col-lg-6">
+                                                            <div class="mb-3">
+                                                                <label for="basicpill-namecard-input">CP</label>
+                                                                <input type="text" class="form-control"
+                                                                    id="basicpill-namecard-input"
+                                                                    placeholder="Enter Your Name on Card">
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="row">
+                                                        <div class="col-lg-6">
+                                                            <div class="mb-3">
+                                                                <label for="basicpill-cardno-input">Filter</label>
+                                                                <input type="text" class="form-control"
+                                                                    id="basicpill-cardno-input"
+                                                                    placeholder="Credit Card Number">
+                                                            </div>
+                                                        </div>
+
+                                                        <div class="col-lg-6">
+                                                            <div class="mb-3">
+                                                                <label for="basicpill-card-verification-input">CTP</label>
+                                                                <input type="text" class="form-control"
+                                                                    id="basicpill-card-verification-input"
+                                                                    placeholder="Credit Verification Number">
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+                                                </form>
+                                            </div>
+                                        </section>
+
+                                    </div>
+
+                                </div>
+                                <!-- end card body -->
                             </div>
                         </div>
                     </div>

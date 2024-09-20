@@ -400,7 +400,7 @@
 
     <!-- Modal create-->
     <div class="modal fade" id="editModal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-lg">
+        <div class="modal-dialog modal-dialog-scrollable modal-lg">
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 id="modalTitle" class="modal-title">Target Harian</h5>
@@ -473,7 +473,7 @@
 
     <!-- Modal Target Shift-->
     <div class="modal fade" id="shiftModal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-lg">
+        <div class="modal-dialog modal-dialog-scrollable modal-lg">
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 id="modalTitleShift" class="modal-title">Target Shift</h5>
@@ -551,7 +551,7 @@
 
     <!-- Modal Target Week-->
     <div class="modal fade" id="weekModal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-lg">
+        <div class="modal-dialog modal-dialog-scrollable modal-lg">
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 id="modalTitleShift" class="modal-title">Target Shift</h5>

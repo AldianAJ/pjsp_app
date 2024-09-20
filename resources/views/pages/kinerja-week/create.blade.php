@@ -33,7 +33,7 @@
                     data: "nm_brg"
                 },
                 {
-                    data: "satuan_besar"
+                    data: "satuan"
                 },
                 {
                     data: null,
