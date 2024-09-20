@@ -78,14 +78,14 @@ class TrTrmSupController extends Controller
 
             if ($type == 'barangs') {
                 $barangs = Barang::where('status', 0)
-                ->orderBy('brg_id','asc')
-                ->get();
+                    ->orderBy('brg_id', 'asc')
+                    ->get();
                 return DataTables::of($barangs)->make(true);
 
             } elseif ($type == 'speks') {
                 $speks = DB::table('m_brg_spek as a')
                     ->join('m_brg as b', 'a.brg_id', '=', 'b.brg_id')
-                    ->select('b.brg_id','b.nm_brg', 'a.spek', 'a.satuan1', 'a.satuan2', 'a.konversi1', 'a.spek_id')
+                    ->select('b.brg_id', 'b.nm_brg', 'a.satuan1', 'a.satuan2', 'a.konversi1', 'a.spek_id', 'a.spek')
                     ->where('a.brg_id', $request->brg_id)
                     ->where('a.status', 0)
                     ->get();
@@ -127,10 +127,16 @@ class TrTrmSupController extends Controller
                 ->where('brg_id', $item['brg_id'])
                 ->orderBy('stok_id', 'desc')
                 ->first();
-
-
             $id = str_pad(TrStok::count() + 1, 3, '0', STR_PAD_LEFT);
             $stok_id = "{$gudang_id}/{$item['brg_id']}/{$id}";
+
+            $awal = !isset($lastStok) ? 0 : $lastStok->akhir;
+            $masuk = $item['qty_beli'];
+            $akhir = $awal + $masuk;
+
+            TrStok::where('gudang_id', $gudang_id)
+                ->where('brg_id', $item['brg_id'])
+                ->update(['cek' => 0]);
 
             TrStok::create([
                 'stok_id' => $stok_id,
@@ -138,10 +144,11 @@ class TrTrmSupController extends Controller
                 'brg_id' => $item['brg_id'],
                 'gudang_id' => $gudang_id,
                 'doc_id' => $no_trm,
-                'awal' => $request->awal,
-                'masuk' => $request->masuk,
+                'awal' => $awal,
+                'masuk' => $item['qty_beli'],
                 'keluar' => 0,
-                'akhir' => $request->akhir,
+                'akhir' => $akhir,
+                'cek' => 1,
             ]);
         }
 
