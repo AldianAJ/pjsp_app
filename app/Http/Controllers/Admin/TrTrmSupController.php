@@ -123,20 +123,15 @@ class TrTrmSupController extends Controller
                 'ket' => $item['ket'],
             ]);
 
-            $lastStok = TrStok::where('gudang_id', $gudang_id)
-                ->where('brg_id', $item['brg_id'])
-                ->orderBy('stok_id', 'desc')
-                ->first();
+            // $lastStok = TrStok::where('gudang_id', $gudang_id)
+            //     ->where('brg_id', $item['brg_id'])
+            //     ->orderBy('stok_id', 'desc')
+            //     ->first();
+
             $id = str_pad(TrStok::count() + 1, 3, '0', STR_PAD_LEFT);
             $stok_id = "{$gudang_id}/{$item['brg_id']}/{$id}";
 
-            $awal = !isset($lastStok) ? 0 : $lastStok->akhir;
             $masuk = $item['qty_beli'];
-            $akhir = $awal + $masuk;
-
-            TrStok::where('gudang_id', $gudang_id)
-                ->where('brg_id', $item['brg_id'])
-                ->update(['cek' => 0]);
 
             TrStok::create([
                 'stok_id' => $stok_id,
@@ -144,10 +139,10 @@ class TrTrmSupController extends Controller
                 'brg_id' => $item['brg_id'],
                 'gudang_id' => $gudang_id,
                 'doc_id' => $no_trm,
-                'awal' => $awal,
-                'masuk' => $item['qty_beli'],
+                'awal' => 0,
+                'masuk' => $masuk,
                 'keluar' => 0,
-                'akhir' => $akhir,
+                'akhir' => 0,
                 'cek' => 1,
             ]);
         }

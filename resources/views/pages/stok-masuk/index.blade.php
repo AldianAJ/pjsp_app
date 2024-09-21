@@ -67,6 +67,7 @@
                         d.selected_year = selectedMonthYear ? selectedMonthYear.getFullYear() : '';
                     }
                 },
+                ordering: false,
                 columns: [{
                         data: 'no_trm'
                     },

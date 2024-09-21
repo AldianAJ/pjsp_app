@@ -22,10 +22,10 @@
                     ajax: "{{ route('permintaan-skm.create') }}",
                     lengthMenu: [5],
                     columns: [{
-                            data: "barang.nm_brg"
+                            data: "nm_brg"
                         },
                         {
-                            data: "satuan_besar"
+                            data: "satuan"
                         },
                         {
                             data: null,

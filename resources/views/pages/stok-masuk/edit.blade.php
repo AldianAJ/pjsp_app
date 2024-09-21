@@ -39,10 +39,14 @@
                     },
                     lengthMenu: [5],
                     columns: [{
+                            data: null,
+                            render: (data, type, row, meta) => meta.row + 1
+                        },
+                        {
                             data: "barang.nm_brg"
                         },
                         {
-                            data: "qty",
+                            data: "qty_beli",
                             render: function(data, type, row) {
                                 return `
                                     <span class="qty-value" style="width: 5.5rem;">${data}</span>
@@ -70,8 +74,8 @@
                 });
             }
 
-            $('#showDataBarangButton').on('click', function() {
-                $('#dataBarangModal').modal('show');
+            $('#showEditDataBarang').on('click', function() {
+                $('#editDataBarangModal').modal('show');
 
                 if (!dataTableInitialized) {
                     initializeDataTable();
@@ -79,7 +83,7 @@
                 }
             });
 
-            $('#dataBarangModal').on('click', '.edit-btn', function() {
+            $('#editDataBarangModal').on('click', '.edit-btn', function() {
                 var $row = $(this).closest('tr');
                 $row.find('.qty-value').addClass('d-none');
                 $row.find('.qty-input').removeClass('d-none');
@@ -88,7 +92,7 @@
                 $row.find('.cancel-btn').removeClass('d-none');
             });
 
-            $('#dataBarangModal').on('click', '.save-btn', function() {
+            $('#editDataBarangModal').on('click', '.save-btn', function() {
                 var $row = $(this).closest('tr');
                 var qty = $row.find('.qty-input').val();
                 var brg_id = $row.data('brg-id');
@@ -122,7 +126,7 @@
                 });
             });
 
-            $('#dataBarangModal').on('click', '.cancel-btn', function() {
+            $('#editDataBarangModal').on('click', '.cancel-btn', function() {
                 var $row = $(this).closest('tr');
                 var originalQty = $row.find('.qty-value').text();
                 $row.find('.qty-value').text(originalQty).removeClass('d-none');
@@ -140,8 +144,6 @@
                         isChanged = true;
                     }
                 });
-
-                $('#submitButton').prop('disabled', !isChanged);
             }
 
             $('#updateForm input, #updateForm select').each(function() {
@@ -211,7 +213,7 @@
     </div>
 
     <div class="row">
-        <div class="col-md-6">
+        <div class="col-md-8">
             <div class="card">
                 <div class="card-body">
                     <h5 class="card-title">Data Transaksi</h5>
@@ -248,8 +250,7 @@
                             <a href="{{ route('stok-masuk') }}" class="btn btn-secondary waves-effect waves-light me-2">
                                 <i class="bx bx-caret-left align-middle me-2 font-size-18"></i>Kembali
                             </a>
-                            <button type="submit" id="submitButton" class="btn btn-primary waves-effect waves-light"
-                                disabled>
+                            <button type="submit" id="submitButton" class="btn btn-primary waves-effect waves-light">
                                 <i class="bx bx bxs-save align-middle me-2 font-size-18"></i>Simpan
                             </button>
                         </div>
@@ -257,19 +258,28 @@
                 </div>
             </div>
         </div>
+        <div class="col-md-4">
+            <div class="mb-3">
+                <button type="button" class="btn btn-dark waves-effect waves-light" id="showEditDataBarang"
+                    data-toggle="modal" data-target="#editDataBarangModal">
+                    <i class="bx bx-edit align-middle me-2 font-size-18"></i>Edit Data Barang
+                </button>
+            </div>
+            <div>
+                <button type="button" class="btn btn-dark waves-effect waves-light" id="showTambahDataBarang"
+                    data-toggle="modal" data-target="#tambahDataBarangModal">
+                    <i class="bx bx-plus-circle align-middle me-2 font-size-18"></i>Tambah Data Barang
+                </button>
+            </div>
+        </div>
     </div>
 
-    <button type="button" class="btn btn-dark waves-effect waves-light" id="showDataBarangButton" data-toggle="modal"
-        data-target="#dataBarangModal">
-        <i class="bx bx-plus-circle align-middle me-2 font-size-18"></i>Edit Data Barang
-    </button>
-
-    <div class="modal fade" id="dataBarangModal" tabindex="-1" role="dialog" aria-labelledby="dataBarangModalLabel"
-        aria-hidden="true">
+    <div class="modal fade" id="editDataBarangModal" tabindex="-1" role="dialog"
+        aria-labelledby="editDataBarangModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-lg" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="dataBarangModalLabel">Data Barang</h5>
+                    <h5 class="modal-title" id="editDataBarangModalLabel">Data Barang</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
@@ -277,6 +287,7 @@
                         <table id="datatable-barang" class="table align-middle table-nowrap">
                             <thead class="table-light">
                                 <tr>
+                                    <th>No</th>
                                     <th>Nama Barang</th>
                                     <th>Qty</th>
                                     <th>Satuan</th>
