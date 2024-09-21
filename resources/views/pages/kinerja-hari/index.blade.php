@@ -1,24 +1,24 @@
 @extends('layouts.app')
 
 @section('title')
-    Target Harian
+Target Harian
 @endsection
 
 @push('after-app-style')
-    <!-- Sweet Alert-->
-    <link href="{{ asset('assets/libs/sweetalert2/sweetalert2.min.css') }}" rel="stylesheet" type="text/css" />
+<!-- Sweet Alert-->
+<link href="{{ asset('assets/libs/sweetalert2/sweetalert2.min.css') }}" rel="stylesheet" type="text/css" />
 @endpush
 
 @push('after-app-script')
-    <script src="{{ asset('assets/libs/datatables.net/js/jquery.dataTables.min.js') }}"></script>
-    <script src="{{ asset('assets/libs/datatables.net-bs4/js/dataTables.bootstrap4.min.js') }}"></script>
-    <!-- Responsive examples -->
-    <script src="{{ asset('assets/libs/datatables.net-responsive/js/dataTables.responsive.min.js') }}"></script>
-    <script src="{{ asset('assets/libs/datatables.net-responsive-bs4/js/responsive.bootstrap4.min.js') }}"></script>
-    <script src="{{ asset('assets/js/pages/datatables.init.js') }}"></script>
-    <script src="{{ asset('assets/libs/sweetalert2/sweetalert2.min.js') }}"></script>
-    <script>
-        $('#datatable').DataTable({
+<script src="{{ asset('assets/libs/datatables.net/js/jquery.dataTables.min.js') }}"></script>
+<script src="{{ asset('assets/libs/datatables.net-bs4/js/dataTables.bootstrap4.min.js') }}"></script>
+<!-- Responsive examples -->
+<script src="{{ asset('assets/libs/datatables.net-responsive/js/dataTables.responsive.min.js') }}"></script>
+<script src="{{ asset('assets/libs/datatables.net-responsive-bs4/js/responsive.bootstrap4.min.js') }}"></script>
+<script src="{{ asset('assets/js/pages/datatables.init.js') }}"></script>
+<script src="{{ asset('assets/libs/sweetalert2/sweetalert2.min.js') }}"></script>
+<script>
+    $('#datatable').DataTable({
             ajax: {
                 url: "{{ route('kinerja-hari') }}",
                 type: "GET",
@@ -198,7 +198,6 @@
             var harian_id = originalData.harian_id;
             var week_id = originalData.week_id;
             var qtyOri = originalData.qty;
-            console.log(updatedQty);
             // Send updated data to server via AJAX
             $.ajax({
                 url: "{{ route('kinerja-hari.update') }}", // Replace with your update route
@@ -335,244 +334,244 @@
             var mainModal = new bootstrap.Modal(document.getElementById('editModal'));
             mainModal.show(); // Tampilkan kembali modal utama jika belum ditampilkan
         });
-    </script>
+</script>
 @endpush
 
 @section('content')
-    <!-- start page title -->
-    <div class="row">
-        <div class="col-12">
-            <div class="page-title-box d-sm-flex align-items-center justify-content-between">
-                <h4 class="mb-sm-0 font-size-18">Target Harian</h4>
-            </div>
+<!-- start page title -->
+<div class="row">
+    <div class="col-12">
+        <div class="page-title-box d-sm-flex align-items-center justify-content-between">
+            <h4 class="mb-sm-0 font-size-18">Target Harian</h4>
         </div>
     </div>
-    <!-- end page title -->
+</div>
+<!-- end page title -->
 
 
-    <div class="row">
-        <div class="col-12">
-            <div class="card">
-                <div class="card-body">
-                    <!-- Filter Toolbar -->
-                    <div class="row mb-3">
-                        <div class="col-md-4">
-                            <label for="filterTahun" class="fw-bolder">Tahun:</label>
-                            <select id="filterTahun" class="form-control">
-                                <option value="">Semua</option>
-                                <option value="{{ \Carbon\Carbon::now()->format('Y') }}" selected>
-                                    {{ \Carbon\Carbon::now()->format('Y') }}</option>
-                                <!-- Populate options dynamically via JavaScript -->
-                            </select>
-                        </div>
-                        <div class="col-md-4">
-                            <label for="filterWeek" class="fw-bolder">Minggu:</label>
-                            <select id="filterWeek" class="form-control">
-                                <option value="">Semua</option>
-                                @foreach ($mingguList as $minggu)
-                                    <option value="{{ $minggu['minggu'] }}"
-                                        {{ \Carbon\Carbon::now()->format('W') == $minggu['minggu'] ? 'selected' : '' }}>
-                                        {{ $minggu['minggu'] }}
-                                    </option>
-                                @endforeach
-                            </select>
-                        </div>
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body">
+                <!-- Filter Toolbar -->
+                <div class="row mb-3">
+                    <div class="col-md-4">
+                        <label for="filterTahun" class="fw-bolder">Tahun:</label>
+                        <select id="filterTahun" class="form-control">
+                            <option value="">Semua</option>
+                            <option value="{{ \Carbon\Carbon::now()->format('Y') }}" selected>
+                                {{ \Carbon\Carbon::now()->format('Y') }}</option>
+                            <!-- Populate options dynamically via JavaScript -->
+                        </select>
                     </div>
-                    <div class="table-responsive">
-                        <table id="datatable" class="table align-middle table-nowrap" style="width: 100%">
-                            <thead class="table-light">
-                                <tr>
-                                    <th>Tahun</th>
-                                    <th>Minggu</th>
-                                    <th>Barang</th>
-                                    <th>Jumlah</th>
-                                    <th>Action</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                            </tbody>
-                        </table>
+                    <div class="col-md-4">
+                        <label for="filterWeek" class="fw-bolder">Minggu:</label>
+                        <select id="filterWeek" class="form-control">
+                            <option value="">Semua</option>
+                            @foreach ($mingguList as $minggu)
+                            <option value="{{ $minggu['minggu'] }}" {{ \Carbon\Carbon::now()->format('W') ==
+                                $minggu['minggu'] ? 'selected' : '' }}>
+                                {{ $minggu['minggu'] }}
+                            </option>
+                            @endforeach
+                        </select>
                     </div>
+                </div>
+                <div class="table-responsive">
+                    <table id="datatable" class="table align-middle table-nowrap" style="width: 100%">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Tahun</th>
+                                <th>Minggu</th>
+                                <th>Barang</th>
+                                <th>Jumlah</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>
     </div>
+</div>
 
-    <!-- Modal create-->
-    <div class="modal fade" id="editModal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-scrollable modal-lg">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 id="modalTitle" class="modal-title">Target Harian</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <div class="row">
-                        <div class="col-md-12">
-                            <div class="card">
-                                <div class="card-body">
-                                    <h5 class="card-title">Data Transaksi</h5>
+<!-- Modal create-->
+<div class="modal fade" id="editModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-scrollable modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 id="modalTitle" class="modal-title">Target Harian</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="card">
+                            <div class="card-body">
+                                <h5 class="card-title">Data Transaksi</h5>
 
-                                    <form id="formAction" action="{{ route('kinerja-hari.store') }}" method="post"
-                                        enctype="multipart/form-data">
-                                        @csrf
-                                        <div class="row">
-                                            <div class="col-md-6">
-                                                <div class="form-group">
-                                                    <label for="tgl">Tanggal</label>
-                                                    <input type="date" class="form-control" name="tgl"
-                                                        value="{{ old('tgl', now()->format('Y-m-d')) }}" required readonly>
-                                                </div>
-                                            </div>
-                                            <div class="col-md-6">
-                                                <div class="form-group">
-                                                    <label for="qty">Jumlah</label>
-                                                    <input type="text" class="form-control" name="qty"
-                                                        value="{{ old('qty') }}" required>
-                                                </div>
+                                <form id="formAction" action="{{ route('kinerja-hari.store') }}" method="post"
+                                    enctype="multipart/form-data">
+                                    @csrf
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label for="tgl">Tanggal</label>
+                                                <input type="date" class="form-control" name="tgl"
+                                                    value="{{ old('tgl', now()->format('Y-m-d')) }}" required readonly>
                                             </div>
                                         </div>
-                                        <input type="hidden" id="week_id" name="week_id" value="{{ old('week_id') }}"
-                                            readonly>
-                                        <div id="items-container"></div>
-                                        <div class="d-flex justify-content-end my-3">
-                                            <button type="submit" class="btn btn-success">Simpan</button>
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label for="qty">Jumlah</label>
+                                                <input type="text" class="form-control" name="qty"
+                                                    value="{{ old('qty') }}" required>
+                                            </div>
                                         </div>
-                                    </form>
-
-                                    <div class="table-responsive">
-                                        <table id="datatableDetail" class="table align-middle table-nowrap">
-                                            <thead class="table-light">
-                                                <tr>
-                                                    <th>ID</th>
-                                                    <th>Tanggal</th>
-                                                    <th>Jumlah</th>
-                                                    <th>Action</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                            </tbody>
-                                            <tfoot>
-                                                <tr>
-                                                    <th colspan="3" style="text-align:right">Total:</th>
-                                                    <th></th>
-                                                </tr>
-                                            </tfoot>
-                                        </table>
                                     </div>
+                                    <input type="hidden" id="week_id" name="week_id" value="{{ old('week_id') }}"
+                                        readonly>
+                                    <div id="items-container"></div>
+                                    <div class="d-flex justify-content-end my-3">
+                                        <button type="submit" class="btn btn-success">Simpan</button>
+                                    </div>
+                                </form>
+
+                                <div class="table-responsive">
+                                    <table id="datatableDetail" class="table align-middle table-nowrap">
+                                        <thead class="table-light">
+                                            <tr>
+                                                <th>ID</th>
+                                                <th>Tanggal</th>
+                                                <th>Jumlah</th>
+                                                <th>Action</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                        </tbody>
+                                        <tfoot>
+                                            <tr>
+                                                <th colspan="3" style="text-align:right">Total:</th>
+                                                <th></th>
+                                            </tr>
+                                        </tfoot>
+                                    </table>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
-                <div class="modal-footer">
-                </div>
+            </div>
+            <div class="modal-footer">
             </div>
         </div>
     </div>
+</div>
 
-    <!-- Modal Target Shift-->
-    <div class="modal fade" id="shiftModal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-scrollable modal-lg">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 id="modalTitleShift" class="modal-title">Target Shift</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <div class="row">
-                        <div class="col-md-12">
-                            <div class="card">
-                                <div class="card-body">
-                                    <h5 class="card-title">Data Transaksi</h5>
-                                    <form id="formShift" action="{{ route('kinerja-shift.store') }}" method="post"
-                                        enctype="multipart/form-data">
-                                        @csrf
-                                        <div class="row">
-                                            <div class="col-md-6">
-                                                <div class="form-group mt-3">
-                                                    <label for="tgl">Shift</label>
-                                                    <select name="shift" class="form-control">
-                                                        <option value="1">1</option>
-                                                        <option value="2">2</option>
-                                                        <option value="3">3</option>
-                                                    </select>
-                                                </div>
-                                            </div>
-                                            <div class="col-md-6">
-                                                <div class="form-group mt-3">
-                                                    <label for="qty">Jumlah</label>
-                                                    <input type="text" class="form-control" name="qty"
-                                                        value="{{ old('qty') }}" required>
-                                                </div>
+<!-- Modal Target Shift-->
+<div class="modal fade" id="shiftModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-scrollable modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 id="modalTitleShift" class="modal-title">Target Shift</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="card">
+                            <div class="card-body">
+                                <h5 class="card-title">Data Transaksi</h5>
+                                <form id="formShift" action="{{ route('kinerja-shift.store') }}" method="post"
+                                    enctype="multipart/form-data">
+                                    @csrf
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="form-group mt-3">
+                                                <label for="tgl">Shift</label>
+                                                <select name="shift" class="form-control">
+                                                    <option value="1">1</option>
+                                                    <option value="2">2</option>
+                                                    <option value="3">3</option>
+                                                </select>
                                             </div>
                                         </div>
-                                        <input type="hidden" id="harian_id" class="form-control" name="harian_id"
-                                            value="{{ old('harian_id') }}" required readonly>
-                                        <div id="items-container"></div> <!-- Container for items input fields -->
-                                        <div class="d-flex justify-content-end my-3">
-                                            <button type="button" class="btn btn-secondary me-1"
-                                                data-bs-dismiss="modal">Kembali</button>
-                                            <button type="submit" class="btn btn-success">Simpan</button>
+                                        <div class="col-md-6">
+                                            <div class="form-group mt-3">
+                                                <label for="qty">Jumlah</label>
+                                                <input type="text" class="form-control" name="qty"
+                                                    value="{{ old('qty') }}" required>
+                                            </div>
                                         </div>
-                                    </form>
-
-                                    <div class="table-responsive">
-                                        <table id="datatableShiftDetail" class="table align-middle table-nowrap">
-                                            <thead class="table-light">
-                                                <tr>
-                                                    <th>Id</th>
-                                                    <th>Barang</th>
-                                                    <th>Shift</th>
-                                                    <th>Jumlah</th>
-                                                    <th>Action</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                            </tbody>
-                                            <tfoot>
-                                                <tr>
-                                                    <th colspan="3" style="text-align:right">Total:</th>
-                                                    <th></th>
-                                                </tr>
-                                            </tfoot>
-                                        </table>
                                     </div>
+                                    <input type="hidden" id="harian_id" class="form-control" name="harian_id"
+                                        value="{{ old('harian_id') }}" required readonly>
+                                    <div id="items-container"></div> <!-- Container for items input fields -->
+                                    <div class="d-flex justify-content-end my-3">
+                                        <button type="button" class="btn btn-secondary me-1"
+                                            data-bs-dismiss="modal">Kembali</button>
+                                        <button type="submit" class="btn btn-success">Simpan</button>
+                                    </div>
+                                </form>
+
+                                <div class="table-responsive">
+                                    <table id="datatableShiftDetail" class="table align-middle table-nowrap">
+                                        <thead class="table-light">
+                                            <tr>
+                                                <th>Id</th>
+                                                <th>Barang</th>
+                                                <th>Shift</th>
+                                                <th>Jumlah</th>
+                                                <th>Action</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                        </tbody>
+                                        <tfoot>
+                                            <tr>
+                                                <th colspan="3" style="text-align:right">Total:</th>
+                                                <th></th>
+                                            </tr>
+                                        </tfoot>
+                                    </table>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
-                <div class="modal-footer">
-                </div>
+            </div>
+            <div class="modal-footer">
             </div>
         </div>
     </div>
+</div>
 
-    <!-- Modal Target Week-->
-    <div class="modal fade" id="weekModal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-scrollable modal-lg">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 id="modalTitleShift" class="modal-title">Target Shift</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <div class="row">
-                        <div class="col-md-12">
-                            <div class="card">
-                                <div class="card-body">
-                                    <div id="table-content" style="display: none;">
-                                        @yield('content')
-                                    </div>
+<!-- Modal Target Week-->
+<div class="modal fade" id="weekModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-scrollable modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 id="modalTitleShift" class="modal-title">Target Shift</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="card">
+                            <div class="card-body">
+                                <div id="table-content" style="display: none;">
+                                    @yield('content')
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
-                <div class="modal-footer">
-                </div>
+            </div>
+            <div class="modal-footer">
             </div>
         </div>
     </div>
+</div>
 @endsection

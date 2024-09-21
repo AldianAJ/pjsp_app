@@ -53,7 +53,8 @@ class ClosingController extends Controller
      */
     public function create()
     {
-        //
+        $user = $this->userAuth();
+        return view('pages.closing.create', compact('user'));
     }
 
     /**
@@ -61,7 +62,14 @@ class ClosingController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $request->sisaHasil;
+        $request->reject;
+        $request->bahan;
+        $sisa = '';
+        foreach ($request->sisaHasil as $key => $value) {
+            $sisa = $value;
+        }
+        return response()->json(['success' => false, 'message' => 'Target melebihi target mingguan. Sisa target harian : ' . $sisa], 200);
     }
 
     /**
