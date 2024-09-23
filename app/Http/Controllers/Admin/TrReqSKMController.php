@@ -16,6 +16,8 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Yajra\DataTables\DataTables;
 
+use function Laravel\Prompts\select;
+
 class TrReqSKMController extends Controller
 {
     /**
@@ -62,17 +64,28 @@ class TrReqSKMController extends Controller
     {
         $user = $this->userAuth();
         $gudang_id = Gudang::where('jenis', 2)->value('gudang_id');
-        $path = 'permintaan-skm.create.';
+
         if ($request->ajax()) {
-            $barangs = Barang::where('status', 0)->get();
-            return DataTables::of($barangs)
-                ->addColumn('action', function ($object) use ($path) {
-                    $html = '<div class="d-flex justify-content-center"><button class="btn btn-primary waves-effect waves-light btn-add" data-bs-toggle="modal"' .
-                        'data-bs-target="#qtyModal"><i class="bx bx-plus-circle align-middle font-size-18"></i></button></div>';
-                    return $html;
-                })
-                ->rawColumns(['action'])
-                ->make(true);
+            $type = $request->input('type');
+
+            if ($type == 'barangs') {
+
+                $barangs = Barang::where('status', 0)
+                    ->orderBy('brg_id', 'asc')
+                    ->get();
+
+                return DataTables::of($barangs)->make(true);
+
+            } elseif ($type == 'speks') {
+                $speks = DB::table('m_brg_spek as a')
+                    ->join('m_brg as b', 'a.brg_id', '=', 'b.brg_id')
+                    ->select('b.brg_id', 'b.nm_brg', 'a.satuan1', 'a.satuan2', 'a.konversi1', 'a.spek_id', 'a.spek')
+                    ->where('a.brg_id', $request->brg_id)
+                    ->where('a.status', 0)
+                    ->get();
+
+                return DataTables::of($speks)->make(true);
+            }
         }
         return view('pages.permintaan-skm.create', compact('user', 'gudang_id'));
     }
@@ -98,8 +111,30 @@ class TrReqSKMController extends Controller
             TrReqSKMDetail::create([
                 'no_reqskm' => $no_reqskm,
                 'brg_id' => $item['brg_id'],
-                'qty' => $item['qty'],
-                'satuan_besar' => $item['satuan_besar'],
+                'spek_id' => $item['spek_id'],
+                'qty_beli' => $item['qty_beli'],
+                'satuan_beli' => $item['satuan_beli'],
+                'qty_std' => $item['qty_std'],
+                'satuan_std' => $item['satuan_std'],
+                'ket' => $item['ket'],
+            ]);
+
+            $id = str_pad(TrStok::count() + 1, 3, '0', STR_PAD_LEFT);
+            $stok_id = "{$gudang_id}/{$item['brg_id']}/{$id}";
+
+            $masuk = $item['qty_beli'];
+
+            TrStok::create([
+                'stok_id' => $stok_id,
+                'tgl' => $request->tgl,
+                'brg_id' => $item['brg_id'],
+                'gudang_id' => $gudang_id,
+                'doc_id' => $no_reqskm,
+                'awal' => 0,
+                'masuk' => $masuk,
+                'keluar' => 0,
+                'akhir' => 0,
+                'cek' => 1,
             ]);
         }
 
@@ -115,7 +150,7 @@ class TrReqSKMController extends Controller
             ->join('tr_reqskm_detail as b', 'a.no_reqskm', '=', 'b.no_reqskm')
             ->join('m_brg as c', 'b.brg_id', '=', 'c.brg_id')
             ->where('a.no_reqskm', $request->no_reqskm)
-            ->select('c.nm_brg', 'b.qty', 'b.satuan_besar')
+            ->select('c.nm_brg', 'b.qty_beli', 'b.satuan_beli')
             ->get();
 
         return DataTables::of($details)->make(true);
@@ -133,11 +168,35 @@ class TrReqSKMController extends Controller
             ->value('tgl');
 
         if ($request->ajax()) {
-            $data_mintas = TrReqSKMDetail::with('barang')
-                ->where('no_reqskm', $no_req)
-                ->where('status', 0)
-                ->get();
-            return DataTables::of($data_mintas)->make(true);
+            $type = $request->input('type');
+
+            if ($type == 'details') {
+                $details = DB::table('tr_reqskm_detail as a')
+                    ->join('m_brg as b', 'a.brg_id', '=', 'b.brg_id')
+                    ->select('b.brg_id', 'b.nm_brg as nama', 'a.qty_beli', 'satuan_beli')
+                    ->where('no_reqskm', $no_req)
+                    ->where('a.status', 0)
+                    ->get();
+
+                return DataTables::of($details)->make(true);
+
+            } elseif ($type == 'barangs') {
+                $barangs = Barang::where('status', 0)
+                    ->orderBy('brg_id', 'asc')
+                    ->get();
+
+                return DataTables::of($barangs)->make(true);
+
+            } elseif ($type == 'speks') {
+                $speks = DB::table('m_brg_spek as a')
+                    ->join('m_brg as b', 'a.brg_id', '=', 'b.brg_id')
+                    ->select('b.brg_id', 'b.nm_brg', 'a.satuan1', 'a.satuan2', 'a.konversi1', 'a.spek_id', 'a.spek')
+                    ->where('a.brg_id', $request->brg_id)
+                    ->where('a.status', 0)
+                    ->get();
+
+                return DataTables::of($speks)->make(true);
+            }
         }
 
 
@@ -160,8 +219,8 @@ class TrReqSKMController extends Controller
 
                 if ($data_tr_reqskm_detail) {
                     $nama = Barang::where('brg_id', $item['brg_id'])->value('nm_brg');
-                    $data_tr_reqskm_detail->update(['qty' => $item['qty']]);
-                    $responseMessage = 'Data ' . $nama . ' berhasil diubah. Menjadi Qty : ' . $item['qty'];
+                    $data_tr_reqskm_detail->update(['qty_beli' => $item['qty_beli']]);
+                    $responseMessage = 'Data ' . $nama . ' berhasil diubah. Menjadi Qty : ' . $item['qty_beli'];
                 }
             }
         } else {

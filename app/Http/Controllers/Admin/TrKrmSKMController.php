@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use App\Models\Admin\Barang;
 use App\Models\Admin\Gudang;
 use App\Models\Admin\TrStok;
 use App\Models\Admin\TrKrmSKM;
@@ -90,14 +91,37 @@ class TrKrmSKMController extends Controller
         //     ->get();
 
         $gudang_id = Gudang::where('jenis', 2)->value('gudang_id');
-        $path = 'pengiriman-gudang-utama.create.';
 
         if ($request->ajax()) {
-            $data_mintas = TrReqSKMDetail::with('barang')
-                ->where('no_reqskm', $no_req)
-                ->where('status', 0)
-                ->get();
-            return DataTables::of($data_mintas)->make(true);
+            $type = $request->input('type');
+
+            if ($type == 'details') {
+                $details = DB::table('tr_reqskm_detail as a')
+                    ->join('m_brg as b', 'a.brg_id', '=', 'b.brg_id')
+                    ->select('b.brg_id', 'b.nm_brg as nama', 'a.qty_beli', 'satuan_beli')
+                    ->where('no_reqskm', $no_req)
+                    ->where('a.status', 0)
+                    ->get();
+
+                return DataTables::of($details)->make(true);
+
+            } elseif ($type == 'barangs') {
+                $barangs = Barang::where('status', 0)
+                    ->orderBy('brg_id', 'asc')
+                    ->get();
+
+                return DataTables::of($barangs)->make(true);
+
+            } elseif ($type == 'speks') {
+                $speks = DB::table('m_brg_spek as a')
+                    ->join('m_brg as b', 'a.brg_id', '=', 'b.brg_id')
+                    ->select('b.brg_id', 'b.nm_brg', 'a.satuan1', 'a.satuan2', 'a.konversi1', 'a.spek_id', 'a.spek')
+                    ->where('a.brg_id', $request->brg_id)
+                    ->where('a.status', 0)
+                    ->get();
+
+                return DataTables::of($speks)->make(true);
+            }
         }
 
 

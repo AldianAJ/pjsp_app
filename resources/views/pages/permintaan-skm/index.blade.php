@@ -65,13 +65,13 @@
                             // }
                         },
                         {
-                            data: 'qty',
+                            data: 'qty_beli',
                             // render: function(data, type, row) {
                             //     return row.tr_trmsup_detail[0].qty;
                             // }
                         },
                         {
-                            data: 'satuan_besar',
+                            data: 'satuan_beli',
                             // render: function(data, type, row) {
                             //     return row.tr_trmsup_detail[0].barang.satuan_beli;
                             // }

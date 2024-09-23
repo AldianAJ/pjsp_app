@@ -8,7 +8,6 @@ use App\Models\Admin\TrTrmSupDetail;
 use App\Models\Admin\Gudang;
 use App\Models\Admin\Supplier;
 use App\Models\Admin\Barang;
-use App\Models\Admin\BarangSpek;
 use App\Models\Admin\TrStok;
 use Illuminate\Http\Request;
 use Yajra\DataTables\DataTables;
@@ -81,7 +80,6 @@ class TrTrmSupController extends Controller
                     ->orderBy('brg_id', 'asc')
                     ->get();
                 return DataTables::of($barangs)->make(true);
-
             } elseif ($type == 'speks') {
                 $speks = DB::table('m_brg_spek as a')
                     ->join('m_brg as b', 'a.brg_id', '=', 'b.brg_id')
@@ -122,11 +120,6 @@ class TrTrmSupController extends Controller
                 'satuan_std' => $item['satuan_std'],
                 'ket' => $item['ket'],
             ]);
-
-            // $lastStok = TrStok::where('gudang_id', $gudang_id)
-            //     ->where('brg_id', $item['brg_id'])
-            //     ->orderBy('stok_id', 'desc')
-            //     ->first();
 
             $id = str_pad(TrStok::count() + 1, 3, '0', STR_PAD_LEFT);
             $stok_id = "{$gudang_id}/{$item['brg_id']}/{$id}";
@@ -172,11 +165,33 @@ class TrTrmSupController extends Controller
 
 
         if ($request->ajax()) {
-            $data_tr_trmsup_detail = TrTrmSupDetail::with('barang')
-                ->where('no_trm', $no_trms)
-                ->where('status', 0)
-                ->get();
-            return DataTables::of($data_tr_trmsup_detail)->make(true);
+            $type = $request->input('type');
+
+            if ($type == 'details') {
+                $details = TrTrmSupDetail::with('barang')
+                    ->where('no_trm', $no_trms)
+                    ->where('status', 0)
+                    ->get();
+
+                return DataTables::of($details)->make(true);
+
+            } elseif ($type == 'barangs') {
+                $barangs = Barang::where('status', 0)
+                    ->orderBy('brg_id', 'asc')
+                    ->get();
+
+                return DataTables::of($barangs)->make(true);
+
+            } elseif ($type == 'speks') {
+                $speks = DB::table('m_brg_spek as a')
+                    ->join('m_brg as b', 'a.brg_id', '=', 'b.brg_id')
+                    ->select('b.brg_id', 'b.nm_brg', 'a.satuan1', 'a.satuan2', 'a.konversi1', 'a.spek_id', 'a.spek')
+                    ->where('a.brg_id', $request->brg_id)
+                    ->where('a.status', 0)
+                    ->get();
+
+                return DataTables::of($speks)->make(true);
+            }
         }
         return view('pages.stok-masuk.edit', compact('user', 'no_sj', 'data_supplier', 'suppliers', 'tgl', 'no_trm', 'no_trms'));
     }
@@ -196,8 +211,8 @@ class TrTrmSupController extends Controller
 
                 if ($data_tr_trmsup_detail) {
                     $nama = Barang::where('brg_id', $item['brg_id'])->value('nm_brg');
-                    $data_tr_trmsup_detail->update(['qty' => $item['qty']]);
-                    $responseMessage = 'Data ' . $nama . ' berhasil diubah. Menjadi Qty : ' . $item['qty'];
+                    $data_tr_trmsup_detail->update(['qty_beli' => $item['qty_beli']]);
+                    $responseMessage = 'Data ' . $nama . ' berhasil diubah. Menjadi Qty : ' . $item['qty_beli'];
                 }
             }
         } else {

@@ -33,9 +33,12 @@
             var dataTableInitialized = false;
 
             function initializeDataTable() {
-                $('#datatable-barang').DataTable({
+                $('#datatable-detail').DataTable({
                     ajax: {
                         url: "{{ url('stok-masuk/edit') }}/" + no_trm,
+                        data: {
+                            type: 'details'
+                        }
                     },
                     lengthMenu: [5],
                     columns: [{
@@ -43,7 +46,7 @@
                             render: (data, type, row, meta) => meta.row + 1
                         },
                         {
-                            data: "barang.nm_brg"
+                            data: "barang.nm_brg",
                         },
                         {
                             data: "qty_beli",
@@ -55,7 +58,7 @@
                             }
                         },
                         {
-                            data: "satuan_beli"
+                            data: "satuan_beli",
                         },
                         {
                             data: null,
@@ -94,7 +97,7 @@
 
             $('#editDataBarangModal').on('click', '.save-btn', function() {
                 var $row = $(this).closest('tr');
-                var qty = $row.find('.qty-input').val();
+                var qty_beli = $row.find('.qty-input').val();
                 var brg_id = $row.data('brg-id');
 
                 $.ajax({
@@ -105,11 +108,11 @@
                         no_trm: "{{ $no_trm }}",
                         items: [{
                             brg_id: brg_id,
-                            qty: qty
+                            qty_beli: qty_beli
                         }]
                     },
                     success: function(response) {
-                        $row.find('.qty-value').text(qty).removeClass('d-none');
+                        $row.find('.qty-value').text(qty_beli).removeClass('d-none');
                         $row.find('.qty-input').addClass('d-none');
                         $row.find('.save-btn').addClass('d-none');
                         $row.find('.edit-btn').removeClass('d-none');
@@ -265,12 +268,12 @@
                     <i class="bx bx-edit align-middle me-2 font-size-18"></i>Edit Data Barang
                 </button>
             </div>
-            <div>
+            {{-- <div>
                 <button type="button" class="btn btn-dark waves-effect waves-light" id="showTambahDataBarang"
                     data-toggle="modal" data-target="#tambahDataBarangModal">
                     <i class="bx bx-plus-circle align-middle me-2 font-size-18"></i>Tambah Data Barang
                 </button>
-            </div>
+            </div> --}}
         </div>
     </div>
 
@@ -284,7 +287,7 @@
                 </div>
                 <div class="modal-body">
                     <div class="table-responsive">
-                        <table id="datatable-barang" class="table align-middle table-nowrap">
+                        <table id="datatable-detail" class="table align-middle table-nowrap">
                             <thead class="table-light">
                                 <tr>
                                     <th>No</th>

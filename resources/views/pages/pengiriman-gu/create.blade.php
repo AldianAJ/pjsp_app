@@ -11,34 +11,39 @@
     <script src="{{ asset('assets/libs/datatables.net-responsive/js/dataTables.responsive.min.js') }}"></script>
     <script src="{{ asset('assets/libs/datatables.net-responsive-bs4/js/responsive.bootstrap4.min.js') }}"></script>
     <script src="{{ asset('assets/js/pages/datatables.init.js') }}"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/autonumeric/4.10.5/autoNumeric.min.js"></script>
     <script>
         $(document).ready(function() {
             var no_reqskm = "{{ $no_reqskm }}";
 
             $('#showDataBarangButton').on('click', function() {
-                if ($.fn.DataTable.isDataTable('#datatable')) {
-                    $('#datatable').DataTable().clear().destroy();
+                if ($.fn.DataTable.isDataTable('#datatable-barang')) {
+                    $('#datatable-barang').DataTable().clear().destroy();
                 }
-                $('#datatable').DataTable({
-                    ajax: "{{ url('pengiriman-gudang-utama/create') }}/" + no_reqskm,
+                $('#datatable-barang').DataTable({
+                    ajax: {
+                        url: "{{ url('pengiriman-gudang-utama/create') }}/" + no_reqskm,
+                        data: {
+                            type: 'details'
+                        }
+                    },
                     lengthMenu: [5],
                     columns: [{
-                            data: "barang.nm_brg"
+                            data: null,
+                            render: (data, type, row, meta) => meta.row + 1
                         },
                         {
-                            data: "satuan_besar"
+                            data: "nama"
                         },
                         {
                             data: null,
-                            render: function(data, type, row) {
-                                return `<button type="button" id="btn-add-${row.brg_id}" class="btn btn-primary btn-sm" onclick="showModal('${row.brg_id}', '${row.barang.nm_brg}', ${row.qty}, '${row.satuan_besar}')">
-                    <i class="fas fa-plus"></i>
-                </button>`;
-                            },
+                            render: (data, type, row) => `<button type="button" class="btn btn-primary font-size-10 waves-effect waves-light" onclick="showQtyModal('${row.brg_id}', '${row.nm_brg}', '${row.qty_beli}','${row.satuan1}', '${row.qty_std}','${row.satuan2}', '${row.konversi1}', '${row.spek_id}', '${row.spek}')">
+                            <i class="fas fa-plus align-middle"></i>
+                        </button>`
                         }
                     ],
                 });
-                $('#dataModal').modal('show');
+                $('#dataBarang').modal('show');
             });
 
             $('#showDataPermintaanButton').on('click', function() {
@@ -47,16 +52,25 @@
                 }
 
                 $('#datatable-permintaan').DataTable({
-                    ajax: "{{ url('pengiriman/create') }}/" + no_reqskm,
+                    ajax: {
+                        url: "{{ url('pengiriman-gudang-utama/create') }}/" + no_reqskm,
+                        data: {
+                            type: 'details'
+                        }
+                    },
                     lengthMenu: [5],
                     columns: [{
-                            data: "barang.nm_brg"
+                            data: null,
+                            render: (data, type, row, meta) => meta.row + 1
                         },
                         {
-                            data: "qty"
+                            data: "nama"
                         },
                         {
-                            data: "satuan_besar"
+                            data: "qty_beli"
+                        },
+                        {
+                            data: "satuan_beli"
                         }
                     ],
                 });
@@ -64,91 +78,131 @@
                 $('#permintaanModal').modal('show');
             });
 
-            $('#dataModal').on('hidden.bs.modal', function() {
-                if ($.fn.DataTable.isDataTable('#datatable')) {}
-            });
+            window.showQtyModal = function(brg_id, nm_brg, qty_beli, satuan1, qty_std, satuan2, konversi1, spek_id,
+                spek) {
+                const modal = document.getElementById('qtyModal');
+                modal.dataset.konversi1 = konversi1;
+                document.getElementById('modal-brg-id').value = brg_id;
+                document.getElementById('modal-nm-brg').value = nm_brg;
+                document.getElementById('modal-qty-beli').value = qty_beli;
+                document.getElementById('modal-satuan1').innerText = satuan1;
+                document.getElementById('modal-qty-std').value = qty_std;
+                document.getElementById('modal-satuan2').innerText = satuan2;
+                document.getElementById('modal-ket').value = spek;
+                document.getElementById('modal-spek-id').value = spek_id;
 
-            $('#qtyModal').on('hidden.bs.modal', function() {
-                $('#showDataBarangButton').show();
-                $('#dataModal').modal('show');
-            });
+                $('#dataBarang').modal('hide');
+                new bootstrap.Modal(modal).show();
+            };
 
             $('#qtyModal .btn-primary').on('click', function() {
-                $('#showDataBarangButton').hide();
+                addItem();
+                $('#qtyModal').modal('hide');
+                $('#dataBarang').modal('show');
             });
+
+            new AutoNumeric('#modal-qty-beli', {
+                decimalCharacter: ',',
+                digitGroupSeparator: '.'
+            });
+            new AutoNumeric('#modal-qty-std', {
+                decimalCharacter: ',',
+                digitGroupSeparator: '.'
+            });
+
+            $('#modal-qty-beli').on('input', function() {
+                const qtyBeli = parseFloat(AutoNumeric.getNumericString(this)) || 0;
+                const konversi1 = parseFloat($('#modal-qty-std').data('konversi1')) || 0;
+                const qtyStd = qtyBeli * konversi1;
+
+                AutoNumeric.set('#modal-qty-std', qtyStd);
+            });
+
+            $('#modal-qty-std').on('input', function() {
+                const qtyStd = parseFloat(AutoNumeric.getNumericString(this)) || 0;
+                const konversi1 = parseFloat($('#modal-qty-std').data('konversi1')) || 0;
+                const qtyBeli = qtyStd / konversi1;
+
+                AutoNumeric.set('#modal-qty-beli', qtyBeli);
+            });
+
+            let selectedItems = [];
+
+            function addItem() {
+                const brg_id = document.getElementById('modal-brg-id').value;
+                const nm_brg = document.getElementById('modal-nm-brg').value;
+                const qty_beli = parseFloat(AutoNumeric.getNumericString(document.getElementById(
+                    'modal-qty-beli'))) || 0;
+                const satuan1 = document.getElementById('modal-satuan1').innerText;
+                const qty_std = parseFloat(AutoNumeric.getNumericString(document.getElementById(
+                    'modal-qty-std'))) || 0;
+                const satuan2 = document.getElementById('modal-satuan2').innerText;
+                const ket = document.getElementById('modal-ket').value;
+                const spek_id = document.getElementById('modal-spek-id').value;
+
+                if (qty_beli <= 0 || qty_std <= 0) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'Qty harus lebih dari 0',
+                    });
+                    return;
+                }
+
+                selectedItems.push({
+                    brg_id,
+                    nm_brg,
+                    qty_beli,
+                    satuan1,
+                    qty_std,
+                    satuan2,
+                    ket,
+                    spek_id,
+                });
+                updateItems();
+
+                AutoNumeric.set('#modal-qty-beli', 0);
+                AutoNumeric.set('#modal-qty-std', 0);
+            }
+
+            window.removeItem = function(index) {
+                selectedItems.splice(index, 1);
+                updateItems();
+            }
+
+            function updateItems() {
+                const itemsTable = document.getElementById('selected-items');
+                const itemsContainer = document.getElementById('items-container');
+                const saveButton = document.getElementById('saveButton');
+
+                itemsTable.innerHTML = selectedItems.map((item, index) => `
+                <tr>
+                    <td>${index + 1}</td>
+                    <td>${item.nm_brg}</td>
+                    <td>${item.ket}</td>
+                    <td>${item.qty_beli}</td>
+                    <td>${item.satuan1}</td>
+                    <td>
+                        <button class="btn btn-danger waves-effect waves-light" onclick="removeItem(${index})">
+                            <i class="bx bxs-trash align-middle font-size-14"></i>
+                        </button>
+                    </td>
+                </tr>
+            `).join('');
+
+                itemsContainer.innerHTML = selectedItems.map((item, index) => `
+                <input type="hidden" name="items[${index}][brg_id]" value="${item.brg_id}">
+                <input type="hidden" name="items[${index}][qty_beli]" value="${item.qty_beli}">
+                <input type="hidden" name="items[${index}][satuan_beli]" value="${item.satuan1}">
+                <input type="hidden" name="items[${index}][qty_std]" value="${item.qty_std}">
+                <input type="hidden" name="items[${index}][satuan_std]" value="${item.satuan2}">
+                <input type="hidden" name="items[${index}][ket]" value="${item.ket}">
+                <input type="hidden" name="items[${index}][spek_id]" value="${item.spek_id}">
+            `).join('');
+
+                saveButton.disabled = selectedItems.length === 0;
+            }
         });
-
-        let selectedItems = [];
-        let addedItems = new Set();
-
-        function showModal(brg_id, nm_brg, qty, satuan_besar) {
-            const modal = document.getElementById('qtyModal');
-            document.getElementById('modal-brg-id').value = brg_id;
-            document.getElementById('modal-nm-brg').value = nm_brg;
-            document.getElementById('modal-satuan-besar').value = satuan_besar;
-            document.getElementById('modal-qty').value = qty;
-
-            const addButton = document.getElementById(`btn-add-${brg_id}`);
-            if (addButton) {
-                addButton.disabled = true;
-            }
-
-            new bootstrap.Modal(modal).show();
-            $('#dataModal').modal('hide');
-        }
-
-        function addItem() {
-            const brg_id = document.getElementById('modal-brg-id').value;
-            const nm_brg = document.getElementById('modal-nm-brg').value;
-            const qty = parseFloat(document.getElementById('modal-qty').value);
-            const satuan_besar = document.getElementById('modal-satuan-besar').value;
-
-            if (qty <= 0) {
-                alert('Jumlah harus lebih dari 0');
-                return;
-            }
-
-            selectedItems.push({
-                brg_id,
-                nm_brg,
-                qty,
-                satuan_besar,
-            });
-            addedItems.add(brg_id);
-            updateItems();
-
-            const qtyModal = bootstrap.Modal.getInstance(document.getElementById('qtyModal'));
-            qtyModal.hide();
-        }
-
-        function removeItem(index) {
-            selectedItems.splice(index, 1);
-            updateItems();
-        }
-
-        function updateItems() {
-            const itemsTable = document.getElementById('selected-items');
-            const itemsContainer = document.getElementById('items-container');
-
-            itemsTable.innerHTML = selectedItems.map((item, index) => `
-        <tr>
-            <td>${index + 1}</td>
-            <td>${item.nm_brg}</td>
-            <td>${item.qty}</td>
-            <td>
-                    <button class="btn btn-danger waves-effect waves-light" onclick="removeItem(${index})"><i class="bx bxs-trash align-middle font-size-14"></i></button>
-                </td>
-        </tr>
-    `).join('');
-
-            itemsContainer.innerHTML = selectedItems.map((item, index) => `
-        <input type="hidden" name="items[${index}][brg_id]" value="${item.brg_id}">
-        <input type="hidden" name="items[${index}][qty]" value="${item.qty}">
-        <input type="hidden" name="items[${index}][satuan_besar]" value="${item.satuan_besar}">
-    `).join('');
-
-            saveButton.disabled = selectedItems.length === 0;
-        }
     </script>
 @endpush
 
@@ -210,19 +264,23 @@
                 </div>
             </div>
         </div>
+        <div class="col-md-6">
+            <div class="mb-3">
+                <button type="button" class="btn btn-dark waves-effect waves-light me-2" id="showDataPermintaanButton">
+                    <i class="bx bx-show-alt align-middle me-2 font-size-18"></i> Lihat Data Permintaan
+                </button>
+            </div>
+            <div>
+                <button type="button" class="btn btn-dark waves-effect waves-light" id="showDataBarangButton">
+                    <i class="bx bx-plus-circle align-middle me-2 font-size-18"></i>Tambah Data Barang
+                </button>
+            </div>
+        </div>
     </div>
-
-    <button type="button" class="btn btn-dark waves-effect waves-light me-2" id="showDataPermintaanButton">
-        <i class="bx bx-list align-middle me-2 font-size-18"></i> Lihat Data Permintaan
-    </button>
-
-    <button type="button" class="btn btn-dark waves-effect waves-light" id="showDataBarangButton">
-        <i class="bx bx-plus-circle align-middle me-2 font-size-18"></i>Tambah Data Barang
-    </button>
 
     <div class="modal fade" id="permintaanModal" tabindex="-1" role="dialog" aria-labelledby="permintaanModalLabel"
         aria-hidden="true">
-        <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="permintaanModalLabel">Data Permintaan</h5>
@@ -233,6 +291,7 @@
                         <table id="datatable-permintaan" class="table align-middle table-nowrap">
                             <thead class="table-light">
                                 <tr>
+                                    <th>No</th>
                                     <th>Nama Barang</th>
                                     <th>Qty</th>
                                     <th>Satuan</th>
@@ -250,9 +309,9 @@
         </div>
     </div>
 
-    <div class="modal fade" id="dataModal" tabindex="-1" role="dialog" aria-labelledby="dataModalLabel"
+    <div class="modal fade" id="dataBarang" tabindex="-1" role="dialog" aria-labelledby="dataModalLabel"
         aria-hidden="true">
-        <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="dataModalLabel">Data Barang</h5>
@@ -260,13 +319,13 @@
                 </div>
                 <div class="modal-body">
                     <div class="row">
-                        <div class="col-lg-12">
+                        <div class="col-sm-12">
                             <div class="table-responsive">
-                                <table id="datatable" class="table align-middle table-nowrap">
+                                <table id="datatable-barang" class="table align-middle table-nowrap">
                                     <thead class="table-light">
                                         <tr>
+                                            <th>No</th>
                                             <th>Nama Barang</th>
-                                            <th>Satuan</th>
                                             <th>Action</th>
                                         </tr>
                                     </thead>
@@ -289,25 +348,37 @@
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="qtyModalLabel">Input Quantity</h5>
+                    <h5 class="modal-title" id="qtyModalLabel">Input Qty</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <form id="qtyForm">
-                        <input type="hidden" id="modal-brg-id">
-                        <div class="form-group">
-                            <label for="modal-nm-brg">Nama Barang</label>
-                            <input type="text" class="form-control" id="modal-nm-brg" readonly>
+                    <input type="hidden" id="modal-brg-id">
+                    <div class="mb-3">
+                        <label for="modal-nm-brg" class="form-label">Nama Barang</label>
+                        <input type="text" class="form-control" id="modal-nm-brg" readonly>
+                    </div>
+                    <input type="hidden" id="modal-spek-id">
+                    <div class="mb-3">
+                        <label for="modal-qty" class="form-label">Qty</label>
+                        <div class="d-flex align-items-center">
+                            <input type="text" class="form-control me-2" id="modal-qty-beli" min="1"
+                                data-konversi1="2" required>
+                            <label for="modal-satuan1" class="form-label fw-bolder" id="modal-satuan1"></label>
                         </div>
-                        <div class="form-group mt-3">
-                            <label for="modal-qty">Jumlah</label>
-                            <input type="number" class="form-control" id="modal-qty" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="modal-qty-std" class="form-label">Qty Konversi</label>
+                        <div class="d-flex align-items-center">
+                            <input type="text" class="form-control me-2" id="modal-qty-std" min="1"
+                                data-konversi1="2" required>
+                            <label for="modal-satuan2" class="form-label fw-bolder" id="modal-satuan2"></label>
                         </div>
-                        <div class="form-group mt-3">
-                            <label for="modal-satuan-besar">Satuan</label>
-                            <input type="text" class="form-control" id="modal-satuan-besar" readonly>
-                        </div>
-                    </form>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="modal-ket" class="form-label">Keterangan</label>
+                        <textarea class="form-control" id="modal-ket"></textarea>
+                    </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
@@ -318,22 +389,26 @@
     </div>
 
     <div class="row">
-        <div class="col-lg-12 mt-4">
+        <div class="col-lg-12 mt-2">
             <div class="card">
                 <div class="card-body">
-                    <h5 class="card-title">List Pengiriman</h5>
-                    <table class="table table-striped" id="selected-items-table">
-                        <thead class="table-light">
-                            <tr>
-                                <th>No</th>
-                                <th>Nama Barang</th>
-                                <th>Qty</th>
-                                <th>Action</th>
-                            </tr>
-                        </thead>
-                        <tbody id="selected-items">
-                        </tbody>
-                    </table>
+                    <h5 class="card-title">List Stok Masuk</h5>
+                    <div class="table-responsive">
+                        <table class="table table-striped" id="selected-items-table">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>No</th>
+                                    <th>Nama</th>
+                                    <th>Ket</th>
+                                    <th>Qty</th>
+                                    <th>Satuan</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="selected-items">
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>
