@@ -146,8 +146,6 @@ class TrTrmSupController extends Controller
                 'cek' => 1,
             ]);
         }
-
-
         return redirect()->route('stok-masuk')->with('success', 'Data stok masuk berhasil ditambahkan.');
     }
 
