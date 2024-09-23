@@ -24,7 +24,7 @@ class ClosingController extends Controller
     {
         $user = $this->userAuth();
         $path = 'kinerja-mesin.';
-        $tgl = '2024-09-14'; // ganti dengan tanggal yang sesuai
+        $tgl = '2024-09-23'; // ganti dengan tanggal yang sesuai
         if ($request->ajax()) {
 
             $targetMesin = TargetMesin::with('targetShift.targetHari.targetWeek.barang')

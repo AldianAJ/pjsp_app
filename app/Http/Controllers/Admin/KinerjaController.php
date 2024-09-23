@@ -173,6 +173,7 @@ class KinerjaController extends Controller
         $tahunList = [];
 
         $tanggal = Carbon::now()->setISODate($tahun, 1);
+        $mesins = Mesin::where('status', 0)->get();
 
         for ($minggu = 1; $minggu <= 53; $minggu++) {
             if ($tanggal->year != $tahun) {
@@ -216,7 +217,7 @@ class KinerjaController extends Controller
                 ->make(true);
         }
 
-        return view('pages.kinerja-hari.index', compact('user', 'mingguList'));
+        return view('pages.kinerja-hari.index', compact('user', 'mingguList', 'mesins'));
     }
 
     public function detailhari(Request $request)
@@ -349,7 +350,8 @@ class KinerjaController extends Controller
 
             return DataTables::of($targetShift)
                 ->addColumn('action', function ($object) {
-                    $html = '';
+                    $html = '<button class="btn btn-info btn-mesin waves-effect waves-light me-1" data-shift-id="' . $object->shift_id . '">'
+                        . '<i class="bx bx-transfer-alt align-middle me-2 font-size-18"></i> Proses</button>';
                     // if ($object->tgl == date('Y-m-d')) {
                     $html .= '<button class="btn btn-success btn-editShift waves-effect waves-light me-1" data-shift-id="' . $object->shift_id . '">'
                         . '<i class="bx bx-edit align-middle me-2 font-size-18"></i> Edit</button>';

@@ -222,7 +222,7 @@ Closing Mesin
     <div class="modal-dialog modal-xl">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 id="modalTitle" class="modal-title">Hasil dan Reject</h5>
+                <h5 id="modalTitle" class="modal-title">Closing MAKER</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
@@ -230,8 +230,6 @@ Closing Mesin
                     <div class="col-md-12">
                         <div class="card">
                             <div class="card-body">
-                                <h4 class="card-title mb-4">Closing MAKER</h4>
-
                                 <div id="form-wizard">
                                     <h3>Sisa Hasil</h3>
                                     <section>

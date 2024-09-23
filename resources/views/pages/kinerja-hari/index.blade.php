@@ -88,6 +88,8 @@ Target Harian
             ordering: false
         });
 
+        if (window.currentShiftId !== null){
+
         $('#datatableShiftDetail').DataTable({
             ajax: {
                 url: "{{ route('kinerja-shift.detail') }}",
@@ -98,7 +100,7 @@ Target Harian
             },
             lengthMenu: [5],
             columns: [{
-                    data: null, // Use null because we will provide custom rendering
+                data: null, // Use null because we will provide custom rendering
                     render: function(data, type, row, meta) {
                         return meta.row + 1; // +1 to start numbering from 1
                     }
@@ -108,6 +110,44 @@ Target Harian
                 },
                 {
                     data: "shift"
+                },
+                {
+                    data: "qty"
+                },
+                {
+                    data: "action"
+                }
+            ],
+            footerCallback: function(row, data, start, end, display) {
+                var api = this.api();
+                var totalQty = api.column(3).data().reduce((a, b) => a + b, 0);
+                $(api.column(3).footer()).html(totalQty);
+            },
+            autoWidth: false,
+            ordering: false
+        });
+    }
+
+        $('#datatableMesinDetail').DataTable({
+            ajax: {
+                url: "{{ route('kinerja-mesin.detail') }}",
+                type: "GET",
+                data: function(d) {
+                    d.shift_id = window.currentShiftId; // Use the current week_id
+                }
+            },
+            lengthMenu: [5],
+            columns: [{
+                    data: null, // Use null because we will provide custom rendering
+                    render: function(data, type, row, meta) {
+                        return meta.row + 1; // +1 to start numbering from 1
+                    }
+                },
+                {
+                    data: "target_shift.target_hari.target_week.barang.nm_brg"
+                },
+                {
+                    data: "mesin.nama"
                 },
                 {
                     data: "qty"
@@ -162,6 +202,23 @@ Target Harian
             }
         });
 
+        $('#datatableShiftDetail').on('click', '.btn-mesin', function() {
+            const shiftId = $(this).data('shift-id');
+            const row = $(this).closest('tr');
+            const data = $('#datatableShiftDetail').DataTable().row(row).data();
+            const name = data.target_hari.target_week.barang.nm_brg;
+            const tgl = data.target_hari.tgl;
+            const details = data.qty;
+            if ($(this).hasClass('btn-mesin')) {
+                $('#shift_id').val(shiftId);
+                window.currentShiftId = shiftId;
+                $('#modalTitleMesin').html(`Target Mesin (${tgl}) (${name}, Jumlah: ${details})`);
+                $('#datatableMesinDetail').DataTable().ajax.reload();
+                $('#shiftModal').modal('hide');
+                $('#mesinModal').modal('show');
+            }
+        });
+
         // Handle Edit button click
         $('#datatableDetail').on('click', '.btn-editHari', function() {
             var table = $('#datatableDetail').DataTable();
@@ -212,11 +269,19 @@ Target Harian
                 success: function(response) {
                     Swal.fire({
                         toast: true,
-                        position: 'bottom-right',
+                        position: 'top-right',
                         icon: response.success ? 'success' : 'error',
                         title: response.message,
                         showConfirmButton: false,
-                        timer: 5000
+                        timer: 5000,
+                        didOpen: (toast) => {
+                            toast.addEventListener('mouseenter', Swal.stopTimer)
+                            toast.addEventListener('mouseleave', Swal.resumeTimer)
+                        },
+                        customClass: {
+                            popup: 'colored-toast'
+                        },
+                        showCloseButton: true
                     });
                     // Reload table data
                     table.ajax.reload();
@@ -275,7 +340,7 @@ Target Harian
                 success: function(response) {
                     Swal.fire({
                         toast: true,
-                        position: 'bottom-right',
+                        position: 'top-right',
                         icon: response.success ? 'success' : 'error',
                         title: response.message,
                         showConfirmButton: false,
@@ -302,7 +367,7 @@ Target Harian
                 if (response) {
                     Swal.fire({
                         toast: true,
-                        position: 'bottom-right',
+                        position: 'top-right',
                         icon: response.success ? 'success' : 'error',
                         title: response.message,
                         showConfirmButton: false,
@@ -312,11 +377,12 @@ Target Harian
                     $('#datatable').DataTable().ajax.reload();
                     $('#datatableDetail').DataTable().ajax.reload();
                     $('#datatableShiftDetail').DataTable().ajax.reload();
+                    $('#datatableMesinDetail').DataTable().ajax.reload();
                 }
             } catch (error) {
                 Swal.fire({
                     toast: true,
-                    position: 'bottom-right',
+                    position: 'top-right',
                     icon: 'error',
                     title: 'An error occurred',
                     showConfirmButton: false,
@@ -326,6 +392,7 @@ Target Harian
                 $('#datatable').DataTable().ajax.reload();
                 $('#datatableDetail').DataTable().ajax.reload();
                 $('#datatableShiftDetail').DataTable().ajax.reload();
+                $('#datatableMesinDetail').DataTable().ajax.reload();
             }
         });
 
@@ -427,7 +494,7 @@ Target Harian
                                             <div class="form-group">
                                                 <label for="qty">Jumlah</label>
                                                 <input type="text" class="form-control" name="qty"
-                                                    value="{{ old('qty') }}" required>
+                                                    value="{{ old('qty') }}" pattern="\d*" inputmode="numeric" required>
                                             </div>
                                         </div>
                                     </div>
@@ -435,6 +502,8 @@ Target Harian
                                         readonly>
                                     <div id="items-container"></div>
                                     <div class="d-flex justify-content-end my-3">
+                                        <button type="button" class="btn btn-secondary me-1"
+                                            data-bs-dismiss="modal">Kembali</button>
                                         <button type="submit" class="btn btn-success">Simpan</button>
                                     </div>
                                 </form>
@@ -502,7 +571,7 @@ Target Harian
                                             <div class="form-group mt-3">
                                                 <label for="qty">Jumlah</label>
                                                 <input type="text" class="form-control" name="qty"
-                                                    value="{{ old('qty') }}" required>
+                                                    value="{{ old('qty') }}" pattern="\d*" inputmode="numeric" required>
                                             </div>
                                         </div>
                                     </div>
@@ -549,11 +618,11 @@ Target Harian
 </div>
 
 <!-- Modal Target Week-->
-<div class="modal fade" id="weekModal" tabindex="-1" aria-hidden="true">
+<div class="modal fade" id="mesinModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-scrollable modal-lg">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 id="modalTitleShift" class="modal-title">Target Shift</h5>
+                <h5 id="modalTitleMesin" class="modal-title">Target Mesin</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
@@ -561,8 +630,49 @@ Target Harian
                     <div class="col-md-12">
                         <div class="card">
                             <div class="card-body">
-                                <div id="table-content" style="display: none;">
-                                    @yield('content')
+                                <form action="{{ route('kinerja-mesin.store') }}" method="post"
+                                    enctype="multipart/form-data">
+                                    @csrf
+                                    <div class="form-group mt-3">
+                                        <label for="tgl">Mesin</label>
+                                        <select name="mesin_id" class="form-control">
+                                            @foreach ($mesins as $mesin)
+                                            <option value="{{ $mesin->mesin_id}}">{{ $mesin->nama}}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                    <div class="form-group mt-3">
+                                        <label for="qty">Jumlah</label>
+                                        <input type="text" class="form-control" name="qty" value="{{ old('qty')}}"
+                                            required>
+                                    </div>
+                                    <div id="items-container"></div> <!-- Container for items input fields -->
+                                    <div class="d-flex justify-content-end mt-3">
+                                        <button type="button" class="btn btn-secondary me-1"
+                                            data-bs-dismiss="modal">Kembali</button>
+                                        <button type="submit" class="btn btn-success">Simpan</button>
+                                    </div>
+                                </form>
+                                <div class="table-content">
+                                    <table id="datatableMesinDetail" class="table align-middle table-nowrap">
+                                        <thead class="table-light">
+                                            <tr>
+                                                <th>Barang</th>
+                                                <th>Tgl</th>
+                                                <th>Shift</th>
+                                                <th>Jumlah</th>
+                                                <th>Action</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                        </tbody>
+                                        <tfoot>
+                                            <tr>
+                                                <th colspan="3" style="text-align:right">Total:</th>
+                                                <th></th>
+                                            </tr>
+                                        </tfoot>
+                                    </table>
                                 </div>
                             </div>
                         </div>
