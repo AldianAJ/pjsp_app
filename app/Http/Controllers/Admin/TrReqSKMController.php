@@ -353,26 +353,22 @@ class TrReqSKMController extends Controller
                 ]);
             }
 
-            $lastStok = TrStok::where('gudang_id', $gudang_id)
-                ->where('brg_id', $barangId)
-                ->orderBy('stok_id', 'desc')
-                ->first();
-
-            $akhir = ($awal = ($lastStok ? $lastStok->akhir : 0)) + ($masuk = $qty);
-
             $id = str_pad(TrStok::count() + 1, 3, '0', STR_PAD_LEFT);
-            $stok_id = "{$gudang_id}/{$barangId}/{$id}";
+            $stok_id = "{$gudang_id}/{$item['brg_id']}/{$id}";
+
+            $masuk = $item['qty_beli'];
 
             TrStok::create([
                 'stok_id' => $stok_id,
-                'tgl' => $request->tgl_trm,
-                'brg_id' => $barangId,
+                'tgl' => $request->tgl,
+                'brg_id' => $item['brg_id'],
                 'gudang_id' => $gudang_id,
                 'doc_id' => $no_krmskms,
-                'awal' => $awal,
+                'awal' => 0,
                 'masuk' => $masuk,
                 'keluar' => 0,
-                'akhir' => $akhir,
+                'akhir' => 0,
+                'cek' => 1,
             ]);
         }
 
