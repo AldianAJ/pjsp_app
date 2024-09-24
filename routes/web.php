@@ -122,6 +122,7 @@ Route::middleware('user')->group(function () {
         Route::get('/permintaan-skm/edit/{no_reqskm}', 'edit')->name('permintaan-skm.edit');
         Route::post('/permintaan-skm/update/{no_reqskm}', 'update')->name('permintaan-skm.update');
         Route::get('/permintaan-skm/history', 'indexHistory')->name('permintaan-skm.history');
+        Route::get('/permintaan-skm/history/detail', 'showDetailHistory')->name('permintaan-skm.showDetailHistory');
 
         Route::get('/penerimaan-barang', 'indexTerima')->name('penerimaan-barang');
         Route::get('/penerimaan-barang/create/{no_krmskm}', 'createTerima')->name('penerimaan-barang.create');

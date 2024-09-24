@@ -1,19 +1,19 @@
 @extends('layouts.app')
 
 @section('title')
-    Persetujuan Permintaan
+Persetujuan Permintaan
 @endsection
 
 @push('after-app-script')
-    <script src="{{ asset('assets/libs/datatables.net/js/jquery.dataTables.min.js') }}"></script>
-    <script src="{{ asset('assets/libs/datatables.net-bs4/js/dataTables.bootstrap4.min.js') }}"></script>
-    <!-- Responsive examples -->
-    <script src="{{ asset('assets/libs/datatables.net-responsive/js/dataTables.responsive.min.js') }}"></script>
-    <script src="{{ asset('assets/libs/datatables.net-responsive-bs4/js/responsive.bootstrap4.min.js') }}"></script>
-    <script src="{{ asset('assets/js/pages/datatables.init.js') }}"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/autonumeric/4.10.5/autoNumeric.min.js"></script>
-    <script>
-        $(document).ready(function() {
+<script src="{{ asset('assets/libs/datatables.net/js/jquery.dataTables.min.js') }}"></script>
+<script src="{{ asset('assets/libs/datatables.net-bs4/js/dataTables.bootstrap4.min.js') }}"></script>
+<!-- Responsive examples -->
+<script src="{{ asset('assets/libs/datatables.net-responsive/js/dataTables.responsive.min.js') }}"></script>
+<script src="{{ asset('assets/libs/datatables.net-responsive-bs4/js/responsive.bootstrap4.min.js') }}"></script>
+<script src="{{ asset('assets/js/pages/datatables.init.js') }}"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/autonumeric/4.10.5/autoNumeric.min.js"></script>
+<script>
+    $(document).ready(function() {
             var no_reqskm = "{{ $no_reqskm }}";
 
             $('#showDataBarangButton').on('click', function() {
@@ -203,214 +203,211 @@
                 saveButton.disabled = selectedItems.length === 0;
             }
         });
-    </script>
+</script>
 @endpush
 
 @section('content')
-    <!-- Page Title -->
-    <div class="row">
-        <div class="col-12">
-            <div class="page-title-box d-sm-flex align-items-center justify-content-between">
-                <h4 class="mb-sm-0 font-size-18">Tambah Pengiriman</h4>
-            </div>
+<!-- Page Title -->
+<div class="row">
+    <div class="col-12">
+        <div class="page-title-box d-sm-flex align-items-center justify-content-between">
+            <h4 class="mb-sm-0 font-size-18">Tambah Pengiriman</h4>
         </div>
     </div>
+</div>
 
-    <!-- Main Form -->
-    <div class="row">
-        <div class="col-md-12">
-            @if ($errors->any())
-                <div class="alert alert-danger">
-                    <ul>
-                        @foreach ($errors->all() as $error)
-                            <li>{{ $error }}</li>
-                        @endforeach
-                    </ul>
-                </div>
-            @endif
+<!-- Main Form -->
+<div class="row">
+    <div class="col-md-12">
+        @if ($errors->any())
+        <div class="alert alert-danger">
+            <ul>
+                @foreach ($errors->all() as $error)
+                <li>{{ $error }}</li>
+                @endforeach
+            </ul>
         </div>
+        @endif
     </div>
+</div>
 
-    <div class="row">
-        <div class="col-md-6">
-            <div class="card">
-                <div class="card-body">
-                    <h5 class="card-title">Data Transaksi</h5>
-                    <form action="{{ route('pengiriman-gudang-utama.store') }}" method="post"
-                        enctype="multipart/form-data">
-                        @csrf
-                        <div class="form-group mt-3">
-                            <label for="no_reqskm">No. Dokumen Permintaan SKM</label>
-                            <input type="text" name="no_reqskm" id="no_reqskm" class="form-control"
-                                value="{{ $no_req }}" readonly>
-                        </div>
-                        <div class="form-group mt-3">
-                            <label for="tgl_krm">Tanggal</label>
-                            <input type="date" class="form-control" name="tgl_krm"
-                                value="{{ old('tgl_krm', \Carbon\Carbon::now()->format('Y-m-d')) }}" required readonly>
-                        </div>
-                        <input type="hidden" name="gudang_id" id="gudang_id"
-                            value="{{ old('gudang_id', $gudang_id ?? '') }}">
-                        <div id="items-container"></div> <!-- Container for items input fields -->
-                        <div class="d-flex justify-content-end mt-3">
-                            <a href="{{ route('pengiriman-gudang-utama') }}"
-                                class="btn btn-secondary waves-effect waves-light me-2">
-                                <i class="bx bx-caret-left align-middle me-2 font-size-18"></i>Kembali
-                            </a>
-                            <button type="submit" class="btn btn-primary waves-effect waves-light" id="saveButton"
-                                disabled><i class="bx bx bxs-save align-middle me-2 font-size-18"></i>Simpan</button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-6">
-            <div class="mb-3">
-                <button type="button" class="btn btn-dark waves-effect waves-light me-2" id="showDataPermintaanButton">
-                    <i class="bx bx-show-alt align-middle me-2 font-size-18"></i> Lihat Data Permintaan
-                </button>
-            </div>
-            <div>
-                <button type="button" class="btn btn-dark waves-effect waves-light" id="showDataBarangButton">
-                    <i class="bx bx-plus-circle align-middle me-2 font-size-18"></i>Tambah Data Barang
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <div class="modal fade" id="permintaanModal" tabindex="-1" role="dialog" aria-labelledby="permintaanModalLabel"
-        aria-hidden="true">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="permintaanModalLabel">Data Permintaan</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <div class="table-responsive">
-                        <table id="datatable-permintaan" class="table align-middle table-nowrap">
-                            <thead class="table-light">
-                                <tr>
-                                    <th>No</th>
-                                    <th>Nama Barang</th>
-                                    <th>Qty</th>
-                                    <th>Satuan</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                            </tbody>
-                        </table>
+<div class="row">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Data Transaksi</h5>
+                <form action="{{ route('pengiriman-gudang-utama.store') }}" method="post" enctype="multipart/form-data">
+                    @csrf
+                    <div class="form-group mt-3">
+                        <label for="no_reqskm">No. Dokumen Permintaan SKM</label>
+                        <input type="text" name="no_reqskm" id="no_reqskm" class="form-control" value="{{ $no_req }}"
+                            readonly>
                     </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
-                </div>
+                    <div class="form-group mt-3">
+                        <label for="tgl_krm">Tanggal</label>
+                        <input type="date" class="form-control" name="tgl_krm"
+                            value="{{ old('tgl_krm', \Carbon\Carbon::now()->format('Y-m-d')) }}" required readonly>
+                    </div>
+                    <input type="hidden" name="gudang_id" id="gudang_id"
+                        value="{{ old('gudang_id', $gudang_id ?? '') }}">
+                    <div id="items-container"></div> <!-- Container for items input fields -->
+                    <div class="d-flex justify-content-end mt-3">
+                        <a href="{{ route('pengiriman-gudang-utama') }}"
+                            class="btn btn-secondary waves-effect waves-light me-2">
+                            <i class="bx bx-caret-left align-middle me-2 font-size-18"></i>Kembali
+                        </a>
+                        <button type="submit" class="btn btn-primary waves-effect waves-light" id="saveButton"
+                            disabled><i class="bx bx bxs-save align-middle me-2 font-size-18"></i>Simpan</button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
+    <div class="col-md-6">
+        <div class="mb-3">
+            <button type="button" class="btn btn-dark waves-effect waves-light me-2" id="showDataPermintaanButton">
+                <i class="bx bx-show-alt align-middle me-2 font-size-18"></i> Lihat Data Permintaan
+            </button>
+        </div>
+        <div>
+            <button type="button" class="btn btn-dark waves-effect waves-light" id="showDataBarangButton">
+                <i class="bx bx-plus-circle align-middle me-2 font-size-18"></i>Tambah Data Barang
+            </button>
+        </div>
+    </div>
+</div>
 
-    <div class="modal fade" id="dataBarang" tabindex="-1" role="dialog" aria-labelledby="dataModalLabel"
-        aria-hidden="true">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="dataModalLabel">Data Barang</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+<div class="modal fade" id="permintaanModal" tabindex="-1" role="dialog" aria-labelledby="permintaanModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="permintaanModalLabel">Data Permintaan</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="table-responsive">
+                    <table id="datatable-permintaan" class="table align-middle table-nowrap">
+                        <thead class="table-light">
+                            <tr>
+                                <th>No</th>
+                                <th>Nama Barang</th>
+                                <th>Qty</th>
+                                <th>Satuan</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                    </table>
                 </div>
-                <div class="modal-body">
-                    <div class="row">
-                        <div class="col-sm-12">
-                            <div class="table-responsive">
-                                <table id="datatable-barang" class="table align-middle table-nowrap">
-                                    <thead class="table-light">
-                                        <tr>
-                                            <th>No</th>
-                                            <th>Nama Barang</th>
-                                            <th>Action</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                    </tbody>
-                                </table>
-                            </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="dataBarang" tabindex="-1" role="dialog" aria-labelledby="dataModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="dataModalLabel">Data Barang</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-sm-12">
+                        <div class="table-responsive">
+                            <table id="datatable-barang" class="table align-middle table-nowrap">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>No</th>
+                                        <th>Nama Barang</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                </tbody>
+                            </table>
                         </div>
                     </div>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Selesai</button>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Selesai</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="qtyModal" tabindex="-1" role="dialog" aria-labelledby="qtyModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="qtyModalLabel">Input Qty</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="modal-brg-id">
+                <div class="mb-3">
+                    <label for="modal-nm-brg" class="form-label">Nama Barang</label>
+                    <input type="text" class="form-control" id="modal-nm-brg" readonly>
+                </div>
+                <input type="hidden" id="modal-spek-id">
+                <div class="mb-3">
+                    <label for="modal-qty" class="form-label">Qty</label>
+                    <div class="d-flex align-items-center">
+                        <input type="text" class="form-control me-2" id="modal-qty-beli" min="1" data-konversi1="2"
+                            required>
+                        <label for="modal-satuan1" class="form-label fw-bolder" id="modal-satuan1"></label>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label for="modal-qty-std" class="form-label">Qty Konversi</label>
+                    <div class="d-flex align-items-center">
+                        <input type="text" class="form-control me-2" id="modal-qty-std" min="1" data-konversi1="2"
+                            required>
+                        <label for="modal-satuan2" class="form-label fw-bolder" id="modal-satuan2"></label>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label for="modal-ket" class="form-label">Keterangan</label>
+                    <textarea class="form-control" id="modal-ket"></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
+                <button type="button" class="btn btn-primary" onclick="addItem()">Tambah</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-12 mt-2">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">List Stok Masuk</h5>
+                <div class="table-responsive">
+                    <table class="table table-striped" id="selected-items-table">
+                        <thead class="table-light">
+                            <tr>
+                                <th>No</th>
+                                <th>Nama</th>
+                                <th>Ket</th>
+                                <th>Qty</th>
+                                <th>Satuan</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="selected-items">
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>
     </div>
-
-    <div class="modal fade" id="qtyModal" tabindex="-1" role="dialog" aria-labelledby="qtyModalLabel"
-        aria-hidden="true">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="qtyModalLabel">Input Qty</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <input type="hidden" id="modal-brg-id">
-                    <div class="mb-3">
-                        <label for="modal-nm-brg" class="form-label">Nama Barang</label>
-                        <input type="text" class="form-control" id="modal-nm-brg" readonly>
-                    </div>
-                    <input type="hidden" id="modal-spek-id">
-                    <div class="mb-3">
-                        <label for="modal-qty" class="form-label">Qty</label>
-                        <div class="d-flex align-items-center">
-                            <input type="text" class="form-control me-2" id="modal-qty-beli" min="1"
-                                data-konversi1="2" required>
-                            <label for="modal-satuan1" class="form-label fw-bolder" id="modal-satuan1"></label>
-                        </div>
-                    </div>
-                    <div class="mb-3">
-                        <label for="modal-qty-std" class="form-label">Qty Konversi</label>
-                        <div class="d-flex align-items-center">
-                            <input type="text" class="form-control me-2" id="modal-qty-std" min="1"
-                                data-konversi1="2" required>
-                            <label for="modal-satuan2" class="form-label fw-bolder" id="modal-satuan2"></label>
-                        </div>
-                    </div>
-
-                    <div class="mb-3">
-                        <label for="modal-ket" class="form-label">Keterangan</label>
-                        <textarea class="form-control" id="modal-ket"></textarea>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
-                    <button type="button" class="btn btn-primary" onclick="addItem()">Tambah</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="row">
-        <div class="col-lg-12 mt-2">
-            <div class="card">
-                <div class="card-body">
-                    <h5 class="card-title">List Stok Masuk</h5>
-                    <div class="table-responsive">
-                        <table class="table table-striped" id="selected-items-table">
-                            <thead class="table-light">
-                                <tr>
-                                    <th>No</th>
-                                    <th>Nama</th>
-                                    <th>Ket</th>
-                                    <th>Qty</th>
-                                    <th>Satuan</th>
-                                    <th>Action</th>
-                                </tr>
-                            </thead>
-                            <tbody id="selected-items">
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+</div>
 @endsection

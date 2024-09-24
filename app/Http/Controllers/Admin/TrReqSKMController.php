@@ -95,16 +95,13 @@ class TrReqSKMController extends Controller
      */
     public function store(Request $request)
     {
-
         $no_reqskm = 'FPB/SKM' . '/' . date('y/m/' . str_pad(TrReqSKM::count() + 1, 3, '0', STR_PAD_LEFT));
-
         $gudang_id = $request->gudang_id;
 
         TrReqSKM::create([
             'no_reqskm' => $no_reqskm,
             'tgl' => $request->tgl,
             'gudang_id' => $gudang_id,
-
         ]);
 
         foreach ($request->items as $item) {
@@ -117,24 +114,6 @@ class TrReqSKMController extends Controller
                 'qty_std' => $item['qty_std'],
                 'satuan_std' => $item['satuan_std'],
                 'ket' => $item['ket'],
-            ]);
-
-            $id = str_pad(TrStok::count() + 1, 3, '0', STR_PAD_LEFT);
-            $stok_id = "{$gudang_id}/{$item['brg_id']}/{$id}";
-
-            $masuk = $item['qty_beli'];
-
-            TrStok::create([
-                'stok_id' => $stok_id,
-                'tgl' => $request->tgl,
-                'brg_id' => $item['brg_id'],
-                'gudang_id' => $gudang_id,
-                'doc_id' => $no_reqskm,
-                'awal' => 0,
-                'masuk' => $masuk,
-                'keluar' => 0,
-                'akhir' => 0,
-                'cek' => 1,
             ]);
         }
 
@@ -234,26 +213,34 @@ class TrReqSKMController extends Controller
     }
 
     public function indexHistory(Request $request)
+{
+    $user = $this->userAuth();
+
+    if ($request->ajax()) {
+        $permintaans = TrReqSKM::where('status', 1)->get();
+        return DataTables::of($permintaans)
+            ->addColumn('action', function () {
+                return '<button class="btn btn-secondary waves-effect waves-light btn-detail me-2" data-bs-toggle="modal" data-bs-target="#detailModal">'
+                    . '<i class="bx bx-detail font-size-18 align-middle me-2"></i>Detail</button>';
+            })
+            ->rawColumns(['action'])
+            ->make(true);
+    }
+    return view('pages.history.permintaan-skm', compact('user'));
+}
+
+
+    public function showDetailHistory(Request $request)
     {
-        $user = $this->userAuth();
-        $path = 'permintaan-skm.history.';
+        $details = DB::table('tr_reqskm as a')
+            ->join('tr_reqskm_detail as b', 'a.no_reqskm', '=', 'b.no_reqskm')
+            ->join('m_brg as c', 'b.brg_id', '=', 'c.brg_id')
+            ->where('a.no_reqskm', $request->no_reqskm)
+            ->select('c.nm_brg', 'b.qty_beli', 'b.satuan_beli')
+            ->where('status', 1)
+            ->get();
 
-        if ($request->ajax()) {
-            $permintaans = TrReqSKM::where('status', 0)->get();
-            return DataTables::of($permintaans)
-                ->addColumn('action', function ($object) use ($path) {
-                    $no = str_replace('/', '-', $object->no_reqskm);
-                    $html = '<a href="' . route($path . "edit", ["no_reqskm" => $no]) . '" class="btn btn-secondary waves-effect waves-light mx-1">'
-                        . ' <i class="bx bx-edit align-middle me-2 font-size-18"></i> Edit</a>';
-                    $html .= '<button class="btn btn-primary waves-effect waves-light mx-1 btn-detail" data-no_reqskm="' . $object->no_reqskm . '">' .
-                        '<i class="bx bx-show align-middle font-size-18"></i> Detail</button>';
-                    return $html;
-                })
-                ->rawColumns(['action'])
-                ->make(true);
-        }
-
-        return view('pages.permintaan-skm.index', compact('user'));
+        return DataTables::of($details)->make(true);
     }
 
     public function indexTerima(Request $request)
@@ -283,12 +270,8 @@ class TrReqSKMController extends Controller
     {
         $user = $this->userAuth();
         $no_krm = str_replace('-', '/', $no_krmskm);
-
         $no_req = TrKrmSKMDetail::where('no_krmskm', $no_krm)->value('no_reqskm');
-
         $user_id = User::where('role', 'skm')->value('user_id');
-
-        $path = 'penerimaan-barang.create.';
 
         if ($request->ajax()) {
             $type = $request->input('type');

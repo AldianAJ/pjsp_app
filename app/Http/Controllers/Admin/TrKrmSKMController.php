@@ -84,12 +84,6 @@ class TrKrmSKMController extends Controller
     {
         $user = $this->userAuth();
         $no_req = str_replace('-', '/', $no_reqskm);
-
-        // $datas = TrReqSKMDetail::with('barang')
-        //     ->where('no_reqskm', $no_req)
-        //     ->where('status', 0)
-        //     ->get();
-
         $gudang_id = Gudang::where('jenis', 2)->value('gudang_id');
 
         if ($request->ajax()) {
@@ -125,7 +119,7 @@ class TrKrmSKMController extends Controller
         }
 
 
-        return view('pages.pengiriman-gu.create', compact('user',  'no_reqskm', 'no_req', 'gudang_id'));
+        return view('pages.pengiriman-gu.create', compact('user', 'no_reqskm', 'no_req', 'gudang_id'));
     }
 
 
@@ -136,9 +130,7 @@ class TrKrmSKMController extends Controller
     public function store(Request $request)
     {
         $no_krmskm = 'SJ/GU' . '/' . date('y/m/' . str_pad(TrKrmSKM::count() + 1, 3, '0', STR_PAD_LEFT));
-
         $gudang_id = $request->gudang_id;
-
         $no_reqskm = $request->no_reqskm;
 
         TrKrmSKM::create([
@@ -156,30 +148,22 @@ class TrKrmSKMController extends Controller
                 'satuan_besar' => $item['satuan_besar'],
             ]);
 
-            $lastStok = TrStok::where('gudang_id', $gudang_id)
-                ->where('brg_id', $item['brg_id'])
-                ->orderBy('stok_id', 'desc')
-                ->first();
-
-            $awal = $lastStok ? $lastStok->akhir : 0;
-            $keluar = $item['qty'];
-            $akhir = $awal - $keluar;
-
             $id = str_pad(TrStok::count() + 1, 3, '0', STR_PAD_LEFT);
             $stok_id = "{$gudang_id}/{$item['brg_id']}/{$id}";
+            $keluar = $item['qty_beli'];
 
             TrStok::create([
                 'stok_id' => $stok_id,
-                'tgl' => $request->tgl_krm,
+                'tgl' => $request->tgl,
                 'brg_id' => $item['brg_id'],
                 'gudang_id' => $gudang_id,
-                'doc_id' => $no_krmskm,
-                'awal' => $awal,
+                'doc_id' => $no_reqskm,
+                'awal' => 0,
                 'masuk' => 0,
                 'keluar' => $keluar,
-                'akhir' => $akhir,
+                'akhir' => 0,
+                'cek' => 1,
             ]);
-
         }
 
         $permintaan = TrReqSKM::where('status', 0)->first();
