@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('title')
-    Persetujuan Permintaan
+    History Pengiriman ke SKM
 @endsection
 
 @push('after-style')
@@ -20,27 +20,14 @@
         let mainTable;
 
         mainTable = $('#datatable').DataTable({
-            ajax: "{{ route('pengiriman-gudang-utama') }}",
+            ajax: "{{ route('pengiriman-gudang-utama.history') }}",
             ordering: false,
             columns: [{
                     data: "no_krmskm"
                 },
                 {
-                    data: "tgl_minta",
+                    data: "tgl_kirim",
                     render: function(data) {
-                        return new Date(data).toLocaleDateString('id-ID', {
-                            day: 'numeric',
-                            month: 'long',
-                            year: 'numeric'
-                        });
-                    }
-                },
-                {
-                    data: "tgl_krm",
-                    render: function(data) {
-                        if (!data) {
-                            return '-';
-                        }
                         return new Date(data).toLocaleDateString('id-ID', {
                             day: 'numeric',
                             month: 'long',
@@ -54,6 +41,7 @@
             ],
         });
 
+
         $('#datatable').on('click', '.btn-detail', function() {
             let selectedData = mainTable.row($(this).closest('tr')).data();
             $("#id-krm").text(selectedData.no_krmskm);
@@ -66,7 +54,7 @@
                 serverSide: true,
                 ajax: {
                     type: "GET",
-                    url: "{{ route('pengiriman-gudang-utama.showDetail') }}",
+                    url: "{{ route('permintaan-skm.showDetailHistory') }}",
                     data: {
                         no_krmskm: selectedData.no_krmskm
                     }
@@ -103,7 +91,7 @@
     <div class="row">
         <div class="col-12">
             <div class="page-title-box d-sm-flex align-items-center justify-content-between">
-                <h4 class="mb-sm-0 font-size-18">Persetujuan Permintaan</h4>
+                <h4 class="mb-sm-0 font-size-18">History Pengiriman ke SKM</h4>
             </div>
         </div>
     </div>
@@ -119,7 +107,6 @@
                                 <tr>
                                     <th>No. Dokumen</th>
                                     <th>Tanggal Permintaan</th>
-                                    <th>Tanggal Pengiriman</th>
                                     <th>Action</th>
                                 </tr>
                             </thead>
@@ -155,28 +142,4 @@
             </div>
         </div>
     </div>
-
-    @if (session()->has('success'))
-        <script src="{{ asset('assets/libs/sweetalert2/sweetalert2.min.js') }}"></script>
-        <script>
-            document.addEventListener('DOMContentLoaded', function() {
-                Swal.fire({
-                    toast: true,
-                    position: 'bottom-right',
-                    icon: 'success',
-                    title: '{{ session('success') }}',
-                    showConfirmButton: false,
-                    timer: 5000,
-                    didOpen: (toast) => {
-                        toast.addEventListener('mouseenter', Swal.stopTimer)
-                        toast.addEventListener('mouseleave', Swal.resumeTimer)
-                    },
-                    customClass: {
-                        popup: 'colored-toast'
-                    },
-                    showCloseButton: true
-                });
-            });
-        </script>
-    @endif
 @endsection

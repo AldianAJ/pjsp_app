@@ -128,16 +128,15 @@ Route::middleware('user')->group(function () {
         Route::get('/penerimaan-barang/create/{no_krmskm}', 'createTerima')->name('penerimaan-barang.create');
         Route::post('/penerimaan-barang/store', 'storeTerima')->name('penerimaan-barang.store');
         Route::get('/penerimaan-barang/detail/{no_reqskm}', 'indexDetail')->name('penerimaan-barang.indexDetail');
-        Route::get('/penerimaan-barang/edit/{no_reqskm}', 'edit')->name('penerimaan-barang.edit');
-
-        Route::post('/penerimaan-barang/update/{no_reqskm}', 'update')->name('penerimaan-barang.update');
     });
 
     Route::controller(TrKrmSKMController::class)->group(function () {
         Route::get('/pengiriman-gudang-utama', 'index')->name('pengiriman-gudang-utama');
         Route::get('/pengiriman-gudang-utama/create/{no_reqskm}', 'create')->name('pengiriman-gudang-utama.create');
         Route::post('/pengiriman-gudang-utama/store', 'store')->name('pengiriman-gudang-utama.store');
-        Route::get('/pengiriman-gudang-utama/detail/{no_krmskm}', 'detailKRM')->name('pengiriman-gudang-utama.detailKRM');
+        Route::get('/pengiriman-gudang-utama/detail', 'showDetail')->name('pengiriman-gudang-utama.showDetail');
+        Route::get('/pengiriman-gudang-utama/edit/{no_krmskm}', 'edit')->name('pengiriman-gudang-utama.edit');
+        Route::get('/pengiriman-gudang-utama/update/{no_krmskm}', 'update')->name('pengiriman-gudang-utama.update');
     });
 
     Route::controller(TrKrmMsnController::class)->group(function () {

@@ -152,7 +152,8 @@ class TrReqSKMController extends Controller
             if ($type == 'details') {
                 $details = DB::table('tr_reqskm_detail as a')
                     ->join('m_brg as b', 'a.brg_id', '=', 'b.brg_id')
-                    ->select('b.brg_id', 'b.nm_brg as nama', 'a.qty_beli', 'satuan_beli')
+                    ->join('m_brg_spek as c', 'a.spek_id', '=', 'c.spek_id')
+                    ->select('b.brg_id', 'b.nm_brg as nama', 'a.qty_beli', 'a.satuan_beli', 'a.qty_std', 'a.satuan_std')
                     ->where('no_reqskm', $no_req)
                     ->where('a.status', 0)
                     ->get();
@@ -198,7 +199,10 @@ class TrReqSKMController extends Controller
 
                 if ($data_tr_reqskm_detail) {
                     $nama = Barang::where('brg_id', $item['brg_id'])->value('nm_brg');
-                    $data_tr_reqskm_detail->update(['qty_beli' => $item['qty_beli']]);
+                    $data_tr_reqskm_detail->update([
+                        'qty_beli' => $item['qty_beli'],
+                        'qty_std' => $item['qty_std']
+                    ]);
                     $responseMessage = 'Data ' . $nama . ' berhasil diubah. Menjadi Qty : ' . $item['qty_beli'];
                 }
             }
@@ -217,7 +221,9 @@ class TrReqSKMController extends Controller
     $user = $this->userAuth();
 
     if ($request->ajax()) {
-        $permintaans = TrReqSKM::where('status', 1)->get();
+        $permintaans = TrReqSKM::where('status', 1)
+        ->orderBy('no_reqskm', 'desc')
+        ->get();
         return DataTables::of($permintaans)
             ->addColumn('action', function () {
                 return '<button class="btn btn-secondary waves-effect waves-light btn-detail me-2" data-bs-toggle="modal" data-bs-target="#detailModal">'
@@ -237,7 +243,7 @@ class TrReqSKMController extends Controller
             ->join('m_brg as c', 'b.brg_id', '=', 'c.brg_id')
             ->where('a.no_reqskm', $request->no_reqskm)
             ->select('c.nm_brg', 'b.qty_beli', 'b.satuan_beli')
-            ->where('status', 1)
+            ->where('a.status', 1)
             ->get();
 
         return DataTables::of($details)->make(true);
@@ -256,7 +262,7 @@ class TrReqSKMController extends Controller
             return DataTables::of($pengirimans)
                 ->addColumn('action', function ($object) use ($path) {
                     $no = str_replace('/', '-', $object->no_krmskm);
-                    return '<a href="' . route($path . "create", ["no_krmskm" => $no]) . '" class="btn btn-primary waves-effect waves-light mx-1">'
+                    return '<a href="' . route($path . "create", ["no_krmskm" => $no]) . '" class="btn btn-info waves-effect waves-light mx-1">'
                         . '<i class="bx bx-transfer-alt align-middle me-2 font-size-18"></i> Proses</a>';
                 })
                 ->rawColumns(['action'])
@@ -281,7 +287,7 @@ class TrReqSKMController extends Controller
                 $data_reqs = DB::table('tr_krmskm_detail as a')
                     ->join('tr_reqskm_detail as b', 'a.no_reqskm', '=', 'b.no_reqskm')
                     ->join('m_brg as c', 'b.brg_id', '=', 'c.brg_id')
-                    ->select('c.nm_brg', 'b.qty', 'b.satuan_besar')
+                    ->select('c.nm_brg', 'b.qty_beli', 'b.satuan_beli')
                     ->where('b.status', 1)
                     ->where('no_krmskm', $no_krm)
                     ->distinct()

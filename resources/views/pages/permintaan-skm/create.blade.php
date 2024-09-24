@@ -92,12 +92,12 @@
 
             window.showQtyModal = function(brg_id, nm_brg, satuan1, satuan2, konversi1, spek_id, spek) {
                 const modal = document.getElementById('qtyModal');
-                modal.dataset.konversi1 = konversi1;
                 document.getElementById('modal-brg-id').value = brg_id;
                 document.getElementById('modal-nm-brg').value = nm_brg;
                 document.getElementById('modal-qty-beli').value = '';
                 document.getElementById('modal-satuan1').innerText = satuan1;
                 document.getElementById('modal-qty-std').value = '';
+                document.getElementById('modal-konversi1').value = konversi1;
                 document.getElementById('modal-satuan2').innerText = satuan2;
                 document.getElementById('modal-ket').value = spek;
                 document.getElementById('modal-spek-id').value = spek_id;
@@ -124,7 +124,7 @@
 
             $('#modal-qty-beli').on('input', function() {
                 const qtyBeli = parseFloat(AutoNumeric.getNumericString(this)) || 0;
-                const konversi1 = parseFloat($('#modal-qty-std').data('konversi1')) || 0;
+                const konversi1 = parseFloat($('#modal-konversi1').val());
                 const qtyStd = qtyBeli * konversi1;
 
                 AutoNumeric.set('#modal-qty-std', qtyStd);
@@ -132,7 +132,7 @@
 
             $('#modal-qty-std').on('input', function() {
                 const qtyStd = parseFloat(AutoNumeric.getNumericString(this)) || 0;
-                const konversi1 = parseFloat($('#modal-qty-std').data('konversi1')) || 0;
+                const konversi1 = ($('#modal-konversi1').val());
                 const qtyBeli = qtyStd / konversi1;
 
                 AutoNumeric.set('#modal-qty-beli', qtyBeli);
@@ -146,6 +146,7 @@
                 const qty_beli = parseFloat(AutoNumeric.getNumericString(document.getElementById(
                     'modal-qty-beli'))) || 0;
                 const satuan1 = document.getElementById('modal-satuan1').innerText;
+                const konversi1 = parseFloat(document.getElementById('modal-konversi1').value) || 0;
                 const qty_std = parseFloat(AutoNumeric.getNumericString(document.getElementById(
                     'modal-qty-std'))) || 0;
                 const satuan2 = document.getElementById('modal-satuan2').innerText;
@@ -372,16 +373,15 @@
                     <div class="mb-3">
                         <label for="modal-qty" class="form-label">Qty</label>
                         <div class="d-flex align-items-center">
-                            <input type="text" class="form-control me-2" id="modal-qty-beli" min="1"
-                                data-konversi1="2" required>
+                            <input type="text" class="form-control me-2" id="modal-qty-beli" min="1" required>
                             <label for="modal-satuan1" class="form-label fw-bolder" id="modal-satuan1"></label>
                         </div>
                     </div>
+                    <input type="hidden" id="modal-konversi1">
                     <div class="mb-3">
                         <label for="modal-qty-std" class="form-label">Qty Konversi</label>
                         <div class="d-flex align-items-center">
-                            <input type="text" class="form-control me-2" id="modal-qty-std" min="1"
-                                data-konversi1="2" required>
+                            <input type="text" class="form-control me-2" id="modal-qty-std" min="1" required>
                             <label for="modal-satuan2" class="form-label fw-bolder" id="modal-satuan2"></label>
                         </div>
                     </div>

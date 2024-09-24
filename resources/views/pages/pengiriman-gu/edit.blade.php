@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('title')
-    Edit Permintaan
+    Edit Pengiriman
 @endsection
 
 @push('after-app-style')
@@ -18,13 +18,13 @@
 
     <script>
         $(document).ready(function() {
-            var no_reqskm = "{{ $no_reqskm }}";
+            var no_krmskm = "{{ $no_krmskm }}";
             var dataTableInitialized = false;
 
             function initializeDataTable() {
                 $('#datatable-detail').DataTable({
                     ajax: {
-                        url: "{{ url('permintaan-skm/edit') }}/" + no_reqskm,
+                        url: "{{ url('pengiriman-gudang-utama/edit') }}/" + no_krmskm,
                         data: {
                             type: 'details'
                         },
@@ -105,11 +105,11 @@
                 var brg_id = $row.data('brg-id');
 
                 $.ajax({
-                    url: "{{ route('permintaan-skm.update', ['no_reqskm' => $no_reqskm]) }}",
+                    url: "{{ route('pengiriman-gudang-utama.update', ['no_krmskm' => $no_krmskm]) }}",
                     method: 'POST',
                     data: {
                         _token: "{{ csrf_token() }}",
-                        no_reqskm: "{{ $no_reqskm }}",
+                        no_krmskm: "{{ $no_krmskm }}",
                         items: [{
                             brg_id: brg_id,
                             qty_beli: qty_beli,
@@ -192,7 +192,7 @@
                             toast: true,
                             position: 'top-right'
                         }).then(() => {
-                            window.location.href = "{{ route('permintaan-skm') }}";
+                            window.location.href = "{{ route('pengiriman-gudang-utama') }}";
                         });
                     }
                 });
@@ -205,7 +205,7 @@
     <div class="row">
         <div class="col-12">
             <div class="page-title-box d-sm-flex align-items-center justify-content-between">
-                <h4 class="mb-sm-0 font-size-18">Edit Permintaan</h4>
+                <h4 class="mb-sm-0 font-size-18">Edit Pengiriman</h4>
             </div>
         </div>
     </div>
@@ -230,20 +230,26 @@
             <div class="card">
                 <div class="card-body">
                     <h5 class="card-title">Data Transaksi</h5>
-                    <form id="updateForm" action="{{ route('permintaan-skm.update', ['no_reqskm' => $no_reqskm]) }}"
-                        method="post" enctype="multipart/form-data">
+                    <form id="updateForm"
+                        action="{{ route('pengiriman-gudang-utama.update', ['no_krmskm' => $no_krmskm]) }}" method="post"
+                        enctype="multipart/form-data">
                         @csrf
+                        <div class="form-group mt-3">
+                            <label for="no_krmskm">No. Pengiriman :</label>
+                            <input type="text" name="no_krmskm" id="no_krmskm" class="form-control"
+                                value="{{ $no_krm }}" readonly>
+                        </div>
                         <div class="form-group mt-3">
                             <label for="no_reqskm">No. Permintaan :</label>
                             <input type="text" name="no_reqskm" id="no_reqskm" class="form-control"
                                 value="{{ $no_req }}" readonly>
                         </div>
                         <div class="form-group mt-3">
-                            <label for="tgl">Tanggal Permintaan :</label>
-                            <input type="date" class="form-control" name="tgl" value="{{ $tgl }}" required>
+                            <label for="tgl_krm">Tanggal Pengiriman :</label>
+                            <input type="date" class="form-control" name="tgl_krm" value="{{ $tgl_krm }}" required>
                         </div>
                         <div class="d-flex justify-content-end mt-3">
-                            <a href="{{ route('permintaan-skm') }}"
+                            <a href="{{ route('pengiriman-gudang-utama') }}"
                                 class="btn btn-secondary waves-effect waves-light me-2">
                                 <i class="bx bx-caret-left align-middle me-2 font-size-18"></i>Kembali
                             </a>
