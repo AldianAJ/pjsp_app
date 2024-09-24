@@ -410,7 +410,6 @@ class KinerjaController extends Controller
 
     public function updateshift(Request $request)
     {
-        // dd($request->harian_id);
         $dailyTarget = Harian::findOrFail($request->harian_id);
         // Hitung total target harian untuk minggu tersebut
         $totalShift = $dailyTarget->targetShift()->where('harian_id', $request->harian_id)->sum('qty') - $request->qtyOri;
@@ -461,6 +460,13 @@ class KinerjaController extends Controller
             $targetMesin = TargetMesin::with('targetShift.targetHari.targetWeek.barang')->with('mesin')->where('shift_id', $request->shift_id)->get();
 
             return DataTables::of($targetMesin)
+                ->addColumn('action', function ($object) {
+                    $html = '<button class="btn btn-success btn-editShift waves-effect waves-light me-1" data-shift-id="' . $object->shift_id . '">'
+                        . '<i class="bx bx-edit align-middle me-2 font-size-18"></i> Edit</button>';
+
+                    return $html;
+                })
+                ->rawColumns(['action'])
                 ->make(true);
         }
 
@@ -483,6 +489,22 @@ class KinerjaController extends Controller
     {
         $mesin_id = $request->shift_id . '/' . str_pad(TargetMesin::where('shift_id', $request->shift_id)->count() + 1, 3, '0', STR_PAD_LEFT);
 
+        $cek = TargetMesin::where('shift_id', $request->shift_id)->where('mesin_id', $request->mesin_id)->count();
+        if ($cek > 0) {
+            return response()->json(['success' => false, 'message' => 'Target mesin ' . $request->mesin_id . ' sudah ada.'], 200);
+        }
+
+        $shiftTarget = Shift::findOrFail($request->shift_id);
+
+        $totalMesin = $shiftTarget->targetMesin()->where('shift_id', $request->shift_id)->sum('qty');
+        $sisa = $shiftTarget->qty - $totalMesin;
+        $totalMesin += $request->qty;
+        $sisaBerhasil = $shiftTarget->qty - $totalMesin;
+
+        if ($totalMesin > $shiftTarget->qty || $sisa == 0) {
+            return response()->json(['success' => false, 'message' => 'Target melebihi batas target shift. Sisa target mesin : ' . $sisa], 200);
+        }
+
         TargetMesin::create([
             'msn_trgt_id' => $mesin_id,
             'shift_id' => $request->shift_id,
@@ -490,6 +512,6 @@ class KinerjaController extends Controller
             'qty' => $request->qty,
         ]);
 
-        return redirect()->route('kinerja-mesin')->with('success', 'Data target mesin berhasil ditambahkan.');
+        return response()->json(['success' => true, 'message' => 'Target mesin ' . $request->mesin_id . ' berhasil ditambahkan. Sisa target mesin : ' . $sisaBerhasil], 200);
     }
 }

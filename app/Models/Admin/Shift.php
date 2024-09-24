@@ -21,6 +21,6 @@ class Shift extends Model
 
     public function targetMesin()
     {
-        return $this->hasMany(Mesin::class, 'shift_id');
+        return $this->hasMany(TargetMesin::class, 'shift_id');
     }
 }

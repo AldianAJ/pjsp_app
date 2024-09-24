@@ -88,45 +88,45 @@ Target Harian
             ordering: false
         });
 
-        if (window.currentShiftId !== null){
+        if (window.currentShiftId !== null) {
 
-        $('#datatableShiftDetail').DataTable({
-            ajax: {
-                url: "{{ route('kinerja-shift.detail') }}",
-                type: "GET",
-                data: function(d) {
-                    d.harian_id = window.currentHarianId; // Use the current week_id
-                }
-            },
-            lengthMenu: [5],
-            columns: [{
-                data: null, // Use null because we will provide custom rendering
-                    render: function(data, type, row, meta) {
-                        return meta.row + 1; // +1 to start numbering from 1
+            $('#datatableShiftDetail').DataTable({
+                ajax: {
+                    url: "{{ route('kinerja-shift.detail') }}",
+                    type: "GET",
+                    data: function(d) {
+                        d.harian_id = window.currentHarianId; // Use the current week_id
                     }
                 },
-                {
-                    data: "target_hari.target_week.barang.nm_brg"
+                lengthMenu: [5],
+                columns: [{
+                        data: null, // Use null because we will provide custom rendering
+                        render: function(data, type, row, meta) {
+                            return meta.row + 1; // +1 to start numbering from 1
+                        }
+                    },
+                    {
+                        data: "target_hari.target_week.barang.nm_brg"
+                    },
+                    {
+                        data: "shift"
+                    },
+                    {
+                        data: "qty"
+                    },
+                    {
+                        data: "action"
+                    }
+                ],
+                footerCallback: function(row, data, start, end, display) {
+                    var api = this.api();
+                    var totalQty = api.column(3).data().reduce((a, b) => a + b, 0);
+                    $(api.column(3).footer()).html(totalQty);
                 },
-                {
-                    data: "shift"
-                },
-                {
-                    data: "qty"
-                },
-                {
-                    data: "action"
-                }
-            ],
-            footerCallback: function(row, data, start, end, display) {
-                var api = this.api();
-                var totalQty = api.column(3).data().reduce((a, b) => a + b, 0);
-                $(api.column(3).footer()).html(totalQty);
-            },
-            autoWidth: false,
-            ordering: false
-        });
-    }
+                autoWidth: false,
+                ordering: false
+            });
+        }
 
         $('#datatableMesinDetail').DataTable({
             ajax: {
@@ -174,14 +174,18 @@ Target Harian
             const weekId = $(this).data('week-id');
             const row = $(this).closest('tr');
             const data = $('#datatable').DataTable().row(row).data();
-            const name = data.barang.nm_brg;
-            const details = data.qty;
-            if ($(this).hasClass('btn-edit') || $(this).hasClass('btn-detailHari')) {
+
+            if (data && data.barang) {
+                const name = data.barang.nm_brg;
+                const details = data.qty;
+
                 $('#week_id').val(weekId);
                 window.currentWeekId = weekId;
                 $('#modalTitle').html(`Target Harian (${name}, Jumlah: ${details})`);
                 $('#datatableDetail').DataTable().ajax.reload();
-                $('#editModal').modal('show');
+                $('#hariModal').modal('show');
+            } else {
+                console.error("Invalid data structure for week details.");
             }
         });
 
@@ -189,36 +193,43 @@ Target Harian
             const harianId = $(this).data('harian-id');
             const row = $(this).closest('tr');
             const data = $('#datatableDetail').DataTable().row(row).data();
-            const name = data.target_week.barang.nm_brg;
-            const tgl = data.tgl;
-            const details = data.qty;
-            if ($(this).hasClass('btn-shift')) {
+
+            if (data && data.target_week && data.target_week.barang) {
+                const name = data.target_week.barang.nm_brg;
+                const tgl = data.tgl;
+                const details = data.qty;
+
                 $('#harian_id').val(harianId);
                 window.currentHarianId = harianId;
                 $('#modalTitleShift').html(`Target Shift (${tgl}) (${name}, Jumlah: ${details})`);
+                $('#hariModal').modal('hide');
                 $('#datatableShiftDetail').DataTable().ajax.reload();
-                $('#editModal').modal('hide');
                 $('#shiftModal').modal('show');
+            } else {
+                console.error("Invalid data structure for daily target details.");
             }
         });
 
-        $('#datatableShiftDetail').on('click', '.btn-mesin', function() {
+        $('#datatableShiftDetail').on('click', '.btn-edit, .btn-mesin', function() {
             const shiftId = $(this).data('shift-id');
             const row = $(this).closest('tr');
             const data = $('#datatableShiftDetail').DataTable().row(row).data();
-            const name = data.target_hari.target_week.barang.nm_brg;
-            const tgl = data.target_hari.tgl;
-            const details = data.qty;
-            if ($(this).hasClass('btn-mesin')) {
+
+            if (data && data.target_hari && data.target_hari.target_week && data.target_hari.target_week.barang) {
+                const name = data.target_hari.target_week.barang.nm_brg;
+                const tgl = data.target_hari.tgl;
+                const details = data.qty;
+
                 $('#shift_id').val(shiftId);
                 window.currentShiftId = shiftId;
                 $('#modalTitleMesin').html(`Target Mesin (${tgl}) (${name}, Jumlah: ${details})`);
-                $('#datatableMesinDetail').DataTable().ajax.reload();
                 $('#shiftModal').modal('hide');
+                $('#datatableMesinDetail').DataTable().ajax.reload();
                 $('#mesinModal').modal('show');
+            } else {
+                console.error("Invalid data structure for machine target details.");
             }
         });
-
         // Handle Edit button click
         $('#datatableDetail').on('click', '.btn-editHari', function() {
             var table = $('#datatableDetail').DataTable();
@@ -326,7 +337,6 @@ Target Harian
             var harian_id = originalData.harian_id;
             var qtyOri = originalData.qty;
             // Send updated data to server via AJAX
-            console.log(originalData);
             $.ajax({
                 url: "{{ route('kinerja-shift.update') }}", // Replace with your update route
                 type: "POST",
@@ -361,6 +371,7 @@ Target Harian
             const url = form.attr('action');
             const formId = form.attr('id');
 
+            console.log(url, formData, formId);
             try {
                 const response = await $.post(url, formData);
 
@@ -397,8 +408,12 @@ Target Harian
         });
 
         // Menangani penutupan modal setelah ditutup
-        $('#shiftModal').on('hidden.bs.modal', function() {
-            var mainModal = new bootstrap.Modal(document.getElementById('editModal'));
+        $('#backHarian').on('click', function() {
+            var mainModal = new bootstrap.Modal(document.getElementById('hariModal'));
+            mainModal.show();
+        });
+        $('#mesinModal').on('hidden.bs.modal', function() {
+            var mainModal = new bootstrap.Modal(document.getElementById('shiftModal'));
             mainModal.show(); // Tampilkan kembali modal utama jika belum ditampilkan
         });
 </script>
@@ -464,8 +479,8 @@ Target Harian
     </div>
 </div>
 
-<!-- Modal create-->
-<div class="modal fade" id="editModal" tabindex="-1" aria-hidden="true">
+<!-- Modal Target Harian-->
+<div class="modal fade" id="hariModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-scrollable modal-lg">
         <div class="modal-content">
             <div class="modal-header">
@@ -545,7 +560,8 @@ Target Harian
         <div class="modal-content">
             <div class="modal-header">
                 <h5 id="modalTitleShift" class="modal-title">Target Shift</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                <button type="button" id="backHarian" class="btn-close" data-bs-dismiss="modal"
+                    aria-label="Close"></button>
             </div>
             <div class="modal-body">
                 <div class="row">
@@ -579,7 +595,7 @@ Target Harian
                                         value="{{ old('harian_id') }}" required readonly>
                                     <div id="items-container"></div> <!-- Container for items input fields -->
                                     <div class="d-flex justify-content-end my-3">
-                                        <button type="button" class="btn btn-secondary me-1"
+                                        <button type="button" id="backHarian" class="btn btn-secondary me-1"
                                             data-bs-dismiss="modal">Kembali</button>
                                         <button type="submit" class="btn btn-success">Simpan</button>
                                     </div>
@@ -617,7 +633,7 @@ Target Harian
     </div>
 </div>
 
-<!-- Modal Target Week-->
+<!-- Modal Target Mesin-->
 <div class="modal fade" id="mesinModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-scrollable modal-lg">
         <div class="modal-content">
@@ -630,30 +646,35 @@ Target Harian
                     <div class="col-md-12">
                         <div class="card">
                             <div class="card-body">
-                                <form action="{{ route('kinerja-mesin.store') }}" method="post"
+                                <h5 class="card-title">Data Transaksi</h5>
+
+                                <form id="formMesin" action="{{ route('kinerja-mesin.store') }}" method="post"
                                     enctype="multipart/form-data">
                                     @csrf
                                     <div class="form-group mt-3">
                                         <label for="tgl">Mesin</label>
                                         <select name="mesin_id" class="form-control">
                                             @foreach ($mesins as $mesin)
-                                            <option value="{{ $mesin->mesin_id}}">{{ $mesin->nama}}</option>
+                                            <option value="{{ $mesin->mesin_id }}">{{ $mesin->nama }}</option>
                                             @endforeach
                                         </select>
                                     </div>
                                     <div class="form-group mt-3">
                                         <label for="qty">Jumlah</label>
-                                        <input type="text" class="form-control" name="qty" value="{{ old('qty')}}"
+                                        <input type="text" class="form-control" name="qty" value="{{ old('qty') }}"
                                             required>
                                     </div>
+                                    <input type="hidden" id="shift_id" class="form-control" name="shift_id"
+                                        value="{{ old('shift_id') }}" required readonly>
                                     <div id="items-container"></div> <!-- Container for items input fields -->
-                                    <div class="d-flex justify-content-end mt-3">
+                                    <div class="d-flex justify-content-end my-3">
                                         <button type="button" class="btn btn-secondary me-1"
                                             data-bs-dismiss="modal">Kembali</button>
                                         <button type="submit" class="btn btn-success">Simpan</button>
                                     </div>
                                 </form>
-                                <div class="table-content">
+
+                                <div class="table-responsive">
                                     <table id="datatableMesinDetail" class="table align-middle table-nowrap">
                                         <thead class="table-light">
                                             <tr>
@@ -684,4 +705,5 @@ Target Harian
         </div>
     </div>
 </div>
+
 @endsection
