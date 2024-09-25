@@ -26,7 +26,7 @@
                     data: "no_krmskm"
                 },
                 {
-                    data: "tgl_kirim",
+                    data: "tgl_krm",
                     render: function(data) {
                         return new Date(data).toLocaleDateString('id-ID', {
                             day: 'numeric',
@@ -54,7 +54,7 @@
                 serverSide: true,
                 ajax: {
                     type: "GET",
-                    url: "{{ route('permintaan-skm.showDetailHistory') }}",
+                    url: "{{ route('pengiriman-gudang-utama.showDetailHistory') }}",
                     data: {
                         no_krmskm: selectedData.no_krmskm
                     }
@@ -106,7 +106,7 @@
                             <thead class="table-light">
                                 <tr>
                                     <th>No. Dokumen</th>
-                                    <th>Tanggal Permintaan</th>
+                                    <th>Tanggal Pengiriman</th>
                                     <th>Action</th>
                                 </tr>
                             </thead>

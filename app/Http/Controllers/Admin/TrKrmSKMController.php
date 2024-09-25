@@ -58,7 +58,7 @@ class TrKrmSKMController extends Controller
         if ($request->ajax()) {
             return DataTables::of($activeVariable)
                 ->addColumn('action', function ($object) use ($path) {
-                    $no = str_replace('/', '-', $object->id);
+                    $no = str_replace('/', '-', isset($object->no_krmskm) ? $object->no_krmskm : $object->id);
                     if (is_null($object->tgl_krm)) {
                         return '<a href="' . route($path . "create", ["no_reqskm" => $no]) . '" class="btn btn-info waves-effect waves-light mx-1">'
                             . '<i class="bx bx-transfer-alt align-middle me-2 font-size-18"></i> Proses</a>';
@@ -150,6 +150,8 @@ class TrKrmSKMController extends Controller
             $id = str_pad(TrStok::count() + 1, 3, '0', STR_PAD_LEFT);
             $stok_id = "{$gudang_id}/{$item['brg_id']}/{$id}";
             $keluar = $item['qty_beli'];
+            $gudangs = Gudang::where('gudang_id', $gudang_id)->value('nama');
+            $ket = "Pengiriman barang dari ". $gudangs;
 
             TrStok::create([
                 'stok_id' => $stok_id,
@@ -157,6 +159,7 @@ class TrKrmSKMController extends Controller
                 'brg_id' => $item['brg_id'],
                 'gudang_id' => $gudang_id,
                 'doc_id' => $no_krmskm,
+                'ket' => $ket,
                 'awal' => 0,
                 'masuk' => 0,
                 'keluar' => $keluar,
@@ -280,12 +283,38 @@ class TrKrmSKMController extends Controller
         return response()->json(['success' => true, 'message' => $responseMessage], 200);
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy()
+    public function indexHistory(Request $request)
     {
-        //
+        $user = $this->userAuth();
+
+        if ($request->ajax()) {
+            $pengirimans = TrKrmSKM::where('status', 1)
+                ->orderBy('no_krmskm', 'desc')
+                ->get();
+                
+            return DataTables::of($pengirimans)
+                ->addColumn('action', function () {
+                    return '<button class="btn btn-secondary waves-effect waves-light btn-detail me-2" data-bs-toggle="modal" data-bs-target="#detailModal">'
+                        . '<i class="bx bx-detail font-size-18 align-middle me-2"></i>Detail</button>';
+                })
+                ->rawColumns(['action'])
+                ->make(true);
+        }
+        return view('pages.history.pengiriman-gu', compact('user'));
+    }
+
+
+    public function showDetailHistory(Request $request)
+    {
+        $details = DB::table('tr_krmskm as a')
+        ->join('tr_krmskm_detail as b', 'a.no_krmskm', '=', 'b.no_krmskm')
+        ->join('m_brg as c', 'b.brg_id', '=', 'c.brg_id')
+        ->where('a.no_krmskm', $request->no_krmskm)
+        ->where('a.status', 1)
+        ->select('c.nm_brg', 'b.qty_beli', 'b.satuan_beli')
+        ->get();
+
+        return DataTables::of($details)->make(true);
     }
 
 

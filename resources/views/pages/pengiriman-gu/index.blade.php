@@ -23,7 +23,9 @@
             ajax: "{{ route('pengiriman-gudang-utama') }}",
             ordering: false,
             columns: [{
-                    data: "id"
+                    data: function(row) {
+                        return row.tgl_krm ? row.no_krmskm : row.id;
+                    }
                 },
                 {
                     data: "tgl_minta",

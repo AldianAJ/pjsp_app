@@ -4,6 +4,10 @@
     Persetujuan Permintaan
 @endsection
 
+@push('after-app-style')
+    <link href="{{ asset('assets/libs/sweetalert2/sweetalert2.min.css') }}" rel="stylesheet" type="text/css" />
+@endpush
+
 @push('after-app-script')
     <script src="{{ asset('assets/libs/datatables.net/js/jquery.dataTables.min.js') }}"></script>
     <script src="{{ asset('assets/libs/datatables.net-bs4/js/dataTables.bootstrap4.min.js') }}"></script>
@@ -11,6 +15,7 @@
     <script src="{{ asset('assets/libs/datatables.net-responsive/js/dataTables.responsive.min.js') }}"></script>
     <script src="{{ asset('assets/libs/datatables.net-responsive-bs4/js/responsive.bootstrap4.min.js') }}"></script>
     <script src="{{ asset('assets/js/pages/datatables.init.js') }}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/autonumeric/4.10.5/autoNumeric.min.js"></script>
     <script>
         $(document).ready(function() {
@@ -20,6 +25,7 @@
                 if ($.fn.DataTable.isDataTable('#datatable-barang')) {
                     $('#datatable-barang').DataTable().clear().destroy();
                 }
+
                 $('#datatable-barang').DataTable({
                     ajax: {
                         url: "{{ url('pengiriman-gudang-utama/create') }}/" + no_reqskm,
@@ -80,20 +86,32 @@
 
             window.showQtyModal = function(brg_id, nm_brg, qty_beli, satuan1, qty_std, satuan2, konversi1, spek_id,
                 spek) {
-                const modal = document.getElementById('qtyModal');
+                const existingIndex = selectedItems.findIndex(item => item.brg_id === brg_id);
+                if (existingIndex !== -1) {
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Warning',
+                        text: 'Item sudah ditambahkan!',
+                    });
+                    return; // Hentikan proses jika item sudah ada
+                }
+
+                // Set nilai modal jika item belum ada
                 document.getElementById('modal-brg-id').value = brg_id;
                 document.getElementById('modal-nm-brg').value = nm_brg;
-                document.getElementById('modal-qty-beli').value = qty_beli;
+                AutoNumeric.set('#modal-qty-beli', qty_beli);
                 document.getElementById('modal-satuan1').innerText = satuan1;
-                document.getElementById('modal-qty-std').value = qty_std;
+                AutoNumeric.set('#modal-qty-std', qty_std);
                 document.getElementById('modal-konversi1').value = konversi1;
                 document.getElementById('modal-satuan2').innerText = satuan2;
                 document.getElementById('modal-ket').value = spek;
                 document.getElementById('modal-spek-id').value = spek_id;
 
                 $('#dataBarang').modal('hide');
-                new bootstrap.Modal(modal).show();
+                new bootstrap.Modal(document.getElementById('qtyModal')).show();
             };
+
+
 
             $('#qtyModal .btn-primary').on('click', function() {
                 addItem();
@@ -149,6 +167,7 @@
                     return;
                 }
 
+
                 selectedItems.push({
                     brg_id,
                     nm_brg,
@@ -163,6 +182,12 @@
             }
 
             window.removeItem = function(index) {
+                const removedItem = selectedItems[index];
+                const table = $('#datatable-barang').DataTable();
+                table.row.add({
+                    brg_id: removedItem.brg_id,
+                    nm_brg: removedItem.nm_brg,
+                }).draw();
                 selectedItems.splice(index, 1);
                 updateItems();
             }
@@ -244,7 +269,7 @@
                         <div class="form-group mt-3">
                             <label for="tgl_krm">Tanggal</label>
                             <input type="date" class="form-control" name="tgl_krm"
-                                value="{{ old('tgl_krm', \Carbon\Carbon::now()->format('Y-m-d')) }}" required readonly>
+                                value="{{ old('tgl_krm', \Carbon\Carbon::now()->format('Y-m-d')) }}" required>
                         </div>
                         <input type="hidden" name="gudang_id" id="gudang_id"
                             value="{{ old('gudang_id', $gudang_id ?? '') }}">

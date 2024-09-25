@@ -17,7 +17,9 @@
     <script src="{{ asset('assets/libs/datatables.net-responsive-bs4/js/responsive.bootstrap4.min.js') }}"></script>
     <script src="{{ asset('assets/js/pages/datatables.init.js') }}"></script>
     <script>
-        $('#datatable').DataTable({
+        let mainTable;
+
+        mainTable = $('#datatable').DataTable({
             ajax: "{{ route('penerimaan-barang') }}",
             columns: [{
                     data: "no_krmskm"
@@ -49,6 +51,48 @@
                     data: "action"
                 }
             ],
+        });
+
+        $('#datatable').on('click', '.btn-detail', function() {
+            let selectedData = mainTable.row($(this).closest('tr')).data();
+            $("#id-krm").text(selectedData.no_krmskm);
+
+            if ($.fn.DataTable.isDataTable('#detail-datatable')) {
+                $('#detail-datatable').DataTable().destroy();
+            }
+            $('#detail-datatable').DataTable({
+                processing: true,
+                serverSide: true,
+                ajax: {
+                    type: "GET",
+                    url: "{{ route('penerimaan-barang.showterimaDetail') }}",
+                    data: {
+                        no_krmskm: selectedData.no_krmskm
+                    }
+                },
+                lengthMenu: [5],
+                columns: [{
+                        data: 'nm_brg',
+                        // render: function(data, type, row) {
+                        //     return row.tr_trmsup_detail[0].barang.nm_brg;
+                        // }
+                    },
+                    {
+                        data: 'qty_beli',
+                        // render: function(data, type, row) {
+                        //     return row.tr_trmsup_detail[0].qty;
+                        // }
+                    },
+                    {
+                        data: 'satuan_beli',
+                        // render: function(data, type, row) {
+                        //     return row.tr_trmsup_detail[0].barang.satuan_beli;
+                        // }
+                    },
+                ],
+            });
+
+            $('#detailModal').modal('show');
         });
     </script>
 @endpush
@@ -82,6 +126,30 @@
                             </tbody>
                         </table>
                     </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal modal-md fade" id="detailModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Detail Barang - <span id="id-krm"></span></h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <table class="table table-bordered dt-responsive nowrap w-100" id="detail-datatable">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Nama Barang</th>
+                                <th>Qty</th>
+                                <th>Satuan</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>

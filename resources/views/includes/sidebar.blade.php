@@ -34,36 +34,6 @@
                                 <span key="t-mutasi">Mutasi</span>
                             </a>
                         </li>
-                        {{-- <li>
-                    <a href="{{ route('barang') }}" class="waves-effect">
-                        <i class="bx bxs-component"></i>
-                        <span key="t-barang">Barang</span>
-                        <span id="total-barangs" class="badge rounded-pill bg-danger float-end"></span>
-                    </a>
-                </li>
-                <li>
-                    <a href="javascript:void(0);" class="has-arrow waves-effect">
-                        <i class="bx bxs-building-house"></i>
-                        <span key="t-gudang">Gudang</span>
-                    </a>
-                    <ul class="sub-menu">
-                        <li>
-                            <a href="{{ route('gudang') }}" key="t-data-gudang">Data Gudang</a>
-                        </li>
-                        <li>
-                            <a href="{{ route('mesin') }}" key="t-mesin">Data Mesin</a>
-                        </li>
-                        <li>
-                            <a href="{{ route('jenis-mesin') }}" key="t-jenis-mesin">Data Jenis Mesin</a>
-                        </li>
-                    </ul>
-                </li>
-                <li>
-                    <a href="{{ route('supplier') }}" class="waves-effect">
-                        <i class="bx bxs-business"></i>
-                        <span key="t-supplier">Supplier</span>
-                    </a>
-                </li> --}}
 
                         <li class="menu-title" key="t-transactions">Transaksi</li>
 
@@ -88,9 +58,9 @@
                             </a>
                         </li>
                         <li>
-                            <a href="#" class="waves-effect">
+                            <a href="{{ route('pengiriman-gudang-utama.history') }}" class="waves-effect">
                                 <i class="bx bx-task"></i>
-                                <span key="t-kasir">Pengiriman Barang</span>
+                                <span key="t-kirim">Pengiriman Barang</span>
                             </a>
                         </li>
                     @endif

@@ -127,7 +127,7 @@ Route::middleware('user')->group(function () {
         Route::get('/penerimaan-barang', 'indexTerima')->name('penerimaan-barang');
         Route::get('/penerimaan-barang/create/{no_krmskm}', 'createTerima')->name('penerimaan-barang.create');
         Route::post('/penerimaan-barang/store', 'storeTerima')->name('penerimaan-barang.store');
-        Route::get('/penerimaan-barang/detail/{no_reqskm}', 'indexDetail')->name('penerimaan-barang.indexDetail');
+        Route::get('/penerimaan-barang/detail', 'showterimaDetail')->name('penerimaan-barang.showterimaDetail');
     });
 
     Route::controller(TrKrmSKMController::class)->group(function () {
@@ -137,6 +137,8 @@ Route::middleware('user')->group(function () {
         Route::get('/pengiriman-gudang-utama/detail', 'showDetail')->name('pengiriman-gudang-utama.showDetail');
         Route::get('/pengiriman-gudang-utama/edit/{no_krmskm}', 'edit')->name('pengiriman-gudang-utama.edit');
         Route::get('/pengiriman-gudang-utama/update/{no_krmskm}', 'update')->name('pengiriman-gudang-utama.update');
+        Route::get('/pengiriman-gudang-utama/history', 'indexHistory')->name('pengiriman-gudang-utama.history');
+        Route::get('/pengiriman-gudang-utama/history/detail', 'showDetailHistory')->name('pengiriman-gudang-utama.showDetailHistory');
     });
 
     Route::controller(TrKrmMsnController::class)->group(function () {

@@ -4,20 +4,34 @@
     Penerimaan Barang
 @endsection
 
+@push('after-app-style')
+    <style>
+        .check-barang {
+            width: 18px;
+            height: 18px;
+        }
+    </style>
+@endpush
+
 @push('after-app-script')
     <script src="{{ asset('assets/libs/datatables.net/js/jquery.dataTables.min.js') }}"></script>
     <script src="{{ asset('assets/libs/datatables.net-bs4/js/dataTables.bootstrap4.min.js') }}"></script>
-    <!-- Responsive examples -->
     <script src="{{ asset('assets/libs/datatables.net-responsive/js/dataTables.responsive.min.js') }}"></script>
     <script src="{{ asset('assets/libs/datatables.net-responsive-bs4/js/responsive.bootstrap4.min.js') }}"></script>
     <script src="{{ asset('assets/js/pages/datatables.init.js') }}"></script>
     <script>
         var no_krmskm = "{{ $no_krmskm }}";
+        let selectedBarang = [];
 
         $('#showDataCheckButton').on('click', function() {
             if ($.fn.DataTable.isDataTable('#datatable-check')) {
+                selectedBarang = [];
+                $('#datatable-check input.check-barang:checked').each(function() {
+                    selectedBarang.push($(this).val());
+                });
                 $('#datatable-check').DataTable().clear().destroy();
             }
+
             $('#datatable-check').DataTable({
                 ajax: {
                     url: "{{ url('penerimaan-barang/create') }}/" + no_krmskm,
@@ -40,96 +54,32 @@
                         data: "satuan_beli"
                     },
                     {
-                        data: "action"
+                        data: null,
+                        render: (data, type, row) => {
+                            let checked = selectedBarang.includes(row.brg_id) ? 'checked' : '';
+                            return `<input type="checkbox" class="check-barang" value="${row.brg_id}" ${checked}>`;
+                        }
                     }
                 ],
             });
             $('#dataCheck').modal('show');
         });
 
-        $('#showDataPermintaanButton').on('click', function() {
-            if ($.fn.DataTable.isDataTable('#datatable-minta')) {
-                $('#datatable-kirim').DataTable().clear().destroy();
-            }
-            $('#datatable-minta').DataTable({
-                ajax: {
-                    url: "{{ url('penerimaan-barang/create') }}/" + no_krmskm,
-                    data: {
-                        type: 'data_reqs'
-                    }
-                },
-                lengthMenu: [5],
-                columns: [{
-                        data: null,
-                        render: (data, type, row, meta) => meta.row + 1
-                    },
-                    {
-                        data: "nm_brg"
-                    },
-                    {
-                        data: "qty_beli"
-                    },
-                    {
-                        data: "satuan_beli"
-                    }
-                ],
-            });
-            $('#dataMinta').modal('show');
-        });
-
-        $('#showDataPengirimanButton').on('click', function() {
-            if ($.fn.DataTable.isDataTable('#datatable-kirim')) {
-                $('#datatable-kirim').DataTable().clear().destroy();
-            }
-            $('#datatable-kirim').DataTable({
-                ajax: {
-                    url: "{{ url('penerimaan-barang/create') }}/" + no_krmskm,
-                    data: {
-                        type: 'data_krms'
-                    }
-                },
-                lengthMenu: [5],
-                columns: [{
-                        data: null,
-                        render: (data, type, row, meta) => meta.row + 1
-                    },
-                    {
-                        data: "barang.nm_brg"
-                    },
-                    {
-                        data: "qty_beli"
-                    },
-                    {
-                        data: "satuan_beli"
-                    }
-                ],
-            });
-            $('#dataKirim').modal('show');
-        });
-
-        let selectedBarang = [];
-
-        $('#datatable-check').on('click', '.check-barang', function(e) {
+        $('#datatable-check').on('click', '.check-barang', function() {
             let barangId = $(this).val();
-
             if ($(this).prop('checked')) {
                 selectedBarang.push(barangId);
             } else {
-                selectedBarang = selectedBarang.filter(item => item !==
-                    barangId);
+                selectedBarang = selectedBarang.filter(item => item !== barangId);
             }
-
             console.log(selectedBarang);
         });
 
         $('form').on('submit', function(e) {
             $('#items-container').empty();
-
             selectedBarang.forEach(function(barangId) {
-                $('#items-container').append(
-                    '<input type="hidden" name="brg_id[]" value="' + barangId +
-                    '">'
-                );
+                $('#items-container').append('<input type="hidden" name="brg_id[]" value="' + barangId +
+                    '">');
             });
         });
     </script>
