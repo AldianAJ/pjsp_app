@@ -104,25 +104,11 @@
                             </a>
                         </li>
 
-                        {{-- <li class="menu-title" key="t-apps">Data Master</li>
-                <li>
-                    <a href="{{ route('barang') }}" class="waves-effect">
-                        <i class="bx bxs-component"></i>
-                        <span key="t-gudang">Barang</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="{{ route('stok-skm') }}" class="waves-effect">
-                        <i class="bx bxs-component"></i>
-                        <span key="t-stok-skm">Stok SKM</span>
-                    </a>
-                </li> --}}
                         <li class="menu-title" key="t-apps">Laporan</li>
-
                         <li>
                             <a href="{{ route('stok') }}" class="waves-effect">
                                 <i class="bx bxs-component"></i>
-                                <span key="t-stok-gudang">Stok</span>
+                                <span key="t-stok-skm">Stok</span>
                             </a>
                         </li>
                         <li>
@@ -131,6 +117,7 @@
                                 <span key="t-mutasi">Mutasi</span>
                             </a>
                         </li>
+
                         <li class="menu-title" key="t-apps">Kinerja SKM</li>
                         <li>
                             <a href="{{ route('kinerja-minggu') }}" class="waves-effect">

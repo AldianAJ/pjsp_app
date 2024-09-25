@@ -27,7 +27,7 @@ class TrTrmSupController extends Controller
         $user = $this->userAuth();
         $path = 'stok-masuk.';
 
-        $suppliers = Supplier::all();
+        $suppliers = Supplier::where('status', 0)->get();
 
         if ($request->ajax()) {
             $supplier_id = $request->get('supplier_id');
@@ -123,6 +123,8 @@ class TrTrmSupController extends Controller
 
             $id = str_pad(TrStok::count() + 1, 3, '0', STR_PAD_LEFT);
             $stok_id = "{$gudang_id}/{$item['brg_id']}/{$id}";
+            $suppliers = Supplier::where('supplier_id', $request->supplier_id)->value('nama');
+            $ket = "Penerimaan barang dari ". $suppliers;
 
             $masuk = $item['qty_beli'];
 
@@ -132,6 +134,7 @@ class TrTrmSupController extends Controller
                 'brg_id' => $item['brg_id'],
                 'gudang_id' => $gudang_id,
                 'doc_id' => $no_trm,
+                'ket' => $ket,
                 'awal' => 0,
                 'masuk' => $masuk,
                 'keluar' => 0,

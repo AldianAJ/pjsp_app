@@ -9,6 +9,8 @@ use App\Models\Admin\Gudang;
 use App\Models\Admin\TrStok;
 use App\Models\Admin\TrKrmSKM;
 use App\Models\Admin\TrKrmSKMDetail;
+use App\Models\Admin\TrReqSKM;
+use App\Models\Admin\TrReqSKMDetail;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Yajra\DataTables\DataTables;
@@ -32,12 +34,11 @@ class TrKrmSKMController extends Controller
         $permintaans = DB::table('tr_reqskm as a')
             ->leftJoin('tr_krmskm_detail as b', 'a.no_reqskm', '=', 'b.no_reqskm')
             ->leftJoin('tr_krmskm as c', 'b.no_krmskm', '=', 'c.no_krmskm')
-            ->select('a.no_reqskm as id', 'a.tgl as tgl_minta', 'c.tgl_krm')
+            ->select('a.no_reqskm as id', 'a.tgl as tgl_minta', 'c.tgl_krm', 'c.no_krmskm')
             ->where('a.status', 0)
             ->distinct()
             ->orderBy('a.no_reqskm', 'desc')
             ->get();
-
 
         $pengirimans = DB::table('tr_krmskm as a')
             ->leftJoin('tr_krmskm_detail as b', 'a.no_krmskm', '=', 'b.no_krmskm')
@@ -57,9 +58,9 @@ class TrKrmSKMController extends Controller
         if ($request->ajax()) {
             return DataTables::of($activeVariable)
                 ->addColumn('action', function ($object) use ($path) {
-                    $no = str_replace('/', '-', $object->no_krmskm);
+                    $no = str_replace('/', '-', $object->id);
                     if (is_null($object->tgl_krm)) {
-                        return '<a href="' . route($path . "create", ["no_krmskm" => $no]) . '" class="btn btn-info waves-effect waves-light mx-1">'
+                        return '<a href="' . route($path . "create", ["no_reqskm" => $no]) . '" class="btn btn-info waves-effect waves-light mx-1">'
                             . '<i class="bx bx-transfer-alt align-middle me-2 font-size-18"></i> Proses</a>';
                     } else {
                         $editButton = '<a href="' . route($path . "edit", ["no_krmskm" => $no]) . '" class="btn btn-success waves-effect waves-light mx-1">'
@@ -82,21 +83,21 @@ class TrKrmSKMController extends Controller
     /**
      * Show the form for creating a new resource.
      */
-    public function create(Request $request, string $no_krmskm)
+    public function create(Request $request, string $no_reqskm)
     {
         $user = $this->userAuth();
-        $no_krm = str_replace('-', '/', $no_krmskm);
+        $no_req = str_replace('-', '/', $no_reqskm);
         $gudang_id = Gudang::where('jenis', 2)->value('gudang_id');
 
         if ($request->ajax()) {
             $type = $request->input('type');
 
             if ($type == 'details') {
-                $details = DB::table('tr_krmskm_detail as a')
+                $details = DB::table('tr_reqskm_detail as a')
                     ->join('m_brg as b', 'a.brg_id', '=', 'b.brg_id')
                     ->join('m_brg_spek as c', 'a.spek_id', '=', 'c.spek_id')
                     ->select('b.brg_id', 'b.nm_brg', 'a.qty_beli', 'a.qty_std', 'a.satuan_beli', 'c.satuan1', 'c.satuan2', 'c.konversi1', 'c.spek_id', 'c.spek')
-                    ->where('no_krmskm', $no_krm)
+                    ->where('a.no_reqskm', $no_req)
                     ->where('a.status', 0)
                     ->get();
 
@@ -113,7 +114,7 @@ class TrKrmSKMController extends Controller
         }
 
 
-        return view('pages.pengiriman-gu.create', compact('user', 'no_krmskm', 'no_krm', 'gudang_id'));
+        return view('pages.pengiriman-gu.create', compact('user', 'no_reqskm', 'no_req', 'gudang_id'));
     }
 
 
@@ -152,7 +153,7 @@ class TrKrmSKMController extends Controller
 
             TrStok::create([
                 'stok_id' => $stok_id,
-                'tgl' => $request->tgl,
+                'tgl' => $request->tgl_krm,
                 'brg_id' => $item['brg_id'],
                 'gudang_id' => $gudang_id,
                 'doc_id' => $no_krmskm,
@@ -164,14 +165,14 @@ class TrKrmSKMController extends Controller
             ]);
         }
 
-        $permintaan = TrKrmskm::where('status', 0)->first();
+        $permintaan = TrReqSKM::where('status', 0)->first();
         if ($permintaan) {
             $permintaan->update([
                 'status' => 1,
             ]);
         }
 
-        TrKrmskmDetail::where('status', 0)->update([
+        TrReqSKMDetail::where('status', 0)->update([
             'status' => 1,
         ]);
 

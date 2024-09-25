@@ -25,16 +25,16 @@ class BarangController extends Controller
     {
         $user = $this->userAuth();
         $path = 'barang.';
-        if($request->ajax()) {
+        if ($request->ajax()) {
             $barangs = Barang::where('status', 0)->get();
             return DataTables::of($barangs)
-            ->addColumn('action', function ($object) use ($path) {
-                $html = '<a href="' . route($path . "edit", ["brg_id" => $object->brg_id]) . '" class="btn btn-success waves-effect waves-light">'
-                    . ' <i class="bx bx-edit align-middle me-2 font-size-18"></i> Edit</a>';
-                return $html;
-            })
-            ->rawColumns(['action'])
-            ->make(true);
+                ->addColumn('action', function ($object) use ($path) {
+                    $html = '<a href="' . route($path . "edit", ["brg_id" => $object->brg_id]) . '" class="btn btn-success waves-effect waves-light">'
+                        . ' <i class="bx bx-edit align-middle me-2 font-size-18"></i> Edit</a>';
+                    return $html;
+                })
+                ->rawColumns(['action'])
+                ->make(true);
         }
         return view('pages.barang.index', compact('user'));
     }
@@ -139,10 +139,26 @@ class BarangController extends Controller
     public function indexStok(Request $request)
     {
         $user = $this->userAuth();
-        if($request->ajax()) {
-            $barangs = TrStok::with('barang')->get();
+        $all_barang = Barang::where('status', 0)->get();
+
+        if ($request->ajax()) {
+            $brg_id = $request->get('brg_id');
+            $date = $request->get('date');
+
+            $barangs = TrStok::with('barang')
+                ->when($brg_id, function ($query, $brg_id) {
+                    return $query->where('brg_id', $brg_id);
+                })
+                ->when($date, function ($query, $date) {
+                    $formattedDate = \Carbon\Carbon::createFromFormat('d-m-Y', $date)->format('Y-m-d');
+                    return $query->whereDate('tgl', $formattedDate);
+                })
+                ->get();
+
             return DataTables::of($barangs)->make(true);
         }
-        return view('pages.stok.index', compact('user'));
+
+        return view('pages.stok.index', compact('user', 'all_barang'));
     }
+
 }
