@@ -2,11 +2,15 @@
 
 namespace App\Http\Controllers\Admin;
 
+use Carbon\Carbon;
 use App\Models\Admin\Shift;
 use Illuminate\Http\Request;
 use Yajra\DataTables\DataTables;
 use App\Models\Admin\TargetMesin;
+use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
+use App\Models\Admin\Closing;
+use App\Models\Admin\DetailClosing;
 use Illuminate\Support\Facades\Auth;
 
 class ClosingController extends Controller
@@ -24,15 +28,20 @@ class ClosingController extends Controller
     {
         $user = $this->userAuth();
         $path = 'kinerja-mesin.';
-        $tgl = '2024-09-23'; // ganti dengan tanggal yang sesuai
+        $tgl = Carbon::parse($request->tgl); // ganti dengan tanggal yang sesuai
         if ($request->ajax()) {
 
-            $targetMesin = TargetMesin::with('targetShift.targetHari.targetWeek.barang')
-                ->with('mesin')
-                ->whereHas('targetShift.targetHari', function ($query) use ($tgl) {
-                    $query->whereDate('tgl', $tgl); // memastikan bahwa tgl adalah kolom tanggal
-                })
-                ->orderby('msn_trgt_id', 'desc')->get();
+            $targetMesin = DB::table('tr_target_mesin as a')
+                ->join('m_mesin as b', 'a.mesin_id', '=', 'b.mesin_id')
+                ->join('tr_target_shift as c', 'a.shift_id', '=', 'c.shift_id')
+                ->join('tr_target_harian as d', 'c.harian_id', '=', 'd.harian_id')
+                ->join('tr_target_week as e', 'd.week_id', '=', 'e.week_id')
+                ->join('m_brg as f', 'e.brg_id', '=', 'f.brg_id')
+                ->where('d.tgl', $tgl)
+                ->where('a.status', 0)
+                ->select('a.msn_trgt_id', 'a.qty', 'a.mesin_id', 'c.shift', 'b.nama', 'b.jenis_id', 'f.nm_brg', 'e.brg_id')
+                ->orderBy('a.msn_trgt_id', 'desc')
+                ->get();
 
             return DataTables::of($targetMesin)
                 ->addColumn('action', function ($object) use ($path) {
@@ -65,11 +74,62 @@ class ClosingController extends Controller
         $request->sisaHasil;
         $request->reject;
         $request->bahan;
-        $sisa = '';
-        foreach ($request->sisaHasil as $key => $value) {
-            $sisa = $value;
+        $sisa = '|';
+        $msn_trgt_id = $request->trgt_id;
+        $produk = $request->produk;
+
+        $closing = Closing::create([
+            'closing_id' => 'CL001',
+            'msn_trgt_id' => $msn_trgt_id,
+            'jenis' => '1',
+        ]);
+        $id = $closing->closing_id;
+        foreach ($request->sisaHasil as $item) {
+            DetailClosing::create([
+                'closing_id' => $id,
+                'brg_id' => $produk,
+                'qty' => $item['value'],
+                'kode' => 1,
+                'satuan' => $item['name'],
+                'cek' => 1,
+            ]);
         }
-        return response()->json(['success' => false, 'message' => 'Target melebihi target mingguan. Sisa target harian : ' . $sisa], 200);
+        foreach ($request->reject as $item) {
+            $brg_id = DB::table('tmp_produk_material as a')
+                ->join('m_brg as b', 'a.brg_id', '=', 'b.brg_id')
+                ->where('a.brg_prod_id', $produk)
+                ->where('a.tahap', 2)
+                ->where('b.nm_brg', 'like', '%' . $item['name'] . '%')
+                ->value('a.brg_id');
+
+            DetailClosing::create([
+                'closing_id' => $id,
+                'brg_id' => $brg_id,
+                'qty' => $item['value'],
+                'kode' => 2,
+                'cek' => 1,
+            ]);
+        }
+        foreach ($request->bahan as $item) {
+            $brg_id = DB::table('tmp_produk_material as a')
+                ->join('m_brg as b', 'a.brg_id', '=', 'b.brg_id')
+                ->where('a.brg_prod_id', $produk)
+                ->where('a.tahap', 3)
+                ->where('b.nm_brg', 'like', '%' . $item['name'] . '%')
+                ->value('a.brg_id');
+
+            DetailClosing::create([
+                'closing_id' => $id,
+                'brg_id' => $brg_id,
+                'qty' => $item['value'],
+                'kode' => 3,
+                'cek' => 1,
+            ]);
+        }
+        TargetMesin::where('msn_trgt_id', $msn_trgt_id)->update([
+            'status' => 1,
+        ]);
+        return response()->json(['success' => true, 'message' => 'Berhasil ditambahkan.'], 200);
     }
 
     /**

@@ -9,7 +9,7 @@ class DetailClosing extends Model
 {
     use HasFactory;
 
-    protected $table = 'tr_detail_closing';
+    protected $table = 'tr_closing_detail';
 
     protected $guarded = [];
 

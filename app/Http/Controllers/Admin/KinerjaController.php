@@ -510,6 +510,7 @@ class KinerjaController extends Controller
             'shift_id' => $request->shift_id,
             'mesin_id' => $request->mesin_id,
             'qty' => $request->qty,
+            'status' => 0,
         ]);
 
         return response()->json(['success' => true, 'message' => 'Target mesin ' . $request->mesin_id . ' berhasil ditambahkan. Sisa target mesin : ' . $sisaBerhasil], 200);

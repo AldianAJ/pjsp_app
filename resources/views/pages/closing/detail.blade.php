@@ -26,14 +26,17 @@ Closing Mesin
                 url: "{{ route('closing-mesin') }}",
                 type: "GET",
             },
+            processing: true,
+            serverSide: true,
+            lengthMenu: [5],
             columns: [{
-                    data: "target_shift.target_hari.target_week.barang.nm_brg"
+                    data: "nm_brg"
                 },
                 {
-                    data: "target_shift.shift"
+                    data: "shift"
                 },
                 {
-                    data: "mesin.nama"
+                    data: "nama"
                 },
                 {
                     data: "action"
@@ -47,15 +50,21 @@ Closing Mesin
             const trgtId = $(this).data('msn-trgt-id');
             const row = $(this).closest('tr');
             const data = $('#datatableDetail').DataTable().row(row).data();
-            const jenis = data.mesin.jenis_id;
-            const id = data.msn_trgt_id;
+            const nm_brg = data.nm_brg;
+            const nm_mesin = data.nama;
+            const shift = data.shift;
+            const jenis = data.jenis_id;
+            const brg_id = data.brg_id;
             if ($(this).hasClass('btn-process') || $(this).hasClass('btn-detailHari')) {
                 window.currentWeekId = trgtId;
                 if (jenis.substring(0, 3) == 'HLP') {
+                    $('#modalTitleHLP').html(`Closing HLP (Shift ${shift}) (${nm_mesin}) (${nm_brg})`);
                     $('#trgt_id').val(trgtId);
                     $('#hlpModal').modal('show');
                 } else if (jenis.substring(0, 2) == 'MK') {
+                    $('#modalTitleMaker').html(`Closing MAKER (Shift ${shift}) (${nm_mesin}) (${nm_brg})`);
                     $('#trgt_id').val(trgtId);
+                    $('#produk').val(brg_id);
                     $('#makerModal').modal('show');
                 }
             }
@@ -87,13 +96,17 @@ Closing Mesin
                 },
                 onFinished: function(event, currentIndex) {
                     if (validateForm(currentIndex)) {
-                        alert("Form submitted!");
+                        // alert("Form submitted!");
                         var sisaHasilData = $("#sisaHasilForm").serializeArray();
                         var rejectData = $("#rejectForm").serializeArray();
                         var bahanData = $("#bahanForm").serializeArray();
+                        var trgtId = $('#trgt_id').val();
+                        var produk = $('#produk').val();
 
                         // Combine all data into one object
                         var combinedData = {
+                            trgt_id: trgtId,
+                            produk: produk,
                             sisaHasil: sisaHasilData,
                             reject: rejectData,
                             bahan: bahanData,
@@ -109,13 +122,20 @@ Closing Mesin
                             success: function(response) {
                                 Swal.fire({
                                     toast: true,
-                                    position: 'bottom-right',
+                                    position: 'top-right',
                                     icon: response.success ? 'success' : 'error',
                                     title: response.message,
                                     showConfirmButton: false,
                                     timer: 5000
                                 });
                                 $('#makerModal').modal('hide');
+                                $("#sisaHasilForm")[0].reset();
+                                $("#rejectForm")[0].reset();
+                                $("#bahanForm")[0].reset();
+                                $('#trgt_id').val('');
+                                $('#produk').val('');
+                                $('#datatableDetail').DataTable().ajax.reload();
+                                $("#form-wizard").steps("setStep", 0);
                             }
                         });
                     }
@@ -169,6 +189,11 @@ Closing Mesin
                 return isValid; // Allow step change if valid
             }
         });
+
+        $('#tgl-input').on('change', function() {
+            var tgl = $(this).val();
+            $('#datatableDetail').DataTable().ajax.url("{{ route('closing-mesin') }}?tgl=" + tgl).load();
+        });
 </script>
 @endpush
 
@@ -188,14 +213,25 @@ Closing Mesin
         <div class="card">
             <div class="card-body">
                 <!-- Filter Toolbar -->
-                <div class="row mb-3">
-                    <div class="col-md-4">
-                        <label for="filterTahun">Tanggal:</label>
-                        <input type="text" name="tgl" id="tgl" class="form-control mb-3"
-                            value="{{ \Carbon\Carbon::now()->format('Y-m-d') }}">
+                <div class="d-flex flex-column">
+                    <div class="row w-75">
+                        <div class="col-sm-4 d-flex me-3">
+                            <div class="mb-3 flex-grow-1">
+                                <label for="filterTahun">Tanggal:</label>
+                                <input type="date" class="form-control" name="tgl" id="tgl-input"
+                                    value="{{ \Carbon\Carbon::now()->format('Y-m-d') }}">
+                            </div>
+                        </div>
+                        <div class="col-sm-4 d-flex me-3">
+                            <div class="mb-3 flex-grow-1">
+                                <label for="filterTahun">Mesin:</label>
+                                <input type="text" class="form-control" name="l" id="t-input"
+                                    value="{{ \Carbon\Carbon::now()->format('Y-m-d') }}">
+                            </div>
+                        </div>
                     </div>
-
                 </div>
+
                 <div class="table-responsive">
                     <table id="datatableDetail" class="table align-middle table-nowrap">
                         <thead class="table-light">
@@ -222,7 +258,7 @@ Closing Mesin
     <div class="modal-dialog modal-xl">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 id="modalTitle" class="modal-title">Closing MAKER</h5>
+                <h5 id="modalTitleMaker" class="modal-title">Closing MAKER</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
@@ -231,22 +267,24 @@ Closing Mesin
                         <div class="card">
                             <div class="card-body">
                                 <div id="form-wizard">
-                                    <h3>Sisa Hasil</h3>
+                                    <h3>Sisa Hasil Produksi</h3>
                                     <section>
+                                        <input type="hidden" id="trgt_id" name="trgt_id">
+                                        <input type="hidden" id="produk" name="produk">
                                         <form id="sisaHasilForm">
                                             <div class="row">
                                                 <?php
                                                 $fields = [
-                                                    ["label" => "TRAY", "placeholder" => "Enter TRAY"],
-                                                    ["label" => "Batangan", "placeholder" => "Enter Batangan"],
-                                                    ["label" => "Batangan Reject", "placeholder" => "Enter Batangan Reject"],
+                                                    ["label" => "TRAY", "placeholder" => "Enter TRAY", "name" => "TRAY"],
+                                                    ["label" => "Batangan", "placeholder" => "Enter Batangan", "name" => "BTG"],
+                                                    ["label" => "Batangan Reject", "placeholder" => "Enter Batangan Reject", "name" => "btg_reject"],
                                                 ];
 
                                                 foreach ($fields as $index => $field) {
                                                     echo '<div class="col-lg-4">
                                                             <div class="mb-3">
                                                                 <label for="input-' . $index . '">' . $field['label'] . '</label>
-                                                                <input type="text" class="form-control" name="bahan[' . $index .']" id="input-' . $index . '" placeholder="' . $field['placeholder'] . '" pattern="\d*" inputmode="numeric" required>
+                                                                <input type="text" class="form-control" name="' . $field['name'] .'" id="input-' . $index . '" placeholder="' . $field['placeholder'] . '" pattern="\d*" inputmode="numeric" required>
                                                             </div>
                                                           </div>';
                                                 }
@@ -255,24 +293,24 @@ Closing Mesin
                                         </form>
                                     </section>
 
-                                    <h3>Reject</h3>
+                                    <h3>Reject Bahan</h3>
                                     <section>
                                         <form id="rejectForm">
                                             <div class="row">
                                                 <?php
                                                 $fields = [
-                                                    ["label" => "Debu", "placeholder" => "Enter Debu"],
-                                                    ["label" => "Sapon", "placeholder" => "Enter Sapon"],
-                                                    ["label" => "CP Reject", "placeholder" => "Enter CP Reject"],
-                                                    ["label" => "Filter Reject", "placeholder" => "Enter Filter Reject"],
-                                                    ["label" => "CTP Reject", "placeholder" => "Enter CTP Reject"],
+                                                    ["label" => "Debu", "placeholder" => "Enter Debu", "name" => "debu"],
+                                                    ["label" => "Sapon", "placeholder" => "Enter Sapon", "name" => "sapon"],
+                                                    ["label" => "CP Reject", "placeholder" => "Enter CP Reject", "name" => "cp"],
+                                                    ["label" => "Filter Reject", "placeholder" => "Enter Filter Reject", "name" => "filter"],
+                                                    ["label" => "CTP Reject", "placeholder" => "Enter CTP Reject", "name" => "ctp"],
                                                 ];
 
                                                 foreach ($fields as $index => $field) {
                                                     echo '<div class="col-lg-4">
                                                             <div class="mb-3">
                                                                 <label for="rejectInput-' . $index . '">' . $field['label'] . '</label>
-                                                                <input type="text" class="form-control" name="bahan[' . $index .']" id="rejectInput-' . $index . '" placeholder="' . $field['placeholder'] . '" pattern="\d*" inputmode="numeric" required>
+                                                                <input type="text" class="form-control" name="' . $field['name'] .'" id="rejectInput-' . $index . '" placeholder="' . $field['placeholder'] . '" pattern="\d*" inputmode="numeric" required>
                                                             </div>
                                                           </div>';
                                                 }
@@ -281,23 +319,23 @@ Closing Mesin
                                         </form>
                                     </section>
 
-                                    <h3>Bahan</h3>
+                                    <h3>Sisa Bahan</h3>
                                     <section>
                                         <form id="bahanForm">
                                             <div class="row">
                                                 <?php
                                                 $fields = [
-                                                    ["label" => "TSG", "placeholder" => "Enter TSG"],
-                                                    ["label" => "CP", "placeholder" => "Enter CP"],
-                                                    ["label" => "Filter", "placeholder" => "Enter Filter"],
-                                                    ["label" => "CTP", "placeholder" => "Enter CTP"],
+                                                    ["label" => "TSG", "placeholder" => "Enter TSG", "name" => "tsg"],
+                                                    ["label" => "CP", "placeholder" => "Enter CP", "name" => "cp"],
+                                                    ["label" => "Filter", "placeholder" => "Enter Filter", "name" => "filter"],
+                                                    ["label" => "CTP", "placeholder" => "Enter CTP", "name" => "ctp"],
                                                 ];
 
                                                 foreach ($fields as $index => $field) {
                                                     echo '<div class="col-lg-4">
                                                             <div class="mb-3">
                                                                 <label for="bahanInput-' . $index . '">' . $field['label'] . '</label>
-                                                                <input type="text" class="form-control" name="bahan[' . $index .']" id="bahanInput-' . $index . '" placeholder="' . $field['placeholder'] . '" pattern="\d*" inputmode="numeric" required>
+                                                                <input type="text" class="form-control" name="' . $field['name'] .'" id="bahanInput-' . $index . '" placeholder="' . $field['placeholder'] . '" pattern="\d*" inputmode="numeric" required>
                                                             </div>
                                                           </div>';
                                                 }
@@ -336,7 +374,7 @@ Closing Mesin
 
                                 <div id="form-hlp">
                                     <!-- Seller Details -->
-                                    <h3>Sisa Hasil</h3>
+                                    <h3>Sisa Hasil Produksi</h3>
                                     <section>
                                         <form>
                                             <?php
@@ -370,7 +408,7 @@ Closing Mesin
                                     </section>
 
                                     <!-- Company Document -->
-                                    <h3>Reject</h3>
+                                    <h3>Reject Bahan</h3>
                                     <section>
                                         <form>
                                             <?php
@@ -408,7 +446,7 @@ Closing Mesin
                                     </section>
 
                                     <!-- Bank Details -->
-                                    <h3>Bahan</h3>
+                                    <h3>SisaBahan</h3>
                                     <section>
                                         <div>
                                             <form>
