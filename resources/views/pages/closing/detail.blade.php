@@ -60,11 +60,13 @@ Closing Mesin
                 if (jenis.substring(0, 3) == 'HLP') {
                     $('#modalTitleHLP').html(`Closing HLP (Shift ${shift}) (${nm_mesin}) (${nm_brg})`);
                     $('#trgt_id').val(trgtId);
+                    resetJQuerySteps('#form-hlp',3);
                     $('#hlpModal').modal('show');
                 } else if (jenis.substring(0, 2) == 'MK') {
                     $('#modalTitleMaker').html(`Closing MAKER (Shift ${shift}) (${nm_mesin}) (${nm_brg})`);
                     $('#trgt_id').val(trgtId);
                     $('#produk').val(brg_id);
+                    resetJQuerySteps('#form-wizard',3);
                     $('#makerModal').modal('show');
                 }
             }
@@ -78,19 +80,35 @@ Closing Mesin
             $('#makerModal').modal('hide');
             $('#form-wizard').submit();
         })
+
+        function resetJQuerySteps(elementTarget, noOfSteps){
+            var noOfSteps = noOfSteps - 1;
+
+            var currentIndex = $(elementTarget).steps("getCurrentIndex");
+                if(currentIndex >= 1){
+                    for(var x = 0; x < currentIndex;x++){
+                        $(elementTarget).steps("previous");
+                    }
+                }
+
+            setTimeout(function resetHeaderCall(){
+            var y, steps;
+                for(y = 0, steps= 2; y < noOfSteps;y++){
+                    //console.log(steps);
+                    try{
+                        $(`${elementTarget} > .steps > ul > li:nth-child(${steps})`).removeClass("done");
+                            $(`${elementTarget} > .steps > ul > li:nth-child(${steps})`).removeClass("current");
+                            $(`${elementTarget} > .steps > ul > li:nth-child(${steps})`).addClass("disabled");
+
+                    }
+                    catch(err){}
+            steps++;
+                }
+            }, 50);
+        }
+
         // form wizard init
         $(function() {
-            $.fn.steps.reset = function () {
-                var wizard = this,
-                options = getOptions(this),
-                state = getState(this);
-                goToStep(wizard, options, state, 0);
-
-                for (i = 1; i < state.stepCount; i++) {
-                    var stepAnchor = getStepAnchor(wizard, i);
-                    stepAnchor.parent().removeClass("done")._enableAria(false);
-                }
-            };
             $("#form-wizard").steps({
                 headerTag: "h3",
                 bodyTag: "section",
@@ -144,8 +162,7 @@ Closing Mesin
                                 $('#trgt_id').val('');
                                 $('#produk').val('');
                                 $('#datatableDetail').DataTable().ajax.reload();
-                                $("#form-wizard").steps('goToStep', 0);
-                                $("#form-wizard").steps('reset');
+                                resetJQuerySteps('#form-wizard',3);
                             }
                         });
                     }
