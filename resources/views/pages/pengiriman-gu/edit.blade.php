@@ -15,6 +15,7 @@
     <script src="{{ asset('assets/libs/datatables.net-responsive-bs4/js/responsive.bootstrap4.min.js') }}"></script>
     <script src="{{ asset('assets/js/pages/datatables.init.js') }}"></script>
     <script src="{{ asset('assets/libs/sweetalert2/sweetalert2.min.js') }}"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/autonumeric/4.10.5/autoNumeric.min.js"></script>
 
     <script>
         $(document).ready(function() {
@@ -42,7 +43,7 @@
                             render: function(data, type, row) {
                                 return `
                                     <span class="qty-value" style="width: 5.5rem;">${data}</span>
-                                    <input type="number" class="form-control qty-input d-none" style="width: 5.5rem;" value="${data}">
+                                    <input type="text" class="form-control qty-input d-none" style="width: 5.5rem;" value="${data}">
                                 `;
                             }
                         },
@@ -54,7 +55,7 @@
                             render: function(data, type, row) {
                                 return `
                                     <span class="qty-value-konversi" style="width: 5.5rem;">${data}</span>
-                                    <input type="number" class="form-control qty-input-konversi d-none" style="width: 5.5rem;" value="${data}">
+                                    <input type="text" class="form-control qty-input-konversi d-none" style="width: 5.5rem;" value="${data}">
                                 `;
                             }
                         },
@@ -74,6 +75,7 @@
                     ],
                     rowCallback: function(row, data) {
                         $(row).attr('data-brg-id', data.brg_id);
+                        $(row).data('konversi1', data.konversi1);
                     }
                 });
             }
@@ -89,6 +91,9 @@
 
             $('#editDataBarangModal').on('click', '.edit-btn', function() {
                 var $row = $(this).closest('tr');
+                var konversi = parseFloat($row.data(
+                    'konversi1'));
+
                 $row.find('.qty-value').addClass('d-none');
                 $row.find('.qty-value-konversi').addClass('d-none');
                 $row.find('.qty-input').removeClass('d-none');
@@ -96,12 +101,49 @@
                 $(this).addClass('d-none');
                 $row.find('.save-btn').removeClass('d-none');
                 $row.find('.cancel-btn').removeClass('d-none');
+
+                new AutoNumeric($row.find('.qty-input')[0], {
+                    decimalCharacter: ',',
+                    digitGroupSeparator: '.'
+                });
+                new AutoNumeric($row.find('.qty-input-konversi')[0], {
+                    decimalCharacter: ',',
+                    digitGroupSeparator: '.'
+                });
+
+                $row.find('.qty-input').on('input', function() {
+                    var qtyBeli = parseFloat(AutoNumeric.getNumber(this)) ||
+                        0;
+                    var qtyStd = qtyBeli * konversi;
+                    $row.find('.qty-input-konversi').val(AutoNumeric.format(
+                        qtyStd));
+                });
+
+                $row.find('.qty-input-konversi').on('input', function() {
+                    var qtyStd = parseFloat(AutoNumeric.getNumber(this)) ||
+                        0;
+                    var qtyBeli = qtyStd / konversi;
+                    $row.find('.qty-input').val(AutoNumeric.format(
+                        qtyBeli));
+                });
             });
 
             $('#editDataBarangModal').on('click', '.save-btn', function() {
                 var $row = $(this).closest('tr');
-                var qty_beli = $row.find('.qty-input').val();
-                var qty_std = $row.find('.qty-input-konversi').val();
+                var qtyInput = $row.find('.qty-input');
+                var qtyInputKonversi = $row.find('.qty-input-konversi');
+
+                new AutoNumeric(qtyInput[0], {
+                    decimalCharacter: ',',
+                    digitGroupSeparator: '.'
+                });
+                new AutoNumeric(qtyInputKonversi[0], {
+                    decimalCharacter: ',',
+                    digitGroupSeparator: '.'
+                });
+
+                var qty_beli = AutoNumeric.getNumber(qtyInput[0]);
+                var qty_std = AutoNumeric.getNumber(qtyInputKonversi[0]);
                 var brg_id = $row.data('brg-id');
 
                 $.ajax({

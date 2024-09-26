@@ -155,7 +155,7 @@ class TrKrmSKMController extends Controller
 
             TrStok::create([
                 'stok_id' => $stok_id,
-                'tgl' => $request->tgl_krm,
+                'tgl_krm' => $request->tgl_krm,
                 'brg_id' => $item['brg_id'],
                 'gudang_id' => $gudang_id,
                 'doc_id' => $no_krmskm,
@@ -220,7 +220,7 @@ class TrKrmSKMController extends Controller
                 $details = DB::table('tr_krmskm_detail as a')
                     ->join('m_brg as b', 'a.brg_id', '=', 'b.brg_id')
                     ->join('m_brg_spek as c', 'a.spek_id', '=', 'c.spek_id')
-                    ->select('b.brg_id', 'b.nm_brg as nama', 'a.qty_beli', 'a.satuan_beli', 'a.qty_std', 'a.satuan_std')
+                    ->select('b.brg_id', 'b.nm_brg as nama', 'a.qty_beli', 'a.satuan_beli', 'a.qty_std', 'a.satuan_std','c.konversi1')
                     ->where('no_krmskm', $no_krm)
                     ->where('a.status', 0)
                     ->get();
@@ -234,18 +234,8 @@ class TrKrmSKMController extends Controller
 
                 return DataTables::of($barangs)->make(true);
 
-            } elseif ($type == 'speks') {
-                $speks = DB::table('m_brg_spek as a')
-                    ->join('m_brg as b', 'a.brg_id', '=', 'b.brg_id')
-                    ->select('b.brg_id', 'b.nm_brg', 'a.satuan1', 'a.satuan2', 'a.konversi1', 'a.spek_id', 'a.spek')
-                    ->where('a.brg_id', $request->brg_id)
-                    ->where('a.status', 0)
-                    ->get();
-
-                return DataTables::of($speks)->make(true);
-            }
+            } 
         }
-
 
         return view('pages.pengiriman-gu.edit', compact('user', 'tgl_krm', 'no_krmskm', 'no_krm', 'no_req'));
     }
@@ -257,6 +247,7 @@ class TrKrmSKMController extends Controller
     {
         $no_krm = str_replace('-', '/', $no_krmskm);
         $responseMessage = '';
+        $data_tr_stok = TrStok::where('doc_id', $no_krm)->first();
 
         if (!empty($request->items)) {
             foreach ($request->items as $item) {
@@ -270,6 +261,13 @@ class TrKrmSKMController extends Controller
                         'qty_beli' => $item['qty_beli'],
                         'qty_std' => $item['qty_std']
                     ]);
+
+                    $keluar = $item['qty_beli'];
+                    $data_tr_stok->update([
+                        'keluar' => $keluar,
+                        'cek' => 1,
+                    ]);
+                    
                     $responseMessage = 'Data ' . $nama . ' berhasil diubah. Menjadi Qty : ' . $item['qty_beli'];
                 }
             }

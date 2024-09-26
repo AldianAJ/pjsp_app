@@ -153,7 +153,7 @@ class TrReqSKMController extends Controller
                 $details = DB::table('tr_reqskm_detail as a')
                     ->join('m_brg as b', 'a.brg_id', '=', 'b.brg_id')
                     ->join('m_brg_spek as c', 'a.spek_id', '=', 'c.spek_id')
-                    ->select('b.brg_id', 'b.nm_brg as nama', 'a.qty_beli', 'a.satuan_beli', 'a.qty_std', 'a.satuan_std', 'c.konversi1') // Adjust this line
+                    ->select('b.brg_id', 'b.nm_brg as nama', 'a.qty_beli', 'a.satuan_beli', 'a.qty_std', 'a.satuan_std', 'c.konversi1') 
                     ->where('no_reqskm', $no_req)
                     ->where('a.status', 0)
                     ->get();

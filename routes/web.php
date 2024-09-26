@@ -136,7 +136,7 @@ Route::middleware('user')->group(function () {
         Route::post('/pengiriman-gudang-utama/store', 'store')->name('pengiriman-gudang-utama.store');
         Route::get('/pengiriman-gudang-utama/detail', 'showDetail')->name('pengiriman-gudang-utama.showDetail');
         Route::get('/pengiriman-gudang-utama/edit/{no_krmskm}', 'edit')->name('pengiriman-gudang-utama.edit');
-        Route::get('/pengiriman-gudang-utama/update/{no_krmskm}', 'update')->name('pengiriman-gudang-utama.update');
+        Route::post('/pengiriman-gudang-utama/update/{no_krmskm}', 'update')->name('pengiriman-gudang-utama.update');
         Route::get('/pengiriman-gudang-utama/history', 'indexHistory')->name('pengiriman-gudang-utama.history');
         Route::get('/pengiriman-gudang-utama/history/detail', 'showDetailHistory')->name('pengiriman-gudang-utama.showDetailHistory');
     });
