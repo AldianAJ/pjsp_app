@@ -78,8 +78,9 @@ class ClosingController extends Controller
         $msn_trgt_id = $request->trgt_id;
         $produk = $request->produk;
 
+        $closing_id = 'CL' . str_pad(Closing::count() + 1, 3, '0', STR_PAD_LEFT);
         $closing = Closing::create([
-            'closing_id' => 'CL001',
+            'closing_id' => $closing_id,
             'msn_trgt_id' => $msn_trgt_id,
             'jenis' => '1',
         ]);

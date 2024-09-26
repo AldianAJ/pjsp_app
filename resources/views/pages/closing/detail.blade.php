@@ -78,9 +78,19 @@ Closing Mesin
             $('#makerModal').modal('hide');
             $('#form-wizard').submit();
         })
-
         // form wizard init
         $(function() {
+            $.fn.steps.reset = function () {
+                var wizard = this,
+                options = getOptions(this),
+                state = getState(this);
+                goToStep(wizard, options, state, 0);
+
+                for (i = 1; i < state.stepCount; i++) {
+                    var stepAnchor = getStepAnchor(wizard, i);
+                    stepAnchor.parent().removeClass("done")._enableAria(false);
+                }
+            };
             $("#form-wizard").steps({
                 headerTag: "h3",
                 bodyTag: "section",
@@ -113,7 +123,6 @@ Closing Mesin
                             _token: "{{ csrf_token() }}"
                         };
 
-                        console.log(combinedData); // Log the data for testing purposes
                         // Send updated data to server via AJAX
                         $.ajax({
                             url: "{{ route('closing-mesin.store') }}", // Replace with your update route
@@ -135,7 +144,8 @@ Closing Mesin
                                 $('#trgt_id').val('');
                                 $('#produk').val('');
                                 $('#datatableDetail').DataTable().ajax.reload();
-                                $("#form-wizard").steps("setStep", 0);
+                                $("#form-wizard").steps('goToStep', 0);
+                                $("#form-wizard").steps('reset');
                             }
                         });
                     }
