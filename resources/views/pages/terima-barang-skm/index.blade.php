@@ -1,26 +1,27 @@
 @extends('layouts.app')
 
 @section('title')
-    Penerimaan Barang
+Penerimaan Barang
 @endsection
 
 @push('after-style')
-    <!-- Sweet Alert-->
-    <link href="{{ asset('assets/libs/sweetalert2/sweetalert2.min.css') }}" rel="stylesheet" type="text/css" />
+<!-- Sweet Alert-->
+<link href="{{ asset('assets/libs/sweetalert2/sweetalert2.min.css') }}" rel="stylesheet" type="text/css" />
 @endpush
 
 @push('after-app-script')
-    <script src="{{ asset('assets/libs/datatables.net/js/jquery.dataTables.min.js') }}"></script>
-    <script src="{{ asset('assets/libs/datatables.net-bs4/js/dataTables.bootstrap4.min.js') }}"></script>
-    <!-- Responsive examples -->
-    <script src="{{ asset('assets/libs/datatables.net-responsive/js/dataTables.responsive.min.js') }}"></script>
-    <script src="{{ asset('assets/libs/datatables.net-responsive-bs4/js/responsive.bootstrap4.min.js') }}"></script>
-    <script src="{{ asset('assets/js/pages/datatables.init.js') }}"></script>
-    <script>
-        let mainTable;
+<script src="{{ asset('assets/libs/datatables.net/js/jquery.dataTables.min.js') }}"></script>
+<script src="{{ asset('assets/libs/datatables.net-bs4/js/dataTables.bootstrap4.min.js') }}"></script>
+<!-- Responsive examples -->
+<script src="{{ asset('assets/libs/datatables.net-responsive/js/dataTables.responsive.min.js') }}"></script>
+<script src="{{ asset('assets/libs/datatables.net-responsive-bs4/js/responsive.bootstrap4.min.js') }}"></script>
+<script src="{{ asset('assets/js/pages/datatables.init.js') }}"></script>
+<script>
+    let mainTable;
 
         mainTable = $('#datatable').DataTable({
             ajax: "{{ route('penerimaan-barang') }}",
+            ordering: false,
             columns: [{
                     data: "no_krmskm"
                 },
@@ -94,57 +95,32 @@
 
             $('#detailModal').modal('show');
         });
-    </script>
+</script>
 @endpush
 
 @section('content')
-    <!-- start page title -->
-    <div class="row">
-        <div class="col-12">
-            <div class="page-title-box d-sm-flex align-items-center justify-content-between">
-                <h4 class="mb-sm-0 font-size-18">Penerimaan Barang</h4>
-            </div>
+<!-- start page title -->
+<div class="row">
+    <div class="col-12">
+        <div class="page-title-box d-sm-flex align-items-center justify-content-between">
+            <h4 class="mb-sm-0 font-size-18">Penerimaan Barang</h4>
         </div>
     </div>
-    <!-- end page title -->
+</div>
+<!-- end page title -->
 
-    <div class="row">
-        <div class="col-12">
-            <div class="card">
-                <div class="card-body">
-                    <div class="table-responsive">
-                        <table id="datatable" class="table align-middle table-nowrap">
-                            <thead class="table-light">
-                                <tr>
-                                    <th>No. Dokumen</th>
-                                    <th>Tanggal Pengiriman</th>
-                                    <th>Tanggal Penerimaan</th>
-                                    <th>Action</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="modal modal-md fade" id="detailModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalLabel">Detail Barang - <span id="id-krm"></span></h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <table class="table table-bordered dt-responsive nowrap w-100" id="detail-datatable">
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table id="datatable" class="table align-middle table-nowrap">
                         <thead class="table-light">
                             <tr>
-                                <th>Nama Barang</th>
-                                <th>Qty</th>
-                                <th>Satuan</th>
+                                <th>No. Dokumen</th>
+                                <th>Tanggal Pengiriman</th>
+                                <th>Tanggal Penerimaan</th>
+                                <th>Action</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -154,14 +130,39 @@
             </div>
         </div>
     </div>
+</div>
 
-    @if (session()->has('success'))
-        <script src="{{ asset('assets/libs/sweetalert2/sweetalert2.min.js') }}"></script>
-        <script>
-            document.addEventListener('DOMContentLoaded', function() {
+<div class="modal modal-md fade" id="detailModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Detail Barang - <span id="id-krm"></span></h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <table class="table table-bordered dt-responsive nowrap w-100" id="detail-datatable">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Nama Barang</th>
+                            <th>Qty</th>
+                            <th>Satuan</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+@if (session()->has('success'))
+<script src="{{ asset('assets/libs/sweetalert2/sweetalert2.min.js') }}"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
                 Swal.fire({
                     toast: true,
-                    position: 'bottom-right',
+                    position: 'top-right',
                     icon: 'success',
                     title: '{{ session('success') }}',
                     showConfirmButton: false,
@@ -176,6 +177,6 @@
                     showCloseButton: true
                 });
             });
-        </script>
-    @endif
+</script>
+@endif
 @endsection

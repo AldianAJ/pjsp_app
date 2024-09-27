@@ -43,7 +43,7 @@ Edit Permintaan
                             render: function(data, type, row) {
                                 return `
                                     <span class="qty-value" style="width: 5.5rem;">${data}</span>
-                                    <input type="text" class="form-control qty-input d-none" style="width: 5.5rem;" value="${data}">
+                                    <input type="text" inputmode="numeric" class="form-control qty-input d-none" style="width: 5.5rem;" value="${data}">
                                 `;
                             }
                         },
@@ -55,7 +55,7 @@ Edit Permintaan
                             render: function(data, type, row) {
                                 return `
                                     <span class="qty-value-konversi" style="width: 5.5rem;">${data}</span>
-                                    <input type="text" class="form-control qty-input-konversi d-none" style="width: 5.5rem;" value="${data}">
+                                    <input type="text" inputmode="numeric" class="form-control qty-input-konversi d-none" style="width: 5.5rem;" value="${data}">
                                 `;
                             }
                         },
@@ -111,7 +111,7 @@ Edit Permintaan
                     digitGroupSeparator: '.'
                 });
 
-                $row.find('.qty-input').on('input', function() {
+                $row.find('.qty-input').on('keyup', function() {
                     var qtyBeli = parseFloat(AutoNumeric.getNumber(this)) ||
                         0;
                     var qtyStd = qtyBeli * konversi;
@@ -119,7 +119,7 @@ Edit Permintaan
                         qtyStd));
                 });
 
-                $row.find('.qty-input-konversi').on('input', function() {
+                $row.find('.qty-input-konversi').on('keyup', function() {
                     var qtyStd = parseFloat(AutoNumeric.getNumber(this)) ||
                         0;
                     var qtyBeli = qtyStd / konversi;

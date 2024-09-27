@@ -25,23 +25,28 @@ class TrKrmMsnController extends Controller
     public function index(Request $request)
     {
         $user = $this->userAuth();
-        $path = 'pengiriman-skm.';
+        $path = 'permintaan-skm.';
 
         if ($request->ajax()) {
-            $pengirimans = TrKrmMsn::where('status', 0)->get();
-            return DataTables::of($pengirimans)
+            $permintaans = TrReqSKM::where('status', 0)
+                ->orderBy('no_reqskm', 'desc')
+                ->get();
+
+            return DataTables::of($permintaans)
                 ->addColumn('action', function ($object) use ($path) {
-                    $html = '<a href="' . route($path . "edit", ["no_krmmsn" => $object->no_krmmsn]) . '" class="btn btn-secondary waves-effect waves-light mx-1">'
+                    $no = str_replace('/', '-', $object->no_reqskm);
+                    $html = '<a href="' . route($path . "edit", ["no_reqskm" => $no]) . '" class="btn btn-success waves-effect waves-light mx-1">'
                         . ' <i class="bx bx-edit align-middle me-2 font-size-18"></i> Edit</a>';
+                    $html .= '<button class="btn btn-secondary waves-effect waves-light btn-detail me-2" data-bs-toggle="modal" data-bs-target="#detailModal">'
+                        . '<i class="bx bx-detail font-size-18 align-middle me-2"></i>Detail</button>';
                     return $html;
                 })
                 ->rawColumns(['action'])
                 ->make(true);
         }
 
-        return view('pages.pengiriman-skm.index', compact('user'));
+        return view('pages.permintaan-skm.index', compact('user'));
     }
-
 
     /**
      * Show the form for creating a new resource.
@@ -49,99 +54,75 @@ class TrKrmMsnController extends Controller
     public function create(Request $request)
     {
         $user = $this->userAuth();
-        $tgl = $request->tgl;
-
-        $targetMesin = TargetMesin::with('targetShift.targetHari.targetWeek.barang')
-            ->whereHas('targetShift.targetHari', function ($query) use ($tgl) {
-                $query->whereDate('tgl', $tgl);
-            })
-            ->with('mesin')
-            ->orderby('msn_trgt_id', 'desc')
-            ->get();
+        $gudang_id = Gudang::where('jenis', 2)->value('gudang_id');
 
         if ($request->ajax()) {
-            $barangs = Barang::where('status', 0)->get();
-            return DataTables::of($barangs)
-                ->addColumn('action', function ($object) {
-                    $html = '<div class="d-flex justify-content-center">
-                            <button class="btn btn-primary waves-effect waves-light btn-add" data-bs-toggle="modal"
-                            data-bs-target="#qtyModal">
-                                <i class="bx bx-plus-circle align-middle font-size-18"></i>
-                            </button>
-                         </div>';
-                    return $html;
-                })
-                ->rawColumns(['action'])
-                ->make(true);
+            $type = $request->input('type');
+
+            if ($type == 'barangs') {
+
+                $barangs = Barang::where('status', 0)
+                    ->orderBy('brg_id', 'asc')
+                    ->get();
+
+                return DataTables::of($barangs)->make(true);
+
+            } elseif ($type == 'speks') {
+                $speks = DB::table('m_brg_spek as a')
+                    ->join('m_brg as b', 'a.brg_id', '=', 'b.brg_id')
+                    ->select('b.brg_id', 'b.nm_brg', 'a.satuan1', 'a.satuan2', 'a.konversi1', 'a.spek_id', 'a.spek')
+                    ->where('a.brg_id', $request->brg_id)
+                    ->where('a.status', 0)
+                    ->get();
+
+                return DataTables::of($speks)->make(true);
+            }
         }
-
-        return view('pages.pengiriman-skm.create', compact('user'));
+        return view('pages.permintaan-skm.create', compact('user', 'gudang_id'));
     }
-
-
-
 
     /**
      * Store a newly created resource in storage.
      */
     public function store(Request $request)
     {
-        $no_krmmsn = 'TBI/SKM' . '/' . date('y/m/' . str_pad(TrKrmMsn::count() + 1, 3, '0', STR_PAD_LEFT));
+        $no_reqskm = 'FPB/SKM' . '/' . date('y/m/' . str_pad(TrReqSKM::count() + 1, 3, '0', STR_PAD_LEFT));
+        $gudang_id = $request->gudang_id;
 
-        $msn_trgt_id = $request->msn_trgt_id;
-
-        $krmMSN = TrKrmMsn::create([
-            'no_krmmsn' => $no_krmmsn,
+        TrReqSKM::create([
+            'no_reqskm' => $no_reqskm,
             'tgl' => $request->tgl,
-            'msn_trgt_id' => $msn_trgt_id,
+            'gudang_id' => $gudang_id,
         ]);
 
         foreach ($request->items as $item) {
-            TrKrmMsnDetail::create([
-                'no_krmmsn' => $no_krmmsn,
+            TrReqSKMDetail::create([
+                'no_reqskm' => $no_reqskm,
                 'brg_id' => $item['brg_id'],
-                'qty' => $item['qty'],
-                'satuan_besar' => $item['satuan_besar'],
+                'spek_id' => $item['spek_id'],
+                'qty_beli' => $item['qty_beli'],
+                'satuan_beli' => $item['satuan_beli'],
+                'qty_std' => $item['qty_std'],
+                'satuan_std' => $item['satuan_std'],
+                'ket' => $item['ket'],
             ]);
         }
 
-        return redirect()->route('pengiriman-skm')->with('success', 'Data pengiriman berhasil ditambahkan.');
+        return redirect()->route('permintaan-skm')->with('success', 'Data permintaan berhasil ditambahkan.');
     }
 
     /**
      * Display the specified resource.
      */
-    public function show()
+    public function showDetail(Request $request)
     {
-        //
-    }
+        $details = DB::table('tr_reqskm as a')
+            ->join('tr_reqskm_detail as b', 'a.no_reqskm', '=', 'b.no_reqskm')
+            ->join('m_brg as c', 'b.brg_id', '=', 'c.brg_id')
+            ->where('a.no_reqskm', $request->no_reqskm)
+            ->select('c.nm_brg', 'b.qty_beli', 'b.satuan_beli')
+            ->get();
 
-    public function detailKRM()
-    {
-        return view('pages.pengiriman-gu.detail');
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit()
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update()
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy()
-    {
-        //
+        return DataTables::of($details)->make(true);
     }
 }

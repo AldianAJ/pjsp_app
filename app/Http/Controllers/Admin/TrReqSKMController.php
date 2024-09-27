@@ -153,7 +153,7 @@ class TrReqSKMController extends Controller
                 $details = DB::table('tr_reqskm_detail as a')
                     ->join('m_brg as b', 'a.brg_id', '=', 'b.brg_id')
                     ->join('m_brg_spek as c', 'a.spek_id', '=', 'c.spek_id')
-                    ->select('b.brg_id', 'b.nm_brg as nama', 'a.qty_beli', 'a.satuan_beli', 'a.qty_std', 'a.satuan_std', 'c.konversi1') 
+                    ->select('b.brg_id', 'b.nm_brg as nama', 'a.qty_beli', 'a.satuan_beli', 'a.qty_std', 'a.satuan_std', 'c.konversi1')
                     ->where('no_reqskm', $no_req)
                     ->where('a.status', 0)
                     ->get();
@@ -286,10 +286,10 @@ class TrReqSKMController extends Controller
                     ->select('c.nm_brg', 'b.qty_beli', 'b.satuan_beli')
                     ->where('b.status', 1)
                     ->where('no_krmskm', $no_krm)
-                    ->distinct()
                     ->get();
 
-                return DataTables::of($data_reqs)->make(true);
+                    return DataTables::of($data_reqs)->make(true);
+                    
             } elseif ($type == 'data_krms') {
 
                 $data_krms = TrKrmSKMDetail::with('barang')
@@ -310,7 +310,6 @@ class TrReqSKMController extends Controller
                         if (is_null($object->tgl_trm)) {
                             return '<div class="d-flex form-check font-size-18">
                         <input type="checkbox" class="form-check-input check-barang" value="' . $object->brg_id . '"></div>';
-                        } else {
                         }
                     })
                     ->rawColumns(['action'])

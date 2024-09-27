@@ -155,7 +155,7 @@ class TrKrmSKMController extends Controller
 
             TrStok::create([
                 'stok_id' => $stok_id,
-                'tgl_krm' => $request->tgl_krm,
+                'tgl' => $request->tgl_krm,
                 'brg_id' => $item['brg_id'],
                 'gudang_id' => $gudang_id,
                 'doc_id' => $no_krmskm,
@@ -234,7 +234,7 @@ class TrKrmSKMController extends Controller
 
                 return DataTables::of($barangs)->make(true);
 
-            } 
+            }
         }
 
         return view('pages.pengiriman-gu.edit', compact('user', 'tgl_krm', 'no_krmskm', 'no_krm', 'no_req'));
@@ -267,7 +267,7 @@ class TrKrmSKMController extends Controller
                         'keluar' => $keluar,
                         'cek' => 1,
                     ]);
-                    
+
                     $responseMessage = 'Data ' . $nama . ' berhasil diubah. Menjadi Qty : ' . $item['qty_beli'];
                 }
             }
@@ -289,7 +289,7 @@ class TrKrmSKMController extends Controller
             $pengirimans = TrKrmSKM::where('status', 1)
                 ->orderBy('no_krmskm', 'desc')
                 ->get();
-                
+
             return DataTables::of($pengirimans)
                 ->addColumn('action', function () {
                     return '<button class="btn btn-secondary waves-effect waves-light btn-detail me-2" data-bs-toggle="modal" data-bs-target="#detailModal">'
