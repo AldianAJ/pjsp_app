@@ -143,9 +143,13 @@ Route::middleware('user')->group(function () {
 
     Route::controller(TrKrmMsnController::class)->group(function () {
         Route::get('/pengiriman-skm', 'index')->name('pengiriman-skm');
+        Route::get('/pengiriman-skm/detail', 'showDetail')->name('pengiriman-skm.showDetail');
         Route::get('/pengiriman-skm/create', 'create')->name('pengiriman-skm.create');
         Route::post('/pengiriman-skm/store', 'store')->name('pengiriman-skm.store');
         Route::get('/pengiriman-skm/edit/{no_krmmsn}', 'edit')->name('pengiriman-skm.edit');
+        Route::post('/pengiriman-skm/update/{no_krmmsn}', 'update')->name('pengiriman-skm.update');
+        Route::get('/pengiriman-skm/history', 'indexHistory')->name('pengiriman-skm.history');
+        Route::get('/pengiriman-skm/history/detail', 'showDetailHistory')->name('pengiriman-skm.showDetailHistory');
     });
 
     Route::controller(ReturnMesinController::class)->group(function () {
