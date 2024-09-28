@@ -8,6 +8,8 @@ use App\Models\Admin\Barang;
 use App\Models\Admin\TargetMesin;
 use App\Models\Admin\TrKrmMsn;
 use App\Models\Admin\TrKrmMsnDetail;
+use App\Models\Admin\TrStok;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Yajra\DataTables\DataTables;
 
@@ -25,17 +27,17 @@ class TrKrmMsnController extends Controller
     public function index(Request $request)
     {
         $user = $this->userAuth();
-        $path = 'permintaan-skm.';
+        $path = 'pengiriman-skm.';
 
         if ($request->ajax()) {
-            $permintaans = TrReqSKM::where('status', 0)
-                ->orderBy('no_reqskm', 'desc')
+            $pengirimans = TrKrmMsn::where('status', 0)
+                ->orderBy('no_krmmsn', 'desc')
                 ->get();
 
-            return DataTables::of($permintaans)
+            return DataTables::of($pengirimans)
                 ->addColumn('action', function ($object) use ($path) {
-                    $no = str_replace('/', '-', $object->no_reqskm);
-                    $html = '<a href="' . route($path . "edit", ["no_reqskm" => $no]) . '" class="btn btn-success waves-effect waves-light mx-1">'
+                    $no = str_replace('/', '-', $object->no_krmmsn);
+                    $html = '<a href="' . route($path . "edit", ["no_krmmsn" => $no]) . '" class="btn btn-success waves-effect waves-light mx-1">'
                         . ' <i class="bx bx-edit align-middle me-2 font-size-18"></i> Edit</a>';
                     $html .= '<button class="btn btn-secondary waves-effect waves-light btn-detail me-2" data-bs-toggle="modal" data-bs-target="#detailModal">'
                         . '<i class="bx bx-detail font-size-18 align-middle me-2"></i>Detail</button>';
@@ -45,7 +47,7 @@ class TrKrmMsnController extends Controller
                 ->make(true);
         }
 
-        return view('pages.permintaan-skm.index', compact('user'));
+        return view('pages.pengiriman-skm.index', compact('user'));
     }
 
     /**
@@ -54,7 +56,6 @@ class TrKrmMsnController extends Controller
     public function create(Request $request)
     {
         $user = $this->userAuth();
-        $gudang_id = Gudang::where('jenis', 2)->value('gudang_id');
 
         if ($request->ajax()) {
             $type = $request->input('type');
@@ -76,9 +77,28 @@ class TrKrmMsnController extends Controller
                     ->get();
 
                 return DataTables::of($speks)->make(true);
+
+            } elseif ($type == 'shifts') {
+                $date = $request->input('date');
+                $harian = DB::table('tr_target_harian')->where('tanggal', $date)->first();
+
+                if ($harian) {
+                    $shifts = DB::table('tr_target_shift')
+                    ->select('shift')
+                    ->where('harian_id', $harian->harian_id)->get();
+
+                    return DataTables::of($shifts)->make(true);
+                }
+            } elseif ($type == 'machines') {
+                $shiftId = $request->input('shift_id');
+                $machines = DB::table('tr_target_mesin')
+                ->select('')
+                ->where('shift_id', $shiftId)->get();
+
+                return DataTables::of($machines)->make(true);
             }
         }
-        return view('pages.permintaan-skm.create', compact('user', 'gudang_id'));
+        return view('pages.pengiriman-skm.create', compact('user'));
     }
 
     /**
@@ -86,18 +106,18 @@ class TrKrmMsnController extends Controller
      */
     public function store(Request $request)
     {
-        $no_reqskm = 'FPB/SKM' . '/' . date('y/m/' . str_pad(TrReqSKM::count() + 1, 3, '0', STR_PAD_LEFT));
-        $gudang_id = $request->gudang_id;
+        $no_krmmsn = 'TBI/SKM' . '/' . date('y/m/' . str_pad(TrKrmMsn::count() + 1, 3, '0', STR_PAD_LEFT));
+        $msn_trgt_id = $request->msn_trgt_id;
 
-        TrReqSKM::create([
-            'no_reqskm' => $no_reqskm,
+        TrKrmMsn::create([
+            'no_krmmsn' => $no_krmmsn,
+            'msn_trgt_id' => $msn_trgt_id,
             'tgl' => $request->tgl,
-            'gudang_id' => $gudang_id,
         ]);
 
         foreach ($request->items as $item) {
-            TrReqSKMDetail::create([
-                'no_reqskm' => $no_reqskm,
+            TrKrmMsnDetail::create([
+                'no_krmmsn' => $no_krmmsn,
                 'brg_id' => $item['brg_id'],
                 'spek_id' => $item['spek_id'],
                 'qty_beli' => $item['qty_beli'],
@@ -106,9 +126,29 @@ class TrKrmMsnController extends Controller
                 'satuan_std' => $item['satuan_std'],
                 'ket' => $item['ket'],
             ]);
+
+            $id = str_pad(TrStok::count() + 1, 3, '0', STR_PAD_LEFT);
+            $stok_id = "{$gudang_id}/{$item['brg_id']}/{$id}";
+            $keluar = $item['qty_beli'];
+            $gudangs = Gudang::where('gudang_id', $gudang_id)->value('nama');
+            $ket = "Pengiriman barang dari ". $gudangs;
+
+            TrStok::create([
+                'stok_id' => $stok_id,
+                'tgl' => $request->tgl_krm,
+                'brg_id' => $item['brg_id'],
+                'gudang_id' => $gudang_id,
+                'doc_id' => $no_krmskm,
+                'ket' => $ket,
+                'awal' => 0,
+                'masuk' => 0,
+                'keluar' => $keluar,
+                'akhir' => 0,
+                'cek' => 1,
+            ]);
         }
 
-        return redirect()->route('permintaan-skm')->with('success', 'Data permintaan berhasil ditambahkan.');
+        return redirect()->route('pengiriman-skm')->with('success', 'Data permintaan berhasil ditambahkan.');
     }
 
     /**
@@ -117,9 +157,9 @@ class TrKrmMsnController extends Controller
     public function showDetail(Request $request)
     {
         $details = DB::table('tr_reqskm as a')
-            ->join('tr_reqskm_detail as b', 'a.no_reqskm', '=', 'b.no_reqskm')
+            ->join('tr_reqskm_detail as b', 'a.no_krmmsn', '=', 'b.no_krmmsn')
             ->join('m_brg as c', 'b.brg_id', '=', 'c.brg_id')
-            ->where('a.no_reqskm', $request->no_reqskm)
+            ->where('a.no_krmmsn', $request->no_krmmsn)
             ->select('c.nm_brg', 'b.qty_beli', 'b.satuan_beli')
             ->get();
 

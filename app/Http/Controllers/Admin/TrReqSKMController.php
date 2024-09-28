@@ -354,8 +354,8 @@ class TrReqSKMController extends Controller
             $id = str_pad(TrStok::count() + 1, 3, '0', STR_PAD_LEFT);
             $stok_id = "{$gudang_id}/{$barangId}/{$id}";
             $masuk = $qty;
-            $users = User::where("user_id", $penerima)->value('nama');
-            $ket = "Penerimaan barang oleh " . $users;
+            $gudangs = Gudang::where("gudang_id", $gudang_id)->value('nama');
+            $ket = "Penerimaan barang dari " . $gudangs;
 
             TrStok::create([
                 'stok_id' => $stok_id,

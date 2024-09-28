@@ -4,10 +4,10 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Admin\Barang;
-use App\Models\Admin\TrStok;
 use App\Models\Admin\Supplier;
 use Illuminate\Http\Request;
 use Yajra\DataTables\DataTables;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 
 class BarangController extends Controller
@@ -145,7 +145,9 @@ class BarangController extends Controller
             $brg_id = $request->get('brg_id');
             $date = $request->get('date');
 
-            $barangs = TrStok::with('barang')
+            $barangs = DB::table('tr_stok as a')
+                ->join('m_brg as b', 'a.brg_id', '=', 'b.brg_id')
+                ->select('a.tgl', 'b.nm_brg', 'a.doc_id', 'a.ket', 'a.akhir')
                 ->when($brg_id, function ($query, $brg_id) {
                     return $query->where('brg_id', $brg_id);
                 })
@@ -153,12 +155,20 @@ class BarangController extends Controller
                     $formattedDate = \Carbon\Carbon::createFromFormat('d-m-Y', $date)->format('Y-m-d');
                     return $query->whereDate('tgl', $formattedDate);
                 })
+                ->when(auth()->user()->role == 'skm', function ($query) {
+                    return $query->where('a.doc_id', 'LIKE', 'SJ%');
+                })
+                ->when(auth()->user()->role == 'gdb', function ($query) {
+                    return $query->where('a.doc_id', 'LIKE', 'RCV%');
+                })
+                ->orderBy('a.tgl', 'desc')
+                ->orderBy('stok_id','desc')
                 ->get();
+
 
             return DataTables::of($barangs)->make(true);
         }
 
         return view('pages.stok.index', compact('user', 'all_barang'));
     }
-
 }

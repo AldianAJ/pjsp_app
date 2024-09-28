@@ -50,11 +50,12 @@
 
             $(document).ready(function() {
                 if ($.fn.dataTable.isDataTable('#datatable')) {
-                    $('#datatable').DataTable().destroy(); // Hancurkan DataTable yang sudah ada
+                    $('#datatable').DataTable().destroy();
                 }
 
                 $('#datatable').DataTable({
                     ajax: "{{ route('stok') }}",
+                    ordering: false,
                     columns: [{
                             data: null,
                             render: (data, type, row, meta) => meta.row + 1
@@ -70,7 +71,7 @@
                             }
                         },
                         {
-                            data: "barang.nm_brg"
+                            data: "nm_brg"
                         },
                         {
                             data: "doc_id"
