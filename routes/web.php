@@ -110,6 +110,7 @@ Route::middleware('user')->group(function () {
         Route::get('/closing-mesin', 'index')->name('closing-mesin');
         Route::get('/closing-mesin/create', 'create')->name('closing-mesin.create');
         Route::post('/closing-mesin/store', 'store')->name('closing-mesin.store');
+        Route::post('/closing-mesin/store-hlp', 'storeHlp')->name('closing-mesin.storeHlp');
         Route::get('/closing-mesin/edit/{closing_id}', 'edit')->name('closing-mesin.edit');
         Route::post('/closing-mesin/update/{closing_id}', 'update')->name('closing-mesin.update');
     });

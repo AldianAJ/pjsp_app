@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use App\Models\Admin\Closing;
 use App\Models\Admin\DetailClosing;
+use App\Models\Admin\Mesin;
 use Illuminate\Support\Facades\Auth;
 
 class ClosingController extends Controller
@@ -29,6 +30,9 @@ class ClosingController extends Controller
         $user = $this->userAuth();
         $path = 'kinerja-mesin.';
         $tgl = Carbon::parse($request->tgl); // ganti dengan tanggal yang sesuai
+
+        $mesins = Mesin::where('status', 0)->get();
+
         if ($request->ajax()) {
 
             $targetMesin = DB::table('tr_target_mesin as a')
@@ -117,6 +121,75 @@ class ClosingController extends Controller
                 ->where('a.brg_prod_id', $produk)
                 ->where('a.tahap', 3)
                 ->where('b.nm_brg', 'like', '%' . $item['name'] . '%')
+                ->value('a.brg_id');
+
+            DetailClosing::create([
+                'closing_id' => $id,
+                'brg_id' => $brg_id,
+                'qty' => $item['value'],
+                'kode' => 3,
+                'cek' => 1,
+            ]);
+        }
+        TargetMesin::where('msn_trgt_id', $msn_trgt_id)->update([
+            'status' => 1,
+        ]);
+        return response()->json(['success' => true, 'message' => 'Berhasil ditambahkan.'], 200);
+    }
+
+    /**
+     * Store a newly created resource in storage.
+     */
+    public function storeHlp(Request $request)
+    {
+        $request->sisaHasil;
+        $request->reject;
+        $request->bahan;
+        $sisa = '|';
+        $msn_trgt_id = $request->trgt_id;
+        $produk = $request->produk;
+
+        $closing_id = 'CL' . str_pad(Closing::count() + 1, 3, '0', STR_PAD_LEFT);
+        $closing = Closing::create([
+            'closing_id' => $closing_id,
+            'msn_trgt_id' => $msn_trgt_id,
+            'jenis' => '2', //hlp
+        ]);
+        $id = $closing->closing_id;
+        foreach ($request->sisaHasil as $item) {
+            DetailClosing::create([
+                'closing_id' => $id,
+                'brg_id' => $produk,
+                'qty' => $item['value'],
+                'kode' => 1,
+                'satuan' => $item['name'],
+                'cek' => 1,
+            ]);
+        }
+        foreach ($request->reject as $item) {
+            $brg_id = DB::table('tmp_produk_material as a')
+                ->join('m_brg_spek as b', 'a.brg_id', '=', 'b.spek_id')
+                ->join('m_brg as c', 'c.brg_id', '=', 'b.brg_id')
+                ->where('a.brg_prod_id', $produk)
+                ->where('a.tahap', 2)
+                ->where('c.nm_brg', 'like', '%' . $item['name'] . '%')
+                ->value('a.brg_id');
+
+            DetailClosing::create([
+                'closing_id' => $id,
+                'brg_id' => $brg_id,
+                'qty' => $item['value'],
+                'kode' => 2,
+                'cek' => 1,
+            ]);
+        }
+        foreach ($request->bahan as $item) {
+            $brg_id = DB::table('tmp_produk_material as a')
+                ->join('m_brg_spek as b', 'a.brg_id', '=', 'b.spek_id')
+                ->join('m_brg as c', 'c.brg_id', '=', 'b.brg_id')
+                ->where('a.brg_prod_id', $produk)
+                ->where('a.tahap', 3)
+                ->where('c.nm_brg', 'like', '%' . $item['name'] . '%')
                 ->value('a.brg_id');
 
             DetailClosing::create([
