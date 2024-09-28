@@ -12,6 +12,7 @@ use App\Models\Admin\TargetMesin;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Yajra\DataTables\DataTables;
 
 class KinerjaController extends Controller
@@ -128,7 +129,7 @@ class KinerjaController extends Controller
             $cek = Mingguan::where('tahun', $request->tahun)->where('week', $request->minggu)->where('brg_id', $item['brg_id'])->count();
             if ($cek > 0) {
                 // return response()->json(['success' => false, 'message' => 'Target ' . $item['nm_brg'] . ' sudah ada.'], 200);
-                return redirect()->route('kinerja-minggu')->with('success', 'Target ' . $item['nm_brg'] . ' sudah ada.');
+                return redirect()->route('kinerja-hari.create')->with('success', 'Target ' . $item['nm_brg'] . ' sudah ada.');
             }
 
             $week_id = $request->tahun . $request->minggu . '/' . str_pad(Mingguan::count() + 1, 3, '0', STR_PAD_LEFT);
@@ -137,10 +138,13 @@ class KinerjaController extends Controller
                 'tahun' => $request->tahun,
                 'week' => $request->minggu,
                 'brg_id' => $item['brg_id'],
-                'qty' => $item['qty'],
+                'spek_id' => $item['spek_id'],
+                'qty' => $item['qty_beli'],
+                'satuan1' => $item['satuan_beli'],
+                'ket' => $item['ket'],
             ]);
         }
-        return redirect()->route('kinerja-minggu')->with('success', 'Target mingguan berhasil ditambahkan.');
+        return redirect()->route('kinerja-hari')->with('success', 'Target mingguan berhasil ditambahkan.');
     }
 
     public function edit($id)
@@ -250,9 +254,49 @@ class KinerjaController extends Controller
     public function createhari(Request $request)
     {
         $user = $this->userAuth();
-        $barangs = Mingguan::where('week_id', $request->week_id)->get();
+        $user = $this->userAuth();
+        $tahun = date('Y');
+        $mingguList = [];
+        $tahunList = [];
 
-        return view('pages.kinerja-hari.create', compact('user', 'barangs'));
+        $tanggal = Carbon::now()->setISODate($tahun, 1);
+        if ($request->ajax()) {
+            $type = $request->input('type');
+
+            if ($type == 'barangs') {
+
+                $barangs = Barang::where('brg_id', 'like', 'BJR%')
+                    ->where('status', 0)
+                    ->orderBy('brg_id', 'asc')
+                    ->get();
+
+                return DataTables::of($barangs)->make(true);
+            } elseif ($type == 'speks') {
+                $speks = DB::table('m_brg_spek as a')
+                    ->join('m_brg as b', 'a.brg_id', '=', 'b.brg_id')
+                    ->select('b.brg_id', 'b.nm_brg', 'a.satuan1', 'a.satuan2', 'a.konversi1', 'a.spek_id', 'a.spek')
+                    ->where('a.brg_id', $request->brg_id)
+                    ->where('a.satuan1', 'box')
+                    ->where('a.status', 0)
+                    ->get();
+
+                return DataTables::of($speks)->make(true);
+            }
+        }
+        for ($minggu = 1; $minggu <= 53; $minggu++) {
+            if ($tanggal->year != $tahun) {
+                break;
+            }
+
+            $mingguList[] = [
+                'minggu' => $minggu,
+                'tanggal' => $tanggal->startOfWeek()->format('Y-m-d'),
+            ];
+
+            $tanggal->addWeek();
+        }
+
+        return view('pages.kinerja-hari.create', compact('user', 'mingguList'));
     }
 
     public function storehari(Request $request)
@@ -496,14 +540,14 @@ class KinerjaController extends Controller
 
         $shiftTarget = Shift::findOrFail($request->shift_id);
 
-        $totalMesin = $shiftTarget->targetMesin()->where('shift_id', $request->shift_id)->sum('qty');
-        $sisa = $shiftTarget->qty - $totalMesin;
-        $totalMesin += $request->qty;
-        $sisaBerhasil = $shiftTarget->qty - $totalMesin;
+        // $totalMesin = $shiftTarget->targetMesin()->where('shift_id', $request->shift_id)->sum('qty');
+        // $sisa = $shiftTarget->qty - $totalMesin;
+        // $totalMesin += $request->qty;
+        // $sisaBerhasil = $shiftTarget->qty - $totalMesin;
 
-        if ($totalMesin > $shiftTarget->qty || $sisa == 0) {
-            return response()->json(['success' => false, 'message' => 'Target melebihi batas target shift. Sisa target mesin : ' . $sisa], 200);
-        }
+        // if ($totalMesin > $shiftTarget->qty || $sisa == 0) {
+        //     return response()->json(['success' => false, 'message' => 'Target melebihi batas target shift. Sisa target mesin : ' . $sisa], 200);
+        // }
 
         TargetMesin::create([
             'msn_trgt_id' => $mesin_id,
@@ -513,6 +557,6 @@ class KinerjaController extends Controller
             'status' => 0,
         ]);
 
-        return response()->json(['success' => true, 'message' => 'Target mesin ' . $request->mesin_id . ' berhasil ditambahkan. Sisa target mesin : ' . $sisaBerhasil], 200);
+        return response()->json(['success' => true, 'message' => 'Target mesin ' . $request->mesin_id . ' berhasil ditambahkan.'], 200);
     }
 }
