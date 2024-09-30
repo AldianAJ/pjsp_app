@@ -185,7 +185,7 @@ class TrKrmSKMController extends Controller
     /**
      * Display the specified resource.
      */
-    public function showDetail(Request $request)
+    public function detail(Request $request)
     {
         $details = DB::table('tr_krmskm as a')
             ->join('tr_krmskm_detail as b', 'a.no_krmskm', '=', 'b.no_krmskm')
@@ -298,11 +298,11 @@ class TrKrmSKMController extends Controller
                 ->rawColumns(['action'])
                 ->make(true);
         }
-        return view('pages.history.pengiriman-gu', compact('user'));
+        return view('pages.history.proses-permintaan', compact('user'));
     }
 
 
-    public function showDetailHistory(Request $request)
+    public function detailHistory(Request $request)
     {
         $details = DB::table('tr_krmskm as a')
         ->join('tr_krmskm_detail as b', 'a.no_krmskm', '=', 'b.no_krmskm')

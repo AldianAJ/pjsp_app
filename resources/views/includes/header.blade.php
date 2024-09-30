@@ -5,10 +5,10 @@
             <div class="navbar-brand-box">
                 <a href="#" class="logo logo-light">
                     <span class="logo-sm">
-                        <img src="{{ asset('assets/images/pjsp-logo.png') }}" alt="" height="22">
+                        <img src="{{ asset('assets/images/logo-rsr.png') }}" alt="" height="22">
                     </span>
                     <span class="logo-lg">
-                        <img src="{{ asset('assets/images/pjsp-logo.png') }}" alt="" height="50">
+                        <img src="{{ asset('assets/images/logo-rsr.png') }}" alt="" height="50">
                     </span>
                 </a>
             </div>
@@ -27,57 +27,57 @@
             </div>
 
             @if (auth()->check())
-                @php
-                    $user = auth()->user();
-                @endphp
+            @php
+            $user = auth()->user();
+            @endphp
 
-                @if ($user->role == 'gdb')
-                    <div class="dropdown d-inline-block">
-                        <button type="button" class="btn header-item noti-icon waves-effect"
-                            id="page-header-notifications-dropdown" data-bs-toggle="dropdown" aria-haspopup="true"
-                            aria-expanded="false">
-                            <i class="bx bx-bell bx-tada"></i>
-                            <span class="badge bg-danger rounded-pill" id="count-notif">1</span>
-                        </button>
-                        <div class="dropdown-menu dropdown-menu-lg dropdown-menu-end p-0"
-                            aria-labelledby="page-header-notifications-dropdown">
-                            <div class="p-3 out-simple">
-                                <div class="row align-items-center">
-                                    <div class="col">
-                                        <h6 class="m-0">Notifications</h6>
-                                    </div>
-                                </div>
+            @if ($user->role == 'gdb')
+            <div class="dropdown d-inline-block">
+                <button type="button" class="btn header-item noti-icon waves-effect"
+                    id="page-header-notifications-dropdown" data-bs-toggle="dropdown" aria-haspopup="true"
+                    aria-expanded="false">
+                    <i class="bx bx-bell bx-tada"></i>
+                    <span class="badge bg-danger rounded-pill" id="count-notif">1</span>
+                </button>
+                <div class="dropdown-menu dropdown-menu-lg dropdown-menu-end p-0"
+                    aria-labelledby="page-header-notifications-dropdown">
+                    <div class="p-3 out-simple">
+                        <div class="row align-items-center">
+                            <div class="col">
+                                <h6 class="m-0">Notifications</h6>
                             </div>
                         </div>
                     </div>
-                @elseif ($user->role == 'skm')
-                    <div class="dropdown d-inline-block">
-                        <button type="button" class="btn header-item noti-icon waves-effect"
-                            id="page-header-notifications-dropdown" data-bs-toggle="dropdown" aria-haspopup="true"
-                            aria-expanded="false">
-                            <i class="bx bx-bell bx-tada"></i>
-                            <span class="badge bg-primary rounded-pill" id="minta-notif"></span>
-                        </button>
-                        <div class="dropdown-menu dropdown-menu-lg dropdown-menu-end p-0 out-simple"
-                            aria-labelledby="page-header-notifications-dropdown">
-                            <div class="p-3">
-                                <div class="row align-items-center">
-                                    <div class="col">
-                                        <h6 class="m-0" key="t-notifications">Notifications</h6>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                @endif
-            @else
-                <!-- Handle case where user is not logged in -->
-                <div class="dropdown d-inline-block">
-                    <button type="button" class="btn header-item waves-effect" id="page-header-user-dropdown"
-                        data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                        <span class="d-none d-xl-inline-block ms-1">Guest</span>
-                    </button>
                 </div>
+            </div>
+            @elseif ($user->role == 'skm')
+            <div class="dropdown d-inline-block">
+                <button type="button" class="btn header-item noti-icon waves-effect"
+                    id="page-header-notifications-dropdown" data-bs-toggle="dropdown" aria-haspopup="true"
+                    aria-expanded="false">
+                    <i class="bx bx-bell bx-tada"></i>
+                    <span class="badge bg-primary rounded-pill" id="minta-notif"></span>
+                </button>
+                <div class="dropdown-menu dropdown-menu-lg dropdown-menu-end p-0 out-simple"
+                    aria-labelledby="page-header-notifications-dropdown">
+                    <div class="p-3">
+                        <div class="row align-items-center">
+                            <div class="col">
+                                <h6 class="m-0" key="t-notifications">Notifications</h6>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            @endif
+            @else
+            <!-- Handle case where user is not logged in -->
+            <div class="dropdown d-inline-block">
+                <button type="button" class="btn header-item waves-effect" id="page-header-user-dropdown"
+                    data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    <span class="d-none d-xl-inline-block ms-1">Guest</span>
+                </button>
+            </div>
             @endif
 
             <div class="dropdown d-inline-block">
@@ -90,10 +90,10 @@
                 </button>
                 <div class="dropdown-menu dropdown-menu-end">
                     @if (auth()->check())
-                        <a class="dropdown-item text-danger fw-bold" href="{{ route('auth.logout') }}">
-                            <i class="bx bx-log-out font-size-16 align-middle me-1 text-danger"></i>
-                            <span key="t-logout">Logout</span>
-                        </a>
+                    <a class="dropdown-item text-danger fw-bold" href="{{ route('auth.logout') }}">
+                        <i class="bx bx-log-out font-size-16 align-middle me-1 text-danger"></i>
+                        <span key="t-logout">Logout</span>
+                    </a>
                     @endif
                 </div>
             </div>

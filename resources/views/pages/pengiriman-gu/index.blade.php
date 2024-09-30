@@ -68,7 +68,7 @@ Persetujuan Permintaan
                 serverSide: true,
                 ajax: {
                     type: "GET",
-                    url: "{{ route('pengiriman-gudang-utama.showDetail') }}",
+                    url: "{{ route('pengiriman-gudang-utama.detail') }}",
                     data: {
                         no_krmskm: selectedData.no_krmskm
                     }

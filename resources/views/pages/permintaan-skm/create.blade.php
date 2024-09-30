@@ -258,7 +258,7 @@ Tambah Permintaan
                             required>
                     </div> --}}
                     <div class="form-group mt-3">
-                        <label for="tgl">Tanggal</label>
+                        <label for="tgl">Tanggal :</label>
                         <input type="date" class="form-control" name="tgl"
                             value="{{ old('tgl', \Carbon\Carbon::now()->format('Y-m-d')) }}" required>
                     </div>

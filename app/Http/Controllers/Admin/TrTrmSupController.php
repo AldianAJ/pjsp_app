@@ -232,7 +232,7 @@ class TrTrmSupController extends Controller
     }
 
 
-    public function showDetail(Request $request)
+    public function detail(Request $request)
     {
         $details = DB::table('tr_trmsup as a')
             ->join('tr_trmsup_detail as b', 'a.no_trm', '=', 'b.no_trm')

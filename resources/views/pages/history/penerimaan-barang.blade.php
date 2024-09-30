@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('title')
-Penerimaan Barang
+Riwayat Penerimaan dari Gudang Besar
 @endsection
 
 @push('after-style')
@@ -20,27 +20,14 @@ Penerimaan Barang
     let mainTable;
 
         mainTable = $('#datatable').DataTable({
-            ajax: "{{ route('penerimaan-barang') }}",
+            ajax: "{{ route('penerimaan-barang.history') }}",
             ordering: false,
             columns: [{
                     data: "no_krmskm"
                 },
                 {
-                    data: "tgl_krm",
-                    render: function(data) {
-                        return new Date(data).toLocaleDateString('id-ID', {
-                            day: 'numeric',
-                            month: 'long',
-                            year: 'numeric'
-                        });
-                    }
-                },
-                {
                     data: "tgl_trm",
                     render: function(data) {
-                        if (!data) {
-                            return '-';
-                        }
                         return new Date(data).toLocaleDateString('id-ID', {
                             day: 'numeric',
                             month: 'long',
@@ -54,9 +41,10 @@ Penerimaan Barang
             ],
         });
 
+
         $('#datatable').on('click', '.btn-detail', function() {
             let selectedData = mainTable.row($(this).closest('tr')).data();
-            $("#id-krm").text(selectedData.no_krmskm);
+            $("#id-terima").text(selectedData.no_krmskm);
 
             if ($.fn.DataTable.isDataTable('#detail-datatable')) {
                 $('#detail-datatable').DataTable().destroy();
@@ -66,7 +54,7 @@ Penerimaan Barang
                 serverSide: true,
                 ajax: {
                     type: "GET",
-                    url: "{{ route('penerimaan-barang.terimaDetail') }}",
+                    url: "{{ route('penerimaan-barang.detailHistory') }}",
                     data: {
                         no_krmskm: selectedData.no_krmskm
                     }
@@ -103,7 +91,7 @@ Penerimaan Barang
 <div class="row">
     <div class="col-12">
         <div class="page-title-box d-sm-flex align-items-center justify-content-between">
-            <h4 class="mb-sm-0 font-size-18">Penerimaan Barang</h4>
+            <h4 class="mb-sm-0 font-size-18">Riwayat Penerimaan dari Gudang Besar</h4>
         </div>
     </div>
 </div>
@@ -118,7 +106,6 @@ Penerimaan Barang
                         <thead class="table-light">
                             <tr>
                                 <th>No. Dokumen</th>
-                                <th>Tanggal Pengiriman</th>
                                 <th>Tanggal Penerimaan</th>
                                 <th>Action</th>
                             </tr>
@@ -136,7 +123,7 @@ Penerimaan Barang
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="exampleModalLabel">Detail Barang - <span id="id-krm"></span></h5>
+                <h5 class="modal-title" id="exampleModalLabel">Detail Barang - <span id="id-terima"></span></h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
@@ -155,28 +142,4 @@ Penerimaan Barang
         </div>
     </div>
 </div>
-
-@if (session()->has('success'))
-<script src="{{ asset('assets/libs/sweetalert2/sweetalert2.min.js') }}"></script>
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-                Swal.fire({
-                    toast: true,
-                    position: 'top-right',
-                    icon: 'success',
-                    title: '{{ session('success') }}',
-                    showConfirmButton: false,
-                    timer: 5000,
-                    didOpen: (toast) => {
-                        toast.addEventListener('mouseenter', Swal.stopTimer)
-                        toast.addEventListener('mouseleave', Swal.resumeTimer)
-                    },
-                    customClass: {
-                        popup: 'colored-toast'
-                    },
-                    showCloseButton: true
-                });
-            });
-</script>
-@endif
 @endsection

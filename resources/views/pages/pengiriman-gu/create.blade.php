@@ -257,12 +257,12 @@ Persetujuan Permintaan
                 <form action="{{ route('pengiriman-gudang-utama.store') }}" method="post" enctype="multipart/form-data">
                     @csrf
                     <div class="form-group mt-3">
-                        <label for="no_reqskm">No. Dokumen Permintaan SKM</label>
+                        <label for="no_reqskm">No. Dokumen Permintaan :</label>
                         <input type="text" name="no_reqskm" id="no_reqskm" class="form-control" value="{{ $no_req }}"
                             readonly>
                     </div>
                     <div class="form-group mt-3">
-                        <label for="tgl_krm">Tanggal</label>
+                        <label for="tgl_krm">Tanggal :</label>
                         <input type="date" class="form-control" name="tgl_krm"
                             value="{{ old('tgl_krm', \Carbon\Carbon::now()->format('Y-m-d')) }}" required>
                     </div>

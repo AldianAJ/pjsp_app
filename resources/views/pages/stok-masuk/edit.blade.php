@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('title')
-Edit Stok Masuk
+Edit Penerimaan Supplier
 @endsection
 
 @push('after-app-style')
@@ -194,7 +194,7 @@ Edit Stok Masuk
 <div class="row">
     <div class="col-12">
         <div class="page-title-box d-sm-flex align-items-center justify-content-between">
-            <h4 class="mb-sm-0 font-size-18">Edit Stok Masuk</h4>
+            <h4 class="mb-sm-0 font-size-18">Edit Penerimaan Supplier</h4>
         </div>
     </div>
 </div>

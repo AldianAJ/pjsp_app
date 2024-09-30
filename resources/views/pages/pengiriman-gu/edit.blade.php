@@ -306,7 +306,7 @@ Edit Pengiriman
     <div class="col-md-6">
         <button type="button" class="btn btn-dark waves-effect waves-light" id="showDataBarangButton"
             data-toggle="modal" data-target="#editDataBarangModal">
-            <i class="bx bx-plus-circle align-middle me-2 font-size-18"></i>Edit Data Barang
+            <i class="bx bx-edit align-middle me-2 font-size-18"></i>Edit Data Barang
         </button>
     </div>
 </div>

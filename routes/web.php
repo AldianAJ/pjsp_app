@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\BarangController;
 use App\Http\Controllers\Admin\ClosingController;
 use App\Http\Controllers\Admin\GudangController;
@@ -13,6 +14,7 @@ use App\Http\Controllers\Admin\KinerjaController;
 use App\Http\Controllers\Admin\TrReqSKMController;
 use App\Http\Controllers\Admin\TrKrmSKMController;
 use App\Http\Controllers\Admin\TrKrmMsnController;
+use App\Http\Controllers\Admin\TrMutasiController;
 use App\Http\Controllers\Admin\ReturnMesinController;
 /*
 |--------------------------------------------------------------------------
@@ -36,6 +38,10 @@ Route::controller(UserController::class)->group(function () {
 });
 
 Route::middleware('user')->group(function () {
+    Route::controller(DashboardController::class)->group(function () {
+        Route::get('/dashboard', 'index')->name('dashboard');
+    });
+
     Route::controller(BarangController::class)->group(function () {
         Route::get('/barang', 'index')->name('barang');
         Route::get('/barang/create', 'create')->name('barang.create');
@@ -118,40 +124,42 @@ Route::middleware('user')->group(function () {
 
     Route::controller(TrReqSKMController::class)->group(function () {
         Route::get('/permintaan-skm', 'index')->name('permintaan-skm');
-        Route::get('/permintaan-skm/detail', 'showDetail')->name('permintaan-skm.showDetail');
+        Route::get('/permintaan-skm/detail', 'detail')->name('permintaan-skm.detail');
         Route::get('/permintaan-skm/create', 'create')->name('permintaan-skm.create');
         Route::post('/permintaan-skm/store', 'store')->name('permintaan-skm.store');
         Route::get('/permintaan-skm/edit/{no_reqskm}', 'edit')->name('permintaan-skm.edit');
         Route::post('/permintaan-skm/update/{no_reqskm}', 'update')->name('permintaan-skm.update');
         Route::get('/permintaan-skm/history', 'indexHistory')->name('permintaan-skm.history');
-        Route::get('/permintaan-skm/history/detail', 'showDetailHistory')->name('permintaan-skm.showDetailHistory');
+        Route::get('/permintaan-skm/history/detail', 'detailHistory')->name('permintaan-skm.detailHistory');
 
         Route::get('/penerimaan-barang', 'indexTerima')->name('penerimaan-barang');
         Route::get('/penerimaan-barang/create/{no_krmskm}', 'createTerima')->name('penerimaan-barang.create');
         Route::post('/penerimaan-barang/store', 'storeTerima')->name('penerimaan-barang.store');
-        Route::get('/penerimaan-barang/detail', 'showterimaDetail')->name('penerimaan-barang.showterimaDetail');
+        Route::get('/penerimaan-barang/detail', 'terimaDetail')->name('penerimaan-barang.terimaDetail');
+        Route::get('/penerimaan-barang/history', 'indexTerimaHistory')->name('penerimaan-barang.history');
+        Route::get('/penerimaan-barang/history/detail', 'detailTerimaHistory')->name('penerimaan-barang.detailHistory');
     });
 
     Route::controller(TrKrmSKMController::class)->group(function () {
         Route::get('/pengiriman-gudang-utama', 'index')->name('pengiriman-gudang-utama');
         Route::get('/pengiriman-gudang-utama/create/{no_reqskm}', 'create')->name('pengiriman-gudang-utama.create');
         Route::post('/pengiriman-gudang-utama/store', 'store')->name('pengiriman-gudang-utama.store');
-        Route::get('/pengiriman-gudang-utama/detail', 'showDetail')->name('pengiriman-gudang-utama.showDetail');
+        Route::get('/pengiriman-gudang-utama/detail', 'detail')->name('pengiriman-gudang-utama.detail');
         Route::get('/pengiriman-gudang-utama/edit/{no_krmskm}', 'edit')->name('pengiriman-gudang-utama.edit');
         Route::post('/pengiriman-gudang-utama/update/{no_krmskm}', 'update')->name('pengiriman-gudang-utama.update');
         Route::get('/pengiriman-gudang-utama/history', 'indexHistory')->name('pengiriman-gudang-utama.history');
-        Route::get('/pengiriman-gudang-utama/history/detail', 'showDetailHistory')->name('pengiriman-gudang-utama.showDetailHistory');
+        Route::get('/pengiriman-gudang-utama/history/detail', 'detailHistory')->name('pengiriman-gudang-utama.detailHistory');
     });
 
     Route::controller(TrKrmMsnController::class)->group(function () {
         Route::get('/pengiriman-skm', 'index')->name('pengiriman-skm');
-        Route::get('/pengiriman-skm/detail', 'showDetail')->name('pengiriman-skm.showDetail');
+        Route::get('/pengiriman-skm/detail', 'Detail')->name('pengiriman-skm.Detail');
         Route::get('/pengiriman-skm/create', 'create')->name('pengiriman-skm.create');
         Route::post('/pengiriman-skm/store', 'store')->name('pengiriman-skm.store');
         Route::get('/pengiriman-skm/edit/{no_krmmsn}', 'edit')->name('pengiriman-skm.edit');
         Route::post('/pengiriman-skm/update/{no_krmmsn}', 'update')->name('pengiriman-skm.update');
         Route::get('/pengiriman-skm/history', 'indexHistory')->name('pengiriman-skm.history');
-        Route::get('/pengiriman-skm/history/detail', 'showDetailHistory')->name('pengiriman-skm.showDetailHistory');
+        Route::get('/pengiriman-skm/history/detail', 'DetailHistory')->name('pengiriman-skm.DetailHistory');
     });
 
     Route::controller(ReturnMesinController::class)->group(function () {
@@ -161,6 +169,22 @@ Route::middleware('user')->group(function () {
         Route::get('/return-mesin/edit/{no_returnmsn}', 'edit')->name('return-mesin.edit');
     });
 
+    Route::controller(TrMutasiController::class)->group(function () {
+        Route::get('/pengiriman-batangan', 'index')->name('pengiriman-batangan');
+        Route::get('/pengiriman-batangan/create', 'create')->name('pengiriman-batangan.create');
+        Route::post('/pengiriman-batangan/store', 'store')->name('pengiriman-batangan.store');
+        Route::get('/pengiriman-batangan/detail', 'detail')->name('pengiriman-batangan.detail');
+        Route::get('/pengiriman-batangan/edit/{mutasi_id}', 'edit')->name('pengiriman-batangan.edit');
+        Route::post('/pengiriman-batangan/update/{mutasi_id}', 'update')->name('pengiriman-batangan.update');
+
+        Route::get('/pengiriman-bjsk', 'indexBJSK')->name('pengiriman-bjsk');
+        Route::get('/pengiriman-bjsk/create', 'createBJSK')->name('pengiriman-bjsk.create');
+        Route::post('/pengiriman-bjsk/store', 'storeBJSK')->name('pengiriman-bjsk.store');
+        Route::get('/pengiriman-bjsk/detail', 'detailBJSK')->name('pengiriman-bjsk.detail');
+        Route::get('/pengiriman-bjsk/edit/{mutasi_id}', 'editBJSK')->name('pengiriman-bjsk.edit');
+        Route::post('/pengiriman-bjsk/update/{mutasi_id}', 'updateBJSK')->name('pengiriman-bjsk.update');
+    });
+
 
     Route::controller(TrTrmSupController::class)->group(function () {
         Route::get('/stok-masuk', 'index')->name('stok-masuk');
@@ -168,6 +192,6 @@ Route::middleware('user')->group(function () {
         Route::post('/stok-masuk/store', 'store')->name('stok-masuk.store');
         Route::get('/stok-masuk/edit/{no_trm}', 'edit')->name('stok-masuk.edit');
         Route::post('/stok-masuk/update/{no_trm}', 'update')->name('stok-masuk.update');
-        Route::get('/stok-masuk/detail', 'showDetail')->name('stok-masuk.showDetail');
+        Route::get('/stok-masuk/detail', 'detail')->name('stok-masuk.detail');
     });
 });

@@ -80,20 +80,21 @@ class TrKrmMsnController extends Controller
 
             } elseif ($type == 'shifts') {
                 $date = $request->input('date');
-                $harian = DB::table('tr_target_harian')->where('tanggal', $date)->first();
+                $harian = DB::table('tr_target_harian')->where('tgl', $date)->first();
 
-                if ($harian) {
-                    $shifts = DB::table('tr_target_shift')
-                    ->select('shift')
+                $shifts = DB::table('tr_target_shift')
+                    ->select('shift_id', 'shift')
                     ->where('harian_id', $harian->harian_id)->get();
 
-                    return DataTables::of($shifts)->make(true);
-                }
+                return DataTables::of($shifts)->make(true);
+
             } elseif ($type == 'machines') {
                 $shiftId = $request->input('shift_id');
-                $machines = DB::table('tr_target_mesin')
-                ->select('')
-                ->where('shift_id', $shiftId)->get();
+                $machines = DB::table('tr_target_mesin as a')
+                    ->join('tr_target_shift as b', 'a.shift_id', '=', 'b.shift_id')
+                    ->join('m_mesin as c', 'a.mesin_id', '=', 'c.mesin_id')
+                    ->select('a.msn_trgt_id', 'c.nama')
+                    ->where('a.shift_id', $shiftId)->get();
 
                 return DataTables::of($machines)->make(true);
             }
@@ -131,7 +132,7 @@ class TrKrmMsnController extends Controller
             $stok_id = "{$gudang_id}/{$item['brg_id']}/{$id}";
             $keluar = $item['qty_beli'];
             $gudangs = Gudang::where('gudang_id', $gudang_id)->value('nama');
-            $ket = "Pengiriman barang dari ". $gudangs;
+            $ket = "Pengiriman barang dari " . $gudangs;
 
             TrStok::create([
                 'stok_id' => $stok_id,

@@ -4,11 +4,11 @@
             <div class="col-sm-6">
                 <script>
                     document.write(new Date().getFullYear())
-                </script> © PJSP.
+                </script> © RJW.
             </div>
             <div class="col-sm-6">
                 <div class="text-sm-end d-none d-sm-block">
-                    Design & Develop by PJSP
+                    Design & Develop by RJW
                 </div>
             </div>
         </div>

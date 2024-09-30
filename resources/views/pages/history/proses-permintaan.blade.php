@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('title')
-Penerimaan Barang
+History Pengiriman ke SKM
 @endsection
 
 @push('after-style')
@@ -20,7 +20,7 @@ Penerimaan Barang
     let mainTable;
 
         mainTable = $('#datatable').DataTable({
-            ajax: "{{ route('penerimaan-barang') }}",
+            ajax: "{{ route('pengiriman-gudang-utama.history') }}",
             ordering: false,
             columns: [{
                     data: "no_krmskm"
@@ -36,23 +36,11 @@ Penerimaan Barang
                     }
                 },
                 {
-                    data: "tgl_trm",
-                    render: function(data) {
-                        if (!data) {
-                            return '-';
-                        }
-                        return new Date(data).toLocaleDateString('id-ID', {
-                            day: 'numeric',
-                            month: 'long',
-                            year: 'numeric'
-                        });
-                    }
-                },
-                {
                     data: "action"
                 }
             ],
         });
+
 
         $('#datatable').on('click', '.btn-detail', function() {
             let selectedData = mainTable.row($(this).closest('tr')).data();
@@ -66,7 +54,7 @@ Penerimaan Barang
                 serverSide: true,
                 ajax: {
                     type: "GET",
-                    url: "{{ route('penerimaan-barang.terimaDetail') }}",
+                    url: "{{ route('pengiriman-gudang-utama.detailHistory') }}",
                     data: {
                         no_krmskm: selectedData.no_krmskm
                     }
@@ -103,7 +91,7 @@ Penerimaan Barang
 <div class="row">
     <div class="col-12">
         <div class="page-title-box d-sm-flex align-items-center justify-content-between">
-            <h4 class="mb-sm-0 font-size-18">Penerimaan Barang</h4>
+            <h4 class="mb-sm-0 font-size-18">History Pengiriman ke SKM</h4>
         </div>
     </div>
 </div>
@@ -119,7 +107,6 @@ Penerimaan Barang
                             <tr>
                                 <th>No. Dokumen</th>
                                 <th>Tanggal Pengiriman</th>
-                                <th>Tanggal Penerimaan</th>
                                 <th>Action</th>
                             </tr>
                         </thead>
@@ -155,28 +142,4 @@ Penerimaan Barang
         </div>
     </div>
 </div>
-
-@if (session()->has('success'))
-<script src="{{ asset('assets/libs/sweetalert2/sweetalert2.min.js') }}"></script>
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-                Swal.fire({
-                    toast: true,
-                    position: 'top-right',
-                    icon: 'success',
-                    title: '{{ session('success') }}',
-                    showConfirmButton: false,
-                    timer: 5000,
-                    didOpen: (toast) => {
-                        toast.addEventListener('mouseenter', Swal.stopTimer)
-                        toast.addEventListener('mouseleave', Swal.resumeTimer)
-                    },
-                    customClass: {
-                        popup: 'colored-toast'
-                    },
-                    showCloseButton: true
-                });
-            });
-</script>
-@endif
 @endsection

@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('title')
-Tambah Pengiriman ke Mesin
+Tambah Pengiriman Batangan
 @endsection
 
 @push('after-app-style')
@@ -20,51 +20,13 @@ Tambah Pengiriman ke Mesin
 <script>
     $(document).ready(function() {
             $('#showDataBarangButton').on('click', function() {
-                if ($.fn.DataTable.isDataTable('#datatable-barang')) {
-                    $('#datatable-barang').DataTable().clear().destroy();
-                }
-
-                $('#datatable-barang').DataTable({
-                    ajax: {
-                        url: "{{ route('pengiriman-skm.create') }}",
-                        data: {
-                            type: 'barangs'
-                        }
-                    },
-                    lengthMenu: [5],
-                    ordering: false,
-                    columns: [{
-                            data: null,
-                            render: (data, type, row, meta) => meta.row + 1
-                        },
-                        {
-                            data: "nm_brg"
-                        },
-                        {
-                            data: null,
-                            render: (data, type, row) => `<button type="button" class="btn btn-primary font-size-10 waves-effect waves-light" onclick="showSpecs('${row.brg_id}', '${row.nm_brg}')">
-                        <i class="fas fa-plus align-middle"></i>
-                    </button>`
-                        }
-                    ],
-                });
-
-                $('#dataBarang').modal('show');
-            });
-
-            window.showSpecs = function(brg_id, nm_brg) {
                 if ($.fn.DataTable.isDataTable('#datatable-spek')) {
                     $('#datatable-spek').DataTable().clear().destroy();
                 }
 
                 $('#datatable-spek').DataTable({
                     ajax: {
-                        url: "{{ route('pengiriman-skm.create') }}",
-                        data: {
-                            type: 'speks',
-                            brg_id: brg_id,
-                            nm_brg: nm_brg
-                        }
+                        url: "{{ route('pengiriman-batangan.create') }}",
                     },
                     lengthMenu: [5],
                     columns: [{
@@ -86,83 +48,16 @@ Tambah Pengiriman ke Mesin
                     ],
                 });
 
-                $('#dataBarang').modal('hide');
                 $('#dataSpek').modal('show');
-            };
-
-            $('input[name="tgl"]').on('change', function() {
-                const selectedDate = $(this).val();
-                console.log(selectedDate);
-
-                if ($.fn.DataTable.isDataTable('#datatable-shifts')) {
-                    $('#datatable-shifts').DataTable().clear().destroy();
-                }
-
-                $('#datatable-shifts').DataTable({
-                    ajax: {
-                        url: "{{ route('pengiriman-skm.create') }}",
-                        data: {
-                            type: 'shifts',
-                            date: selectedDate
-                        }
-                    },
-                    columns: [{
-                            data: null,
-                            render: (data, type, row, meta) => meta.row + 1
-                        },
-                        {
-                            data: "shift"
-                        },
-                        {
-                            data: null,
-                            render: (data, type, row) => `<button type="button" class="btn btn-primary font-size-10 waves-effect waves-light" onclick="selectShift('${row.shift_id}')">
-                        <i class="fas fa-plus align-middle"></i>
-                    </button>`
-                        }
-                    ]
-                });
-
-                $('#dataShift').modal('show');
             });
 
-            window.selectShift = function(shiftId) {
-                if ($.fn.DataTable.isDataTable('#datatable-machines')) {
-                    $('#datatable-machines').DataTable().clear().destroy();
-                }
-
-                $('#datatable-machines').DataTable({
-                    ajax: {
-                        url: "{{ route('pengiriman-skm.create') }}",
-                        data: {
-                            type: 'machines',
-                            shift_id: shiftId
-                        }
-                    },
-                    columns: [{
-                            data: null,
-                            render: (data, type, row, meta) => meta.row + 1
-                        },
-                        {
-                            data: "nama"
-                        },
-                        {
-                            data: null,
-                            render: (data, type, row) => `
-                        <button class="btn btn-primary">Pilih</button>`
-                        }
-                    ]
-                });
-
-                $('#dataShift').modal('hide');
-                $('#dataMesin').modal('show');
-            };
 
 
             window.showQtyModal = function(brg_id, nm_brg, satuan1, satuan2, konversi1, spek_id, spek) {
                 const modal = document.getElementById('qtyModal');
                 document.getElementById('modal-brg-id').value = brg_id;
                 document.getElementById('modal-nm-brg').value = nm_brg;
-                document.getElementById('modal-qty-beli').value = '';
+                document.getElementById('modal-qty').value = '';
                 document.getElementById('modal-satuan1').innerText = satuan1;
                 document.getElementById('modal-qty-std').value = '';
                 document.getElementById('modal-konversi1').value = konversi1;
@@ -171,17 +66,16 @@ Tambah Pengiriman ke Mesin
                 document.getElementById('modal-spek-id').value = spek_id;
 
                 $('#dataSpek').modal('hide');
-                $('#dataBarang').modal('hide');
                 new bootstrap.Modal(modal).show();
             };
 
             $('#qtyModal .btn-primary').on('click', function() {
                 addItem();
                 $('#qtyModal').modal('hide');
-                $('#dataBarang').modal('show');
+                $('#dataSpek').modal('show');
             });
 
-            new AutoNumeric('#modal-qty-beli', {
+            new AutoNumeric('#modal-qty', {
                 decimalCharacter: ',',
                 digitGroupSeparator: '.'
             });
@@ -190,7 +84,7 @@ Tambah Pengiriman ke Mesin
                 digitGroupSeparator: '.'
             });
 
-            $('#modal-qty-beli').on('keyup', function() {
+            $('#modal-qty').on('keyup', function() {
                 const qtyBeli = parseFloat(AutoNumeric.getNumericString(this)) || 0;
                 const konversi1 = parseFloat($('#modal-konversi1').val());
                 const qtyStd = qtyBeli * konversi1;
@@ -203,7 +97,7 @@ Tambah Pengiriman ke Mesin
                 const konversi1 = ($('#modal-konversi1').val());
                 const qtyBeli = qtyStd / konversi1;
 
-                AutoNumeric.set('#modal-qty-beli', qtyBeli);
+                AutoNumeric.set('#modal-qty', qtyBeli);
             });
 
             let selectedItems = [];
@@ -211,8 +105,8 @@ Tambah Pengiriman ke Mesin
             function addItem() {
                 const brg_id = document.getElementById('modal-brg-id').value;
                 const nm_brg = document.getElementById('modal-nm-brg').value;
-                const qty_beli = parseFloat(AutoNumeric.getNumericString(document.getElementById(
-                    'modal-qty-beli'))) || 0;
+                const qty = parseFloat(AutoNumeric.getNumericString(document.getElementById(
+                    'modal-qty'))) || 0;
                 const satuan1 = document.getElementById('modal-satuan1').innerText;
                 const konversi1 = parseFloat(document.getElementById('modal-konversi1').value) || 0;
                 const qty_std = parseFloat(AutoNumeric.getNumericString(document.getElementById(
@@ -221,7 +115,7 @@ Tambah Pengiriman ke Mesin
                 const ket = document.getElementById('modal-ket').value;
                 const spek_id = document.getElementById('modal-spek-id').value;
 
-                if (qty_beli <= 0 || qty_std <= 0) {
+                if (qty <= 0 || qty_std <= 0) {
                     Swal.fire({
                         icon: 'error',
                         title: 'Tidak Bisa',
@@ -233,7 +127,7 @@ Tambah Pengiriman ke Mesin
                 selectedItems.push({
                     brg_id,
                     nm_brg,
-                    qty_beli,
+                    qty,
                     satuan1,
                     qty_std,
                     satuan2,
@@ -242,7 +136,7 @@ Tambah Pengiriman ke Mesin
                 });
                 updateItems();
 
-                AutoNumeric.set('#modal-qty-beli', 0);
+                AutoNumeric.set('#modal-qty', 0);
                 AutoNumeric.set('#modal-qty-std', 0);
             }
 
@@ -261,7 +155,7 @@ Tambah Pengiriman ke Mesin
                 <td>${index + 1}</td>
                 <td>${item.nm_brg}</td>
                 <td>${item.ket}</td>
-                <td>${item.qty_beli}</td>
+                <td>${item.qty}</td>
                 <td>${item.satuan1}</td>
                 <td>
                     <button class="btn btn-danger waves-effect waves-light" onclick="removeItem(${index})">
@@ -272,13 +166,12 @@ Tambah Pengiriman ke Mesin
         `).join('');
 
                 itemsContainer.innerHTML = selectedItems.map((item, index) => `
-            <input type="hidden" name="items[${index}][brg_id]" value="${item.brg_id}">
-            <input type="hidden" name="items[${index}][qty_beli]" value="${item.qty_beli}">
-            <input type="hidden" name="items[${index}][satuan_beli]" value="${item.satuan1}">
+            <input type="hidden" name="items[${index}][spek_id]" value="${item.spek_id}">
+            <input type="hidden" name="items[${index}][qty]" value="${item.qty}">
+            <input type="hidden" name="items[${index}][satuan]" value="${item.satuan1}">
             <input type="hidden" name="items[${index}][qty_std]" value="${item.qty_std}">
             <input type="hidden" name="items[${index}][satuan_std]" value="${item.satuan2}">
             <input type="hidden" name="items[${index}][ket]" value="${item.ket}">
-            <input type="hidden" name="items[${index}][spek_id]" value="${item.spek_id}">
         `).join('');
 
                 saveButton.disabled = selectedItems.length === 0;
@@ -292,7 +185,7 @@ Tambah Pengiriman ke Mesin
 <div class="row">
     <div class="col-12">
         <div class="page-title-box d-sm-flex align-items-center justify-content-between">
-            <h4 class="mb-sm-0 font-size-18">Tambah Permintaan</h4>
+            <h4 class="mb-sm-0 font-size-18">Tambah Pengiriman Batangan</h4>
         </div>
     </div>
 </div>
@@ -318,7 +211,7 @@ Tambah Pengiriman ke Mesin
         <div class="card">
             <div class="card-body">
                 <h5 class="card-title">Data Transaksi</h5>
-                <form action="{{ route('pengiriman-skm.store') }}" method="post" enctype="multipart/form-data">
+                <form action="{{ route('pengiriman-batangan.store') }}" method="post" enctype="multipart/form-data">
                     @csrf
                     {{-- <div class="form-group mt-3">
                         <label for="no_trm">No. Dokumen</label>
@@ -326,15 +219,49 @@ Tambah Pengiriman ke Mesin
                             required>
                     </div> --}}
                     <div class="form-group mt-3">
-                        <label for="tgl">Tanggal</label>
+                        <label for="tgl">Tanggal :</label>
                         <input type="date" class="form-control" name="tgl"
                             value="{{ old('tgl', \Carbon\Carbon::now()->format('Y-m-d')) }}" required>
                     </div>
-                    <input type="hidden" name="gudang_id" id="gudang_id"
-                        value="{{ old('gudang_id', $gudang_id ?? '') }}">
+                    <div class="form-group mt-3">
+                        <label for="msn_asal">Mesin Asal :</label>
+                        <select name="msn_asal" id="msn_asal"
+                            class="form-control @error('msn_asal') is-invalid @enderror" style="width: 100%;" required>
+                            <option value="">-- Pilih Mesin Asal --</option>
+                            @foreach ($msn_asal as $mesin)
+                            <option value="{{ $mesin->msn_trgt_id }}" @if (old('msn_asal')==$mesin->msn_trgt_id)
+                                selected @endif>
+                                {{ $mesin->nama }}
+                            </option>
+                            @endforeach
+                        </select>
+                        @error('msn_asal')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                    </div>
+
+                    <div class="form-group mt-3">
+                        <label for="msn_tujuan">Mesin Tujuan :</label>
+                        <select name="msn_tujuan" id="msn_tujuan"
+                            class="form-control @error('msn_tujuan') is-invalid @enderror" style="width: 100%;"
+                            required>
+                            <option value="">-- Pilih Mesin Tujuan --</option>
+                            @foreach ($msn_tujuan as $mesin)
+                            <option value="{{ $mesin->msn_trgt_id }}" @if (old('msn_tujuan')==$mesin->msn_trgt_id)
+                                selected @endif>
+                                {{ $mesin->nama }}
+                            </option>
+                            @endforeach
+                        </select>
+                        @error('msn_tujuan')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                    </div>
+
                     <div id="items-container"></div> <!-- Container for items input fields -->
                     <div class="d-flex justify-content-end mt-3">
-                        <a href="{{ route('pengiriman-skm') }}" class="btn btn-secondary waves-effect waves-light me-2">
+                        <a href="{{ route('pengiriman-batangan') }}"
+                            class="btn btn-secondary waves-effect waves-light me-2">
                             <i class="bx bx-caret-left align-middle me-2 font-size-18"></i>Kembali
                         </a>
                         <button type="submit" class="btn btn-primary waves-effect waves-light" id="saveButton" disabled>
@@ -349,106 +276,6 @@ Tambah Pengiriman ke Mesin
         <button type="button" class="btn btn-dark waves-effect waves-light" id="showDataBarangButton">
             <i class="bx bx-plus-circle align-middle me-2 font-size-18"></i>Tambah Data Barang
         </button>
-    </div>
-</div>
-
-<div class="modal fade" id="dataShift" tabindex="-1" role="dialog" aria-labelledby="shiftModalLabel" aria-hidden="true">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="shiftModalLabel">Pilih Shift</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <div class="row">
-                    <div class="col-sm-12">
-                        <div class="table-responsive">
-                            <table id="datatable-shifts" class="table align-middle table-nowrap">
-                                <thead class="table-light">
-                                    <tr>
-                                        <th>No</th>
-                                        <th>Shift</th>
-                                        <th>Action</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
-            </div>
-        </div>
-    </div>
-</div>
-
-<div class="modal fade" id="dataMesin" tabindex="-1" role="dialog" aria-labelledby="machineModalLabel"
-    aria-hidden="true">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="machineModalLabel">Pilih Mesin</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <div class="row">
-                    <div class="col-sm-12">
-                        <div class="table-responsive">
-                            <table id="datatable-machines" class="table align-middle table-nowrap">
-                                <thead class="table-light">
-                                    <tr>
-                                        <th>No</th>
-                                        <th>Mesin</th>
-                                        <th>Action</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
-            </div>
-        </div>
-    </div>
-</div>
-
-<div class="modal fade" id="dataBarang" tabindex="-1" role="dialog" aria-labelledby="dataModalLabel" aria-hidden="true">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="dataModalLabel">Data Barang</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <div class="row">
-                    <div class="col-sm-12">
-                        <div class="table-responsive">
-                            <table id="datatable-barang" class="table align-middle table-nowrap">
-                                <thead class="table-light">
-                                    <tr>
-                                        <th>No</th>
-                                        <th>Nama Barang</th>
-                                        <th>Action</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Selesai</button>
-            </div>
-        </div>
     </div>
 </div>
 
@@ -481,7 +308,7 @@ Tambah Pengiriman ke Mesin
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Batal</button>
+                <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Selesai</button>
             </div>
         </div>
     </div>
@@ -504,7 +331,7 @@ Tambah Pengiriman ke Mesin
                 <div class="mb-3">
                     <label for="modal-qty" class="form-label">Qty</label>
                     <div class="d-flex align-items-center">
-                        <input type="text" inputmode="numeric" class="form-control me-2" id="modal-qty-beli" min="1"
+                        <input type="text" inputmode="numeric" class="form-control me-2" id="modal-qty" min="1"
                             required>
                         <label for="modal-satuan1" class="form-label fw-bolder" id="modal-satuan1"></label>
                     </div>

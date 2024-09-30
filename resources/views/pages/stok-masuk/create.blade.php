@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('title')
-Tambah Stok Masuk
+Tambah Penerimaan Supplier
 @endsection
 
 @push('after-app-style')
@@ -270,7 +270,7 @@ Tambah Stok Masuk
                         @enderror
                     </div>
                     <div class="form-group mt-3">
-                        <label for="supplier_id">Nama Supplier </label>
+                        <label for="supplier_id">Nama Supplier :</label>
                         <select name="supplier_id" id="supplier_id"
                             class="form-control @error('supplier_id') is-invalid @enderror" style="width: 100%;"
                             required>

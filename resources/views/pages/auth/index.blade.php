@@ -3,11 +3,11 @@
 
 <head>
     <meta charset="utf-8" />
-    <title>PT. Putera Jaya Sakti Perkasa - Admin</title>
+    <title>PT. Rajawali Sumber Rejeki - Admin</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta content="Premium Multipurpose Admin & Dashboard Template" name="description" />
     <meta content="Themesbrand" name="author" />
-    <link rel="shortcut icon" href="{{ asset('assets/images/pjsp-logo.png') }}">
+    <link rel="shortcut icon" href="{{ asset('assets/images/logo-rsr.png') }}">
     <link href="{{ asset('assets/css/bootstrap.min.css') }}" id="bootstrap-style" rel="stylesheet" type="text/css" />
     <link href="{{ asset('assets/css/icons.min.css') }}" rel="stylesheet" type="text/css" />
     <link href="{{ asset('assets/css/app.min.css') }}" id="app-style" rel="stylesheet" type="text/css" />
@@ -49,13 +49,15 @@
 <body>
     <div class="account-pages my-5 pt-sm-5">
         <div class="container">
-            <div class="row justify-content-center mt-5">
+            <div class="row justify-content-center">
                 <div class="col-md-8 col-lg-6 col-xl-5">
                     <div class="card overflow-hidden">
                         <div class="row">
                             <div class="d-flex align-items-center justify-content-center pt-5">
-                                <img src="{{ asset('assets/images/pjsp-logo.png') }}" style="width: 40px" alt="Logo">
-                                <p class="mb-0 text-dark fw-bold fs-4 ms-2">PT. Putera Jaya Sakti Perkasa</p>
+                                <img src="{{ asset('assets/images/logo-rsr.png') }}" style="width: 100px" alt="Logo">
+                            </div>
+                            <div class="d-flex align-items-center justify-content-center">
+                                <p class="mb-0 text-dark fw-bold fs-4 ms-2">PT. Rajawali Sumber Rejeki</p>
                             </div>
                         </div>
                         <div class="card-body">
@@ -87,7 +89,7 @@
                             <p>Copyright©
                                 <script>
                                     document.write(new Date().getFullYear())
-                                </script> PT. Putera Jaya Sakti Perkasa.
+                                </script> PT. Rajawali Sumber Rejeki.
                             </p>
                         </div>
                     </div>

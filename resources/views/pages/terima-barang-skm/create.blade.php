@@ -21,126 +21,74 @@ Penerimaan Barang
 <script src="{{ asset('assets/js/pages/datatables.init.js') }}"></script>
 <script>
     var no_krmskm = "{{ $no_krmskm }}";
-        let selectedBarang = [];
+    let selectedBarang = [];
 
-        $('#showDataCheckButton').on('click', function() {
-            if ($.fn.DataTable.isDataTable('#datatable-check')) {
-                selectedBarang = [];
-                $('#datatable-check input.check-barang:checked').each(function() {
-                    selectedBarang.push($(this).val());
-                });
-                $('#datatable-check').DataTable().clear().destroy();
-            }
+    const saveButton = document.querySelector('button[type="submit"]');
+    saveButton.disabled = true;
 
-            $('#datatable-check').DataTable({
-                ajax: {
-                    url: "{{ url('penerimaan-barang/create') }}/" + no_krmskm,
-                    data: {
-                        type: 'barang_krms'
-                    }
+    $('#showDataCheckButton').on('click', function() {
+        if ($.fn.DataTable.isDataTable('#datatable-check')) {
+            selectedBarang = [];
+            $('#datatable-check input.check-barang:checked').each(function() {
+                selectedBarang.push($(this).val());
+            });
+            $('#datatable-check').DataTable().clear().destroy();
+        }
+
+        $('#datatable-check').DataTable({
+            ajax: {
+                url: "{{ url('penerimaan-barang/create') }}/" + no_krmskm,
+            },
+            lengthMenu: [5],
+            columns: [{
+                    data: null,
+                    render: (data, type, row, meta) => meta.row + 1
                 },
-                lengthMenu: [5],
-                columns: [{
-                        data: null,
-                        render: (data, type, row, meta) => meta.row + 1
-                    },
-                    {
-                        data: "barang.nm_brg"
-                    },
-                    {
-                        data: "qty_beli"
-                    },
-                    {
-                        data: "satuan_beli"
-                    },
-                    {
-                        data: null,
-                        render: (data, type, row) => {
-                            let checked = selectedBarang.includes(row.brg_id) ? 'checked' : '';
-                            return `<input type="checkbox" class="check-barang" value="${row.brg_id}" ${checked}>`;
-                        }
-                    }
-                ],
-            });
-            $('#dataCheck').modal('show');
-        });
-
-        $('#showDataPermintaanButton').on('click', function() {
-            if ($.fn.DataTable.isDataTable('#datatable-minta')) {
-                $('#datatable-kirim').DataTable().clear().destroy();
-            }
-            $('#datatable-minta').DataTable({
-                ajax: {
-                    url: "{{ url('penerimaan-barang/create') }}/" + no_krmskm,
-                    data: {
-                        type: 'data_reqs'
-                    }
+                {
+                    data: "nm_brg"
                 },
-                lengthMenu: [5],
-                columns: [{
-                        data: null,
-                        render: (data, type, row, meta) => meta.row + 1
-                    },
-                    {
-                        data: "nm_brg"
-                    },
-                    {
-                        data: "qty_beli"
-                    },
-                    {
-                        data: "satuan_beli"
-                    }
-                ],
-            });
-            $('#dataMinta').modal('show');
-        });
-
-        $('#showDataPengirimanButton').on('click', function() {
-            if ($.fn.DataTable.isDataTable('#datatable-kirim')) {
-                $('#datatable-kirim').DataTable().clear().destroy();
-            }
-            $('#datatable-kirim').DataTable({
-                ajax: {
-                    url: "{{ url('penerimaan-barang/create') }}/" + no_krmskm,
-                    data: {
-                        type: 'data_krms'
-                    }
+                {
+                    data: "qty_minta"
                 },
-                lengthMenu: [5],
-                columns: [{
-                        data: null,
-                        render: (data, type, row, meta) => meta.row + 1
-                    },
-                    {
-                        data: "barang.nm_brg"
-                    },
-                    {
-                        data: "qty_beli"
-                    },
-                    {
-                        data: "satuan_beli"
+                {
+                    data: "qty_kirim"
+                },
+                {
+                    data: "satuan_beli"
+                },
+                {
+                    data: null,
+                    render: (data, type, row) => {
+                        let checked = selectedBarang.includes(row.brg_id) ? 'checked' : '';
+                        return `<input type="checkbox" class="check-barang" value="${row.brg_id}" ${checked}>`;
                     }
-                ],
-            });
-            $('#dataKirim').modal('show');
+                }
+            ],
         });
+        $('#dataCheck').modal('show');
+    });
 
-        $('#datatable-check').on('click', '.check-barang', function() {
-            let barangId = $(this).val();
-            if ($(this).prop('checked')) {
-                selectedBarang.push(barangId);
-            } else {
-                selectedBarang = selectedBarang.filter(item => item !== barangId);
-            }
-        });
+    $('#datatable-check').on('click', '.check-barang', function() {
+        let barangId = $(this).val();
+        if ($(this).prop('checked')) {
+            selectedBarang.push(barangId);
+        } else {
+            selectedBarang = selectedBarang.filter(item => item !== barangId);
+        }
+        // Call the function to check if any checkboxes are checked
+        toggleSaveButton();
+    });
 
-        $('form').on('submit', function(e) {
-            $('#items-container').empty();
-            selectedBarang.forEach(function(barangId) {
-                $('#items-container').append('<input type="hidden" name="brg_id[]" value="' + barangId +
-                    '">');
-            });
+    function toggleSaveButton() {
+        saveButton.disabled = selectedBarang.length === 0; // Disable if no items are selected
+    }
+
+    $('form').on('submit', function(e) {
+        $('#items-container').empty();
+        selectedBarang.forEach(function(barangId) {
+            $('#items-container').append('<input type="hidden" name="brg_id[]" value="' + barangId + '">');
         });
+    });
 </script>
 @endpush
 
@@ -177,23 +125,18 @@ Penerimaan Barang
                 <h5 class="card-title">Data Transaksi</h5>
                 <form action="{{ route('penerimaan-barang.store') }}" method="post" enctype="multipart/form-data">
                     @csrf
-                    {{-- <div class="form-group mt-3">
-                        <label for="no_trm">No. Dokumen</label>
-                        <input type="text" class="form-control" name="no_trm" value="{{ old('no_trm', $no_trm) }}"
-                            required>
-                    </div> --}}
                     <div class="form-group mt-3">
-                        <label for="no_krmskm">No. Dokumen Pengiriman Gudang Besar</label>
+                        <label for="no_krmskm">No. Dokumen Pengiriman :</label>
                         <input type="text" name="no_krmskm" id="no_krmskm" class="form-control" value="{{ $no_krm }}"
                             readonly>
                     </div>
                     <div class="form-group mt-3">
-                        <label for="no_reqskm">No. Dokumen Permintaan SKM</label>
+                        <label for="no_reqskm">No. Dokumen Permintaan :</label>
                         <input type="text" name="no_reqskm" id="no_reqskm" class="form-control" value="{{ $no_req }}"
                             readonly>
                     </div>
                     <div class="form-group mt-3">
-                        <label for="tgl_trm">Tanggal Penerimaan</label>
+                        <label for="tgl_trm">Tanggal Penerimaan :</label>
                         <input type="date" class="form-control" name="tgl_trm"
                             value="{{ old('tgl_trm', \Carbon\Carbon::now()->format('Y-m-d')) }}" required>
                     </div>
@@ -213,16 +156,6 @@ Penerimaan Barang
     </div>
     <div class="col-md-6">
         <div class="mb-3">
-            <button type="button" class="btn btn-dark waves-effect waves-light me-2" id="showDataPermintaanButton">
-                <i class="bx bx-show-alt align-middle me-2 font-size-18"></i> Lihat Data Permintaan
-            </button>
-        </div>
-        <div class="mb-3">
-            <button type="button" class="btn btn-dark waves-effect waves-light me-2" id="showDataPengirimanButton">
-                <i class="bx bx-show-alt align-middle me-2 font-size-18"></i> Lihat Data Pengiriman
-            </button>
-        </div>
-        <div class="mb-3">
             <button type="button" class="btn btn-dark waves-effect waves-light" id="showDataCheckButton">
                 <i class="bx bx-check-circle align-middle me-2 font-size-18"></i>Terima Data Barang
             </button>
@@ -230,72 +163,8 @@ Penerimaan Barang
     </div>
 </div>
 
-<div class="modal fade" id="dataMinta" tabindex="-1" role="dialog" aria-labelledby="dataModalLabel" aria-hidden="true">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="dataModalLabel">Data Permintaan</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <div class="row">
-                    <div class="col-sm-12">
-                        <table id="datatable-minta" class="table align-middle table-nowrap">
-                            <thead class="table-light">
-                                <tr>
-                                    <th>No</th>
-                                    <th>Nama Barang</th>
-                                    <th>Qty</th>
-                                    <th>Satuan</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
-            </div>
-        </div>
-    </div>
-</div>
-
-<div class="modal fade" id="dataKirim" tabindex="-1" role="dialog" aria-labelledby="dataModalLabel" aria-hidden="true">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="dataModalLabel">Data Pengiriman</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <div class="row">
-                    <div class="col-sm-12">
-                        <table id="datatable-kirim" class="table align-middle table-nowrap">
-                            <thead class="table-light">
-                                <tr>
-                                    <th>No</th>
-                                    <th>Nama Barang</th>
-                                    <th>Qty</th>
-                                    <th>Satuan</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
-            </div>
-        </div>
-    </div>
-</div>
-
 <div class="modal fade" id="dataCheck" tabindex="-1" role="dialog" aria-labelledby="dataModalLabel" aria-hidden="true">
-    <div class="modal-dialog" role="document">
+    <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="dataModalLabel">Data Penerimaan</h5>
@@ -303,14 +172,15 @@ Penerimaan Barang
             </div>
             <div class="modal-body">
                 <div class="row">
-                    <div class="col-sm-12">
+                    <div class="col-lg-12">
                         <div class="table-responsive">
                             <table id="datatable-check" class="table align-middle table-nowrap">
                                 <thead class="table-light">
                                     <tr>
                                         <th>No</th>
                                         <th>Nama Barang</th>
-                                        <th>Qty</th>
+                                        <th>Qty Minta</th>
+                                        <th>Qty Kirim</th>
                                         <th>Satuan</th>
                                         <th>Action</th>
                                     </tr>
