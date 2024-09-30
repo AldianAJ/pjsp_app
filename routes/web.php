@@ -118,8 +118,8 @@ Route::middleware('user')->group(function () {
         Route::post('/closing-mesin/store', 'store')->name('closing-mesin.store');
         Route::post('/closing-mesin/store-hlp', 'storeHlp')->name('closing-mesin.storeHlp');
         Route::get('/closing-mesin/edit/{closing_id}', 'edit')->name('closing-mesin.edit');
-        Route::post('/closing-mesin/update/{closing_id}', 'update')->name('closing-mesin.update');
-        Route::get('/closing-mesin/detail/{closing_id}', 'detail')->name('closing-mesin.detail');
+        Route::post('/closing-mesin/update/', 'update')->name('closing-mesin.update');
+        Route::get('/closing-mesin/detail', 'detail')->name('closing-mesin.detail');
     });
 
     Route::controller(TrReqSKMController::class)->group(function () {
