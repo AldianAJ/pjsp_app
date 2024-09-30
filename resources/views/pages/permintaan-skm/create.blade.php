@@ -42,8 +42,8 @@ Tambah Permintaan
                         },
                         {
                             data: null,
-                            render: (data, type, row) => `<button type="button" class="btn btn-primary font-size-10 waves-effect waves-light" onclick="showSpecs('${row.brg_id}', '${row.nm_brg}')">
-                        <i class="fas fa-plus align-middle"></i>
+                            render: (data, type, row) => `<button type="button" class="btn btn-primary font-size-14 waves-effect waves-light" onclick="showSpecs('${row.brg_id}', '${row.nm_brg}')">
+                        Pilih
                     </button>`
                         }
                     ],
@@ -79,8 +79,8 @@ Tambah Permintaan
                         },
                         {
                             data: null,
-                            render: (data, type, row) => `<button type="button" class="btn btn-primary font-size-10 waves-effect waves-light" onclick="showQtyModal('${row.brg_id}', '${row.nm_brg}', '${row.satuan1}', '${row.satuan2}', '${row.konversi1}', '${row.spek_id}', '${row.spek}')">
-                        <i class="fas fa-plus align-middle"></i>
+                            render: (data, type, row) => `<button type="button" class="btn btn-primary font-size-14 waves-effect waves-light" onclick="showQtyModal('${row.brg_id}', '${row.nm_brg}', '${row.satuan1}', '${row.satuan2}', '${row.konversi1}', '${row.spek_id}', '${row.spek}')">
+                        Pilih
                     </button>`
                         }
                     ],
@@ -288,7 +288,7 @@ Tambah Permintaan
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="dataModalLabel">Data Barang</h5>
+                <h5 class="modal-title fw-bolder font-size-22" id="dataModalLabel">Data Barang</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
@@ -322,7 +322,7 @@ Tambah Permintaan
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="dataSpekLabel">Data Spesifikasi</h5>
+                <h5 class="modal-title fw-bolder font-size-22" id="dataSpekLabel">Data Spesifikasi</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
@@ -356,7 +356,7 @@ Tambah Permintaan
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="qtyModalLabel">Input Qty</h5>
+                <h5 class="modal-title fw-bolder font-size-22" id="qtyModalLabel">Input Qty</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">

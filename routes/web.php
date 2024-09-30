@@ -15,6 +15,7 @@ use App\Http\Controllers\Admin\TrReqSKMController;
 use App\Http\Controllers\Admin\TrKrmSKMController;
 use App\Http\Controllers\Admin\TrKrmMsnController;
 use App\Http\Controllers\Admin\TrMutasiController;
+use App\Http\Controllers\Admin\SuratJalanController;
 use App\Http\Controllers\Admin\ReturnMesinController;
 /*
 |--------------------------------------------------------------------------
@@ -193,5 +194,14 @@ Route::middleware('user')->group(function () {
         Route::get('/stok-masuk/edit/{no_trm}', 'edit')->name('stok-masuk.edit');
         Route::post('/stok-masuk/update/{no_trm}', 'update')->name('stok-masuk.update');
         Route::get('/stok-masuk/detail', 'detail')->name('stok-masuk.detail');
+    });
+
+    Route::controller(SuratJalanController::class)->group(function () {
+        Route::get('/surat-jalan', 'index')->name('surat-jalan');
+        Route::get('/surat-jalan/create', 'create')->name('surat-jalan.create');
+        Route::post('/surat-jalan/store', 'store')->name('surat-jalan.store');
+        Route::get('/surat-jalan/edit/{no_po}', 'edit')->name('surat-jalan.edit');
+        Route::post('/surat-jalan/update/{no_po}', 'update')->name('surat-jalan.update');
+        Route::get('/surat-jalan/detail', 'detail')->name('surat-jalan.detail');
     });
 });

@@ -46,7 +46,7 @@ Edit Penerimaan Supplier
                             render: (data, type, row, meta) => meta.row + 1
                         },
                         {
-                            data: "barang.nm_brg",
+                            data: "nama",
                         },
                         {
                             data: "qty_beli",
@@ -61,6 +61,18 @@ Edit Penerimaan Supplier
                             data: "satuan_beli",
                         },
                         {
+                            data: "qty_std",
+                            render: function(data, type, row) {
+                                return `
+                                <span class="qty-value-konversi" style="width: 5.5rem;">${data}</span>
+                                <input type="text" inputmode="numeric" class="form-control qty-input-konversi d-none" style="width: 5.5rem;" value="${data}">
+                            `;
+                            }
+                        },
+                        {
+                            data: "satuan_std"
+                        },
+                        {
                             data: null,
                             render: function(data, type, row) {
                                 return `
@@ -73,6 +85,7 @@ Edit Penerimaan Supplier
                     ],
                     rowCallback: function(row, data) {
                         $(row).attr('data-brg-id', data.brg_id);
+                        $(row).data('konversi1', data.konversi1);
                     }
                 });
             }
@@ -88,16 +101,36 @@ Edit Penerimaan Supplier
 
             $('#editDataBarangModal').on('click', '.edit-btn', function() {
                 var $row = $(this).closest('tr');
+                var konversi = parseFloat($row.data('konversi1'));
+
                 $row.find('.qty-value').addClass('d-none');
+                $row.find('.qty-value-konversi').addClass('d-none');
                 $row.find('.qty-input').removeClass('d-none');
+                $row.find('.qty-input-konversi').removeClass('d-none');
                 $(this).addClass('d-none');
                 $row.find('.save-btn').removeClass('d-none');
                 $row.find('.cancel-btn').removeClass('d-none');
+
+                $row.find('.qty-input').on('keyup', function() {
+                    var qtyBeli = parseFloat($(this).val()) || 0;
+                    var qtyStd = qtyBeli * konversi;
+                    $row.find('.qty-input-konversi').val(qtyStd);
+                });
+
+                $row.find('.qty-input-konversi').on('keyup', function() {
+                    var qtyStd = parseFloat($(this).val()) || 0;
+                    var qtyBeli = qtyStd / konversi;
+                    $row.find('.qty-input').val(qtyBeli);
+                });
             });
 
             $('#editDataBarangModal').on('click', '.save-btn', function() {
                 var $row = $(this).closest('tr');
-                var qty_beli = $row.find('.qty-input').val();
+                var qtyInput = $row.find('.qty-input');
+                var qtyInputKonversi = $row.find('.qty-input-konversi');
+
+                var qty_beli = parseFloat(qtyInput.val());
+                var qty_std = parseFloat(qtyInputKonversi.val());
                 var brg_id = $row.data('brg-id');
 
                 $.ajax({
@@ -108,11 +141,15 @@ Edit Penerimaan Supplier
                         no_trm: "{{ $no_trm }}",
                         items: [{
                             brg_id: brg_id,
-                            qty_beli: qty_beli
+                            qty_beli: qty_beli,
+                            qty_std: qty_std
                         }]
                     },
                     success: function(response) {
                         $row.find('.qty-value').text(qty_beli).removeClass('d-none');
+                        $row.find('.qty-value-konversi').text(qty_std).removeClass('d-none');
+                        qtyInput.addClass('d-none');
+                        qtyInputKonversi.addClass('d-none');
                         $row.find('.qty-input').addClass('d-none');
                         $row.find('.save-btn').addClass('d-none');
                         $row.find('.edit-btn').removeClass('d-none');
@@ -131,8 +168,10 @@ Edit Penerimaan Supplier
 
             $('#editDataBarangModal').on('click', '.cancel-btn', function() {
                 var $row = $(this).closest('tr');
-                var originalQty = $row.find('.qty-value').text();
-                $row.find('.qty-value').text(originalQty).removeClass('d-none');
+                var QtyBeli = $row.find('.qty-value').text();
+                var QtyStd = $row.find('.qty-value-konversi').text();
+                $row.find('.qty-value').text(QtyBeli).removeClass('d-none');
+                $row.find('.qty-value-konversi').text(QtyStd).removeClass('d-none');
                 $row.find('.qty-input').addClass('d-none');
                 $(this).addClass('d-none');
                 $row.find('.save-btn').addClass('d-none');
@@ -294,6 +333,8 @@ Edit Penerimaan Supplier
                                 <th>Nama Barang</th>
                                 <th>Qty</th>
                                 <th>Satuan</th>
+                                <th>Qty Konversi</th>
+                                <th>Satuan Konversi</th>
                                 <th>Action</th>
                             </tr>
                         </thead>

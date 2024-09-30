@@ -19,226 +19,202 @@ Edit Pengiriman
 
 <script>
     $(document).ready(function() {
-            var no_krmskm = "{{ $no_krmskm }}";
-            var dataTableInitialized = false;
+        var no_krmskm = "{{ $no_krmskm }}";
+        var dataTableInitialized = false;
 
-            function initializeDataTable() {
-                $('#datatable-detail').DataTable({
-                    ajax: {
-                        url: "{{ url('pengiriman-gudang-utama/edit') }}/" + no_krmskm,
-                        data: {
-                            type: 'details'
-                        },
+        function initializeDataTable() {
+            $('#datatable-detail').DataTable({
+                ajax: {
+                    url: "{{ url('pengiriman-gudang-utama/edit') }}/" + no_krmskm,
+                    data: {
+                        type: 'details'
                     },
-                    lengthMenu: [5],
-                    columns: [{
-                            data: null,
-                            render: (data, type, row, meta) => meta.row + 1
-                        },
-                        {
-                            data: "nama",
-                        },
-                        {
-                            data: "qty_beli",
-                            render: function(data, type, row) {
-                                return `
-                                    <span class="qty-value" style="width: 5.5rem;">${data}</span>
-                                    <input type="text" inputmode="numeric" class="form-control qty-input d-none" style="width: 5.5rem;" value="${data}">
-                                `;
-                            }
-                        },
-                        {
-                            data: "satuan_beli",
-                        },
-                        {
-                            data: "qty_std",
-                            render: function(data, type, row) {
-                                return `
-                                    <span class="qty-value-konversi" style="width: 5.5rem;">${data}</span>
-                                    <input type="text" inputmode="numeric" class="form-control qty-input-konversi d-none" style="width: 5.5rem;" value="${data}">
-                                `;
-                            }
-                        },
-                        {
-                            data: "satuan_std"
-                        },
-                        {
-                            data: null,
-                            render: function(data, type, row) {
-                                return `
-                        <button class="btn btn-success waves-effect waves-light edit-btn"><i class="bx bx-edit align-middle font-size-14"></i> Edit</button>
-                        <button class="btn btn-danger waves-effect waves-light cancel-btn d-none"><i class="bx bx-x-circle align-middle font-size-14"></i> Batal</button>
-                        <button class="btn btn-primary waves-effect waves-light save-btn d-none"><i class="bx bx-save align-middle font-size-14"></i> Simpan</button>
-                    `;
-                            }
+                },
+                lengthMenu: [5],
+                columns: [{
+                        data: null,
+                        render: (data, type, row, meta) => meta.row + 1
+                    },
+                    {
+                        data: "nama",
+                    },
+                    {
+                        data: "qty_beli",
+                        render: function(data) {
+                            return `
+                                <span class="qty-value" style="width: 5.5rem;">${data}</span>
+                                <input type="text" inputmode="numeric" class="form-control qty-input d-none" style="width: 5.5rem;" value="${data}">
+                            `;
                         }
-                    ],
-                    rowCallback: function(row, data) {
-                        $(row).attr('data-brg-id', data.brg_id);
-                        $(row).data('konversi1', data.konversi1);
+                    },
+                    {
+                        data: "satuan_beli",
+                    },
+                    {
+                        data: "qty_std",
+                        render: function(data) {
+                            return `
+                                <span class="qty-value-konversi" style="width: 5.5rem;">${data}</span>
+                                <input type="text" inputmode="numeric" class="form-control qty-input-konversi d-none" style="width: 5.5rem;" value="${data}">
+                            `;
+                        }
+                    },
+                    {
+                        data: "satuan_std"
+                    },
+                    {
+                        data: null,
+                        render: function() {
+                            return `
+                                <button class="btn btn-success waves-effect waves-light edit-btn"><i class="bx bx-edit align-middle font-size-14"></i> Edit</button>
+                                <button class="btn btn-danger waves-effect waves-light cancel-btn d-none"><i class="bx bx-x-circle align-middle font-size-14"></i> Batal</button>
+                                <button class="btn btn-primary waves-effect waves-light save-btn d-none"><i class="bx bx-save align-middle font-size-14"></i> Simpan</button>
+                            `;
+                        }
                     }
-                });
-            }
-
-            $('#showDataBarangButton').on('click', function() {
-                $('#editDataBarangModal').modal('show');
-
-                if (!dataTableInitialized) {
-                    initializeDataTable();
-                    dataTableInitialized = true;
+                ],
+                rowCallback: function(row, data) {
+                    $(row).attr('data-brg-id', data.brg_id);
+                    $(row).data('konversi1', data.konversi1);
                 }
             });
+        }
 
-            $('#editDataBarangModal').on('click', '.edit-btn', function() {
-                var $row = $(this).closest('tr');
-                var konversi = parseFloat($row.data(
-                    'konversi1'));
+        $('#showDataBarangButton').on('click', function() {
+            $('#editDataBarangModal').modal('show');
 
-                $row.find('.qty-value').addClass('d-none');
-                $row.find('.qty-value-konversi').addClass('d-none');
-                $row.find('.qty-input').removeClass('d-none');
-                $row.find('.qty-input-konversi').removeClass('d-none');
-                $(this).addClass('d-none');
-                $row.find('.save-btn').removeClass('d-none');
-                $row.find('.cancel-btn').removeClass('d-none');
-
-                new AutoNumeric($row.find('.qty-input')[0], {
-                    decimalCharacter: ',',
-                    digitGroupSeparator: '.'
-                });
-                new AutoNumeric($row.find('.qty-input-konversi')[0], {
-                    decimalCharacter: ',',
-                    digitGroupSeparator: '.'
-                });
-
-                $row.find('.qty-input').on('keyup', function() {
-                    var qtyBeli = parseFloat(AutoNumeric.getNumber(this)) ||
-                        0;
-                    var qtyStd = qtyBeli * konversi;
-                    $row.find('.qty-input-konversi').val(AutoNumeric.format(
-                        qtyStd));
-                });
-
-                $row.find('.qty-input-konversi').on('keyup', function() {
-                    var qtyStd = parseFloat(AutoNumeric.getNumber(this)) ||
-                        0;
-                    var qtyBeli = qtyStd / konversi;
-                    $row.find('.qty-input').val(AutoNumeric.format(
-                        qtyBeli));
-                });
-            });
-
-            $('#editDataBarangModal').on('click', '.save-btn', function() {
-                var $row = $(this).closest('tr');
-                var qtyInput = $row.find('.qty-input');
-                var qtyInputKonversi = $row.find('.qty-input-konversi');
-
-                new AutoNumeric(qtyInput[0], {
-                    decimalCharacter: ',',
-                    digitGroupSeparator: '.'
-                });
-                new AutoNumeric(qtyInputKonversi[0], {
-                    decimalCharacter: ',',
-                    digitGroupSeparator: '.'
-                });
-
-                var qty_beli = AutoNumeric.getNumber(qtyInput[0]);
-                var qty_std = AutoNumeric.getNumber(qtyInputKonversi[0]);
-                var brg_id = $row.data('brg-id');
-
-                $.ajax({
-                    url: "{{ route('pengiriman-gudang-utama.update', ['no_krmskm' => $no_krmskm]) }}",
-                    method: 'POST',
-                    data: {
-                        _token: "{{ csrf_token() }}",
-                        no_krmskm: "{{ $no_krmskm }}",
-                        items: [{
-                            brg_id: brg_id,
-                            qty_beli: qty_beli,
-                            qty_std: qty_std
-                        }]
-                    },
-                    success: function(response) {
-                        $row.find('.qty-value').text(qty_beli).removeClass('d-none');
-                        $row.find('.qty-value-konversi').text(qty_std).removeClass('d-none');
-                        $row.find('.qty-input').addClass('d-none');
-                        $row.find('.qty-input-konversi').addClass('d-none');
-                        $row.find('.save-btn').addClass('d-none');
-                        $row.find('.edit-btn').removeClass('d-none');
-                        $row.find('.cancel-btn').addClass('d-none');
-                        Swal.fire({
-                            toast: true,
-                            position: 'top-right',
-                            icon: response.success ? 'success' : 'error',
-                            title: response.message,
-                            showConfirmButton: false,
-                            timer: 5000
-                        });
-                    },
-                });
-            });
-
-            $('#editDataBarangModal').on('click', '.cancel-btn', function() {
-                var $row = $(this).closest('tr');
-                var QtyBeli = $row.find('.qty-value').text();
-                var QtyStd = $row.find('.qty-value-konversi').text();
-                $row.find('.qty-value').text(QtyBeli).removeClass('d-none');
-                $row.find('.qty-value-konversi').text(QtyStd).removeClass('d-none');
-                $row.find('.qty-input').addClass('d-none');
-                $row.find('.qty-input-konversi').addClass('d-none');
-                $(this).addClass('d-none');
-                $row.find('.save-btn').addClass('d-none');
-                $row.find('.edit-btn').removeClass('d-none');
-            });
-
-            function checkFormChanges() {
-                let isChanged = false;
-
-                $('#updateForm input, #updateForm select').each(function() {
-                    if ($(this).is(':visible') && $(this).data('original-value') !== $(this).val()) {
-                        isChanged = true;
-                    }
-                });
-
+            if (!dataTableInitialized) {
+                initializeDataTable();
+                dataTableInitialized = true;
             }
+        });
+
+        $('#editDataBarangModal').on('click', '.edit-btn', function() {
+            var $row = $(this).closest('tr');
+            var konversi = parseFloat($row.data('konversi1'));
+
+            $row.find('.qty-value').addClass('d-none');
+            $row.find('.qty-value-konversi').addClass('d-none');
+            $row.find('.qty-input').removeClass('d-none');
+            $row.find('.qty-input-konversi').removeClass('d-none');
+            $(this).addClass('d-none');
+            $row.find('.save-btn').removeClass('d-none');
+            $row.find('.cancel-btn').removeClass('d-none');
+
+            $row.find('.qty-input').on('input', function() {
+                var qtyBeli = parseFloat($(this).val()) || 0;
+                var qtyStd = qtyBeli * konversi;
+                $row.find('.qty-input-konversi').val(qtyStd);
+            });
+
+            $row.find('.qty-input-konversi').on('input', function() {
+                var qtyStd = parseFloat($(this).val()) || 0;
+                var qtyBeli = qtyStd / konversi;
+                $row.find('.qty-input').val(qtyBeli);
+            });
+        });
+
+        $('#editDataBarangModal').on('click', '.save-btn', function() {
+            var $row = $(this).closest('tr');
+            var qtyInput = $row.find('.qty-input');
+            var qtyInputKonversi = $row.find('.qty-input-konversi');
+
+            var qty_beli = parseFloat(qtyInput.val()) || 0;
+            var qty_std = parseFloat(qtyInputKonversi.val()) || 0;
+            var brg_id = $row.data('brg-id');
+
+            $.ajax({
+                url: "{{ route('pengiriman-gudang-utama.update', ['no_krmskm' => $no_krmskm]) }}",
+                method: 'POST',
+                data: {
+                    _token: "{{ csrf_token() }}",
+                    no_krmskm: "{{ $no_krmskm }}",
+                    items: [{
+                        brg_id: brg_id,
+                        qty_beli: qty_beli,
+                        qty_std: qty_std
+                    }]
+                },
+                success: function(response) {
+                    $row.find('.qty-value').text(qty_beli).removeClass('d-none');
+                    $row.find('.qty-value-konversi').text(qty_std).removeClass('d-none');
+                    $row.find('.qty-input').addClass('d-none');
+                    $row.find('.qty-input-konversi').addClass('d-none');
+                    $row.find('.save-btn').addClass('d-none');
+                    $row.find('.edit-btn').removeClass('d-none');
+                    $row.find('.cancel-btn').addClass('d-none');
+                    Swal.fire({
+                        toast: true,
+                        position: 'top-right',
+                        icon: response.success ? 'success' : 'error',
+                        title: response.message,
+                        showConfirmButton: false,
+                        timer: 5000
+                    });
+                },
+            });
+        });
+
+        $('#editDataBarangModal').on('click', '.cancel-btn', function() {
+            var $row = $(this).closest('tr');
+            var QtyBeli = $row.find('.qty-value').text();
+            var QtyStd = $row.find('.qty-value-konversi').text();
+            $row.find('.qty-value').text(QtyBeli).removeClass('d-none');
+            $row.find('.qty-value-konversi').text(QtyStd).removeClass('d-none');
+            $row.find('.qty-input').addClass('d-none');
+            $row.find('.qty-input-konversi').addClass('d-none');
+            $(this).addClass('d-none');
+            $row.find('.save-btn').addClass('d-none');
+            $row.find('.edit-btn').removeClass('d-none');
+        });
+
+        function checkFormChanges() {
+            let isChanged = false;
 
             $('#updateForm input, #updateForm select').each(function() {
-                $(this).data('original-value', $(this).val());
+                if ($(this).is(':visible') && $(this).data('original-value') !== $(this).val()) {
+                    isChanged = true;
+                }
             });
+        }
 
-            $('#updateForm input, #updateForm select').on('input change', checkFormChanges);
+        $('#updateForm input, #updateForm select').each(function() {
+            $(this).data('original-value', $(this).val());
         });
 
-        document.getElementById('updateForm').addEventListener('submit', function(e) {
-            e.preventDefault();
+        $('#updateForm input, #updateForm select').on('input change', checkFormChanges);
+    });
 
-            var form = this;
-            var formData = new FormData(form);
+    document.getElementById('updateForm').addEventListener('submit', function(e) {
+        e.preventDefault();
 
-            fetch(form.action, {
-                    method: 'POST',
-                    body: formData,
-                    headers: {
-                        'X-CSRF-TOKEN': document.querySelector('input[name="_token"]').value
-                    }
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        Swal.fire({
-                            icon: 'success',
-                            title: 'Berhasil',
-                            text: data.message,
-                            timer: 2000,
-                            showConfirmButton: false,
-                            toast: true,
-                            position: 'top-right'
-                        }).then(() => {
-                            window.location.href = "{{ route('pengiriman-gudang-utama') }}";
-                        });
-                    }
-                });
-        });
+        var form = this;
+        var formData = new FormData(form);
+
+        fetch(form.action, {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('input[name="_token"]').value
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Berhasil',
+                        text: data.message,
+                        timer: 2000,
+                        showConfirmButton: false,
+                        toast: true,
+                        position: 'top-right'
+                    }).then(() => {
+                        window.location.href = "{{ route('pengiriman-gudang-utama') }}";
+                    });
+                }
+            });
+    });
 </script>
 @endpush
 

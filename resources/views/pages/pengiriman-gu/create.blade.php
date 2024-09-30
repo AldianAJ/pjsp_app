@@ -300,7 +300,7 @@ Persetujuan Permintaan
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="permintaanModalLabel">Data Permintaan</h5>
+                <h5 class="modal-title fw-bolder font-size-22" id="permintaanModalLabel">Data Permintaan</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
@@ -330,7 +330,7 @@ Persetujuan Permintaan
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="dataModalLabel">Data Barang</h5>
+                <h5 class="modal-title fw-bolder font-size-22" id="dataModalLabel">Data Barang</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
@@ -363,7 +363,7 @@ Persetujuan Permintaan
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="qtyModalLabel">Input Qty</h5>
+                <h5 class="modal-title fw-bolder font-size-22" id="qtyModalLabel">Input Qty</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">

@@ -79,8 +79,8 @@ Tambah Pengiriman ke Mesin
                         },
                         {
                             data: null,
-                            render: (data, type, row) => `<button type="button" class="btn btn-primary font-size-10 waves-effect waves-light" onclick="showQtyModal('${row.brg_id}', '${row.nm_brg}', '${row.satuan1}', '${row.satuan2}', '${row.konversi1}', '${row.spek_id}', '${row.spek}')">
-                        <i class="fas fa-plus align-middle"></i>
+                            render: (data, type, row) => `<button type="button" class="btn btn-primary font-size-14 waves-effect waves-light" onclick="showQtyModal('${row.brg_id}', '${row.nm_brg}', '${row.satuan1}', '${row.satuan2}', '${row.konversi1}', '${row.spek_id}', '${row.spek}')">
+                        Pilih
                     </button>`
                         }
                     ],
@@ -92,7 +92,6 @@ Tambah Pengiriman ke Mesin
 
             $('input[name="tgl"]').on('change', function() {
                 const selectedDate = $(this).val();
-                console.log(selectedDate);
 
                 if ($.fn.DataTable.isDataTable('#datatable-shifts')) {
                     $('#datatable-shifts').DataTable().clear().destroy();
@@ -115,8 +114,8 @@ Tambah Pengiriman ke Mesin
                         },
                         {
                             data: null,
-                            render: (data, type, row) => `<button type="button" class="btn btn-primary font-size-10 waves-effect waves-light" onclick="selectShift('${row.shift_id}')">
-                        <i class="fas fa-plus align-middle"></i>
+                            render: (data, type, row) => `<button type="button" class="btn btn-primary font-size-14 waves-effect waves-light" onclick="selectShift('${row.shift_id}')">
+                        Pilih
                     </button>`
                         }
                     ]
@@ -148,7 +147,9 @@ Tambah Pengiriman ke Mesin
                         {
                             data: null,
                             render: (data, type, row) => `
-                        <button class="btn btn-primary">Pilih</button>`
+                        <button type="button" class="btn btn-primary font-size-14 waves-effect waves-light" onclick="select('${row.msn_trgt_id}')">
+                        Pilih
+                    </button>`
                         }
                     ]
                 });
@@ -156,6 +157,12 @@ Tambah Pengiriman ke Mesin
                 $('#dataShift').modal('hide');
                 $('#dataMesin').modal('show');
             };
+
+            function select(msn_trgt_id) {
+            document.getElementById('msn_trgt_id').value = msn_trgt_id;
+
+            $('#dataMesin').modal('hide');
+        }
 
 
             window.showQtyModal = function(brg_id, nm_brg, satuan1, satuan2, konversi1, spek_id, spek) {
@@ -330,8 +337,7 @@ Tambah Pengiriman ke Mesin
                         <input type="date" class="form-control" name="tgl"
                             value="{{ old('tgl', \Carbon\Carbon::now()->format('Y-m-d')) }}" required>
                     </div>
-                    <input type="hidden" name="gudang_id" id="gudang_id"
-                        value="{{ old('gudang_id', $gudang_id ?? '') }}">
+                    <input type="hidden" name="msn_trgt_id" id="msn_trgt_id" value="">
                     <div id="items-container"></div> <!-- Container for items input fields -->
                     <div class="d-flex justify-content-end mt-3">
                         <a href="{{ route('pengiriman-skm') }}" class="btn btn-secondary waves-effect waves-light me-2">

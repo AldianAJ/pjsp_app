@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Models\Admin\Barang;
+use App\Models\Admin\BarangSpek;
 use App\Models\Admin\TrMutasi;
 use App\Models\Admin\TrMutasiDetail;
 use App\Models\Admin\Gudang;
@@ -71,9 +71,9 @@ class TrMutasiController extends Controller
 
         if ($request->ajax()) {
             $speks = DB::table('m_brg_spek as a')
-                ->join('m_brg as b', 'a.brg_id', '=', 'b.brg_id')
-                ->select('b.brg_id', 'b.nm_brg', 'a.satuan1', 'a.satuan2', 'a.konversi1', 'a.spek_id', 'a.spek')
-                ->where('b.brg_id', 'LIKE', 'WIP%')
+                ->join('m_brg as b', 'a.spek_id', '=', 'b.spek_id')
+                ->select('b.spek_id', 'b.nm_brg', 'a.satuan1', 'a.satuan2', 'a.konversi1', 'a.spek_id', 'a.spek')
+                ->where('b.spek_id', 'LIKE', 'WIP%')
                 ->where('a.satuan1', 'TRAY')
                 ->where('a.status', 0)
                 ->get();
@@ -134,37 +134,27 @@ class TrMutasiController extends Controller
     public function edit(Request $request, string $mutasi_id)
     {
         $user = $this->userAuth();
-        $no_req = str_replace('-', '/', $mutasi_id);
+        $no_mutasi = str_replace('-', '/', $mutasi_id);
 
-        $tgl = TrMutasi::where('mutasi_id', $no_req)
+        $tgl = TrMutasi::where('mutasi_id', $no_mutasi)
             ->where('status', 0)
             ->value('tgl');
 
         if ($request->ajax()) {
-            $type = $request->input('type');
 
-            if ($type == 'details') {
-                $details = DB::table('tr_mutasi_detail as a')
-                    ->join('m_brg as b', 'a.brg_id', '=', 'b.brg_id')
-                    ->join('m_brg_spek as c', 'a.spek_id', '=', 'c.spek_id')
-                    ->select('b.brg_id', 'b.nm_brg as nama', 'a.qty_beli', 'a.satuan_beli', 'a.qty_std', 'a.satuan_std', 'c.konversi1')
-                    ->where('mutasi_id', $no_req)
-                    ->where('a.status', 0)
-                    ->get();
+            $details = DB::table('tr_mutasi_detail as a')
+                ->join('m_brg_spek as b', 'a.spek_id', '=', 'b.spek_id')
+                ->join('m_brg as c', 'b.brg_id', '=', 'c.brg_id')
+                ->select('b.spek_id', 'c.nm_brg', 'a.qty', 'a.satuan', 'a.qty_std', 'a.satuan_std', 'b.konversi1')
+                ->where('a.mutasi_id', $no_mutasi)
+                ->where('a.status', 0)
+                ->get();
 
-                return DataTables::of($details)->make(true);
+            return DataTables::of($details)->make(true);
 
-            } elseif ($type == 'barangs') {
-                $barangs = Barang::where('status', 0)
-                    ->orderBy('brg_id', 'asc')
-                    ->get();
 
-                return DataTables::of($barangs)->make(true);
-
-            }
         }
-
-        return view('pages.penerimaan-skm.edit', compact('user', 'tgl', 'mutasi_id', 'no_req'));
+        return view('pages.pengiriman-batangan.edit', compact('user', 'tgl', 'mutasi_id', 'no_mutasi'));
     }
 
     /**
@@ -172,26 +162,26 @@ class TrMutasiController extends Controller
      */
     public function update(Request $request, string $mutasi_id)
     {
-        $no_req = str_replace('-', '/', $mutasi_id);
+        $no_mutasi = str_replace('-', '/', $mutasi_id);
         $responseMessage = '';
 
         if (!empty($request->items)) {
             foreach ($request->items as $item) {
-                $data_tr_mutasi_detail = TrMutasiDetail::where('mutasi_id', operator: $no_req)
-                    ->where('brg_id', $item['brg_id'])
+                $data_tr_mutasi_detail = TrMutasiDetail::where('mutasi_id', operator: $no_mutasi)
+                    ->where('spek_id', $item['spek_id'])
                     ->first();
 
                 if ($data_tr_mutasi_detail) {
-                    $nama = Barang::where('brg_id', $item['brg_id'])->value('nm_brg');
+                    $nama = BarangSpek::where('spek_id', $item['spek_id'])->value('spek');
                     $data_tr_mutasi_detail->update([
-                        'qty_beli' => $item['qty_beli'],
+                        'qty' => $item['qty'],
                         'qty_std' => $item['qty_std']
                     ]);
-                    $responseMessage = 'Data ' . $nama . ' berhasil diubah. Menjadi Qty : ' . $item['qty_beli'];
+                    $responseMessage = 'Data ' . $nama . ' berhasil diubah. Menjadi Qty : ' . $item['qty'];
                 }
             }
         } else {
-            $data_tr_mutasi = TrMutasi::where('mutasi_id', $no_req)->first();
+            $data_tr_mutasi = TrMutasi::where('mutasi_id', $no_mutasi)->first();
             $data_tr_mutasi->update([
                 'tgl' => $request->tgl,
             ]);
@@ -243,9 +233,9 @@ class TrMutasiController extends Controller
 
         if ($request->ajax()) {
             $speks = DB::table('m_brg_spek as a')
-                ->join('m_brg as b', 'a.brg_id', '=', 'b.brg_id')
-                ->select('b.brg_id', 'b.nm_brg', 'a.satuan1', 'a.satuan2', 'a.konversi1', 'a.spek_id', 'a.spek')
-                ->where('b.brg_id', 'LIKE', 'BJR%')
+                ->join('m_brg as b', 'a.spek_id', '=', 'b.spek_id')
+                ->select('b.spek_id', 'b.nm_brg', 'a.satuan1', 'a.satuan2', 'a.konversi1', 'a.spek_id', 'a.spek')
+                ->where('b.spek_id', 'LIKE', 'BJR%')
                 ->where('a.satuan1', 'BOX')
                 ->where('a.status', 0)
                 ->get();
@@ -306,37 +296,25 @@ class TrMutasiController extends Controller
     public function editBJSK(Request $request, string $mutasi_id)
     {
         $user = $this->userAuth();
-        $no_req = str_replace('-', '/', $mutasi_id);
+        $no_mutasi = str_replace('-', '/', $mutasi_id);
 
-        $tgl = TrMutasi::where('mutasi_id', $no_req)
+        $tgl = TrMutasi::where('mutasi_id', $no_mutasi)
             ->where('status', 0)
             ->value('tgl');
 
         if ($request->ajax()) {
-            $type = $request->input('type');
+            $details = DB::table('tr_mutasi_detail as a')
+                ->join('m_brg as b', 'a.spek_id', '=', 'b.spek_id')
+                ->join('m_brg_spek as c', 'a.spek_id', '=', 'c.spek_id')
+                ->select('b.spek_id', 'b.nm_brg as nama', 'a.qty', 'a.satuan_beli', 'a.qty_std', 'a.satuan_std', 'c.konversi1')
+                ->where('mutasi_id', $no_mutasi)
+                ->where('a.status', 0)
+                ->get();
 
-            if ($type == 'details') {
-                $details = DB::table('tr_mutasi_detail as a')
-                    ->join('m_brg as b', 'a.brg_id', '=', 'b.brg_id')
-                    ->join('m_brg_spek as c', 'a.spek_id', '=', 'c.spek_id')
-                    ->select('b.brg_id', 'b.nm_brg as nama', 'a.qty_beli', 'a.satuan_beli', 'a.qty_std', 'a.satuan_std', 'c.konversi1')
-                    ->where('mutasi_id', $no_req)
-                    ->where('a.status', 0)
-                    ->get();
-
-                return DataTables::of($details)->make(true);
-
-            } elseif ($type == 'barangs') {
-                $barangs = Barang::where('status', 0)
-                    ->orderBy('brg_id', 'asc')
-                    ->get();
-
-                return DataTables::of($barangs)->make(true);
-
-            }
+            return DataTables::of($details)->make(true);
         }
 
-        return view('pages.penerimaan-skm.edit', compact('user', 'tgl', 'mutasi_id', 'no_req'));
+        return view('pages.pengiriman-bjsk.edit', compact('user', 'tgl', 'mutasi_id', 'no_mutasi'));
     }
 
     /**
@@ -344,26 +322,26 @@ class TrMutasiController extends Controller
      */
     public function updateBJSK(Request $request, string $mutasi_id)
     {
-        $no_req = str_replace('-', '/', $mutasi_id);
+        $no_mutasi = str_replace('-', '/', $mutasi_id);
         $responseMessage = '';
 
         if (!empty($request->items)) {
             foreach ($request->items as $item) {
-                $data_tr_mutasi_detail = TrMutasiDetail::where('mutasi_id', operator: $no_req)
-                    ->where('brg_id', $item['brg_id'])
+                $data_tr_mutasi_detail = TrMutasiDetail::where('mutasi_id', operator: $no_mutasi)
+                    ->where('spek_id', $item['spek_id'])
                     ->first();
 
                 if ($data_tr_mutasi_detail) {
-                    $nama = Barang::where('brg_id', $item['brg_id'])->value('nm_brg');
+                    $nama = BarangSpek::where('spek_id', $item['spek_id'])->value('spek');
                     $data_tr_mutasi_detail->update([
-                        'qty_beli' => $item['qty_beli'],
+                        'qty' => $item['qty'],
                         'qty_std' => $item['qty_std']
                     ]);
-                    $responseMessage = 'Data ' . $nama . ' berhasil diubah. Menjadi Qty : ' . $item['qty_beli'];
+                    $responseMessage = 'Data ' . $nama . ' berhasil diubah. Menjadi Qty : ' . $item['qty'];
                 }
             }
         } else {
-            $data_tr_mutasi = TrMutasi::where('mutasi_id', $no_req)->first();
+            $data_tr_mutasi = TrMutasi::where('mutasi_id', $no_mutasi)->first();
             $data_tr_mutasi->update([
                 'tgl' => $request->tgl,
             ]);

@@ -75,12 +75,11 @@ Penerimaan Barang
         } else {
             selectedBarang = selectedBarang.filter(item => item !== barangId);
         }
-        // Call the function to check if any checkboxes are checked
         toggleSaveButton();
     });
 
     function toggleSaveButton() {
-        saveButton.disabled = selectedBarang.length === 0; // Disable if no items are selected
+        saveButton.disabled = selectedBarang.length === 0;
     }
 
     $('form').on('submit', function(e) {
@@ -167,7 +166,7 @@ Penerimaan Barang
     <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="dataModalLabel">Data Penerimaan</h5>
+                <h5 class="modal-title fw-bolder font-size-22" id="dataModalLabel">Data Penerimaan</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">

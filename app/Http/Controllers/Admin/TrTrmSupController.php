@@ -124,7 +124,7 @@ class TrTrmSupController extends Controller
             $id = str_pad(TrStok::count() + 1, 3, '0', STR_PAD_LEFT);
             $stok_id = "{$gudang_id}/{$item['brg_id']}/{$id}";
             $suppliers = Supplier::where('supplier_id', $request->supplier_id)->value('nama');
-            $ket = "Penerimaan barang dari ". $suppliers;
+            $ket = "Penerimaan barang dari " . $suppliers;
 
             $masuk = $item['qty_beli'];
 
@@ -171,9 +171,12 @@ class TrTrmSupController extends Controller
             $type = $request->input('type');
 
             if ($type == 'details') {
-                $details = TrTrmSupDetail::with('barang')
+                $details = DB::table('tr_trmsup_detail as a')
+                    ->join('m_brg as b', 'a.brg_id', '=', 'b.brg_id')
+                    ->join('m_brg_spek as c', 'a.spek_id', '=', 'c.spek_id')
+                    ->select('b.brg_id', 'b.nm_brg as nama', 'a.qty_beli', 'a.satuan_beli', 'a.qty_std', 'a.satuan_std', 'c.konversi1')
                     ->where('no_trm', $no_trms)
-                    ->where('status', 0)
+                    ->where('a.status', 0)
                     ->get();
 
                 return DataTables::of($details)->make(true);
@@ -185,15 +188,6 @@ class TrTrmSupController extends Controller
 
                 return DataTables::of($barangs)->make(true);
 
-            } elseif ($type == 'speks') {
-                $speks = DB::table('m_brg_spek as a')
-                    ->join('m_brg as b', 'a.brg_id', '=', 'b.brg_id')
-                    ->select('b.brg_id', 'b.nm_brg', 'a.satuan1', 'a.satuan2', 'a.konversi1', 'a.spek_id', 'a.spek')
-                    ->where('a.brg_id', $request->brg_id)
-                    ->where('a.status', 0)
-                    ->get();
-
-                return DataTables::of($speks)->make(true);
             }
         }
         return view('pages.stok-masuk.edit', compact('user', 'no_sj', 'data_supplier', 'suppliers', 'tgl', 'no_trm', 'no_trms'));
@@ -214,7 +208,10 @@ class TrTrmSupController extends Controller
 
                 if ($data_tr_trmsup_detail) {
                     $nama = Barang::where('brg_id', $item['brg_id'])->value('nm_brg');
-                    $data_tr_trmsup_detail->update(['qty_beli' => $item['qty_beli']]);
+                    $data_tr_trmsup_detail->update([
+                        'qty_beli' => $item['qty_beli'],
+                        'qty_std' => $item['qty_std']
+                    ]);
                     $responseMessage = 'Data ' . $nama . ' berhasil diubah. Menjadi Qty : ' . $item['qty_beli'];
                 }
             }
