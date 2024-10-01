@@ -118,9 +118,12 @@ Route::middleware('user')->group(function () {
         Route::get('/closing-mesin/create', 'create')->name('closing-mesin.create');
         Route::post('/closing-mesin/store', 'store')->name('closing-mesin.store');
         Route::post('/closing-mesin/store-hlp', 'storeHlp')->name('closing-mesin.storeHlp');
-        Route::get('/closing-mesin/edit/{closing_id}', 'edit')->name('closing-mesin.edit');
-        Route::post('/closing-mesin/update/', 'update')->name('closing-mesin.update');
+        Route::get('/closing-mesin/edit', 'edit')->name('closing-mesin.edit');
+        Route::get('/closing-mesin/edit-hlp', 'editHlp')->name('closing-mesin.editHlp');
+        Route::post('/closing-mesin/update', 'update')->name('closing-mesin.update');
+        Route::post('/closing-mesin/update-hlp', 'updateHlp')->name('closing-mesin.updateHlp');
         Route::get('/closing-mesin/detail', 'detail')->name('closing-mesin.detail');
+        Route::get('/closing-mesin/detail-hlp', 'detailHlp')->name('closing-mesin.detailHlp');
     });
 
     Route::controller(TrReqSKMController::class)->group(function () {
@@ -205,5 +208,4 @@ Route::middleware('user')->group(function () {
         Route::get('/penjualan/detail', 'detail')->name('penjualan.detail');
         Route::get('/penjualan/exportPDF/{no_sj}', 'exportPDF')->name('penjualan.exportPDF');
     });
-
 });

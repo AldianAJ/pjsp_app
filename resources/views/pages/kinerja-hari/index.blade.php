@@ -240,10 +240,11 @@ Target Harian
                 const name = data.target_hari.target_week.barang.nm_brg;
                 const tgl = data.target_hari.tgl;
                 const details = data.qty;
+                const shift = data.shift;
 
                 $('#shift_id').val(shiftId);
                 window.currentShiftId = shiftId;
-                $('#modalTitleMesin').html(`Target Mesin (${tgl}) (${name}, Jumlah: ${details})`);
+                $('#modalTitleMesin').html(`Target Mesin (${tgl}) (Shift ${shift}) (${name}, Jumlah: ${details})`);
                 $('#shiftModal').modal('hide');
                 $('#datatableMesinDetail').DataTable().ajax.reload();
                 $('#mesinModal').modal('show');
@@ -703,9 +704,9 @@ Target Harian
                                     <table id="datatableMesinDetail" class="table align-middle table-nowrap">
                                         <thead class="table-light">
                                             <tr>
+                                                <th>Id</th>
                                                 <th>Barang</th>
-                                                <th>Tgl</th>
-                                                <th>Shift</th>
+                                                <th>Mesin</th>
                                                 <th>Jumlah</th>
                                                 <th>Action</th>
                                             </tr>
