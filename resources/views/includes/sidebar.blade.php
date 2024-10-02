@@ -77,7 +77,7 @@
                 </li>
                 @endif
 
-                @if ($user->role == 'skm')
+                @if ($user->role == 'skm' || $user->role == 'skm1')
                 <li class="menu-title" key="t-menu">Menu</li>
                 <li>
                     <a href="{{ route('dashboard') }}">
@@ -165,6 +165,63 @@
                         <span key="t-terima">Penerimaan</span>
                     </a>
                 </li>
+                @endif
+
+                @if ($user->role == 'mkr1' || $user->role == 'mkr2' || $user->role == 'hlp1' || $user->role == 'hlp2' ||
+                $user->role == 'hlp3' || $user->role == 'hlp4')
+                <li class="menu-title" key="t-menu">Menu</li>
+                <li>
+                    <a href="{{ route('dashboard') }}">
+                        <i class="bx bx-home-circle"></i>
+                        <span key="t-dashboards">Welcome</span>
+                    </a>
+                </li>
+                <li class="menu-title" key="t-transactions">Form</li>
+                <li>
+                    <a href="{{ route('penerimaan-barang') }}" class="waves-effect">
+                        <i class="bx bx-check-square"></i>
+                        <span key="t-terima">Terima Barang</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="{{ route('pengiriman-batangan') }}" class="waves-effect">
+                        <i class="bx bxs-duplicate"></i>
+                        <span key="t-kirim-btg">Kirim Batangan</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="{{ route('pengiriman-bjsk') }}" class="waves-effect">
+                        <i class="bx bxs-duplicate"></i>
+                        <span key="t-kirim-bjsk">Kirim BJSK</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="{{ route('pengiriman-skm') }}" class="waves-effect">
+                        <i class="bx bxs-duplicate"></i>
+                        <span key="t-kirim-skm">Kirim ke Mesin</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="{{ route('return-mesin') }}" class="waves-effect">
+                        <i class="bx bxs-duplicate"></i>
+                        <span key="t-return-mesin">Return ke SKM</span>
+                    </a>
+                </li>
+
+                <li>
+                    <a href="{{ route('kinerja-hari') }}" class="waves-effect">
+                        <i class="bx bxs-receipt"></i>
+                        <span key="t-kinerja">Target SKM</span>
+                    </a>
+                </li>
+
+                <li>
+                    <a href="{{ route('closing-mesin') }}" class="waves-effect">
+                        <i class="bx bxs-receipt"></i>
+                        <span key="t-kinerja">Closing Mesin</span>
+                    </a>
+                </li>
+
                 @endif
 
                 @if ($user->role == 'gdb1')
