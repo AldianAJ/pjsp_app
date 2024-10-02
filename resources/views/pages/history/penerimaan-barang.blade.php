@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('title')
-Riwayat Penerimaan dari Gudang Besar
+History Penerimaan dari Gudang Besar
 @endsection
 
 @push('after-style')

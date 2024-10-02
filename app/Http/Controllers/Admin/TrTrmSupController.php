@@ -69,7 +69,7 @@ class TrTrmSupController extends Controller
     {
         $user = $this->userAuth();
 
-        $gudang_id = Gudang::where('jenis', 2)->value('gudang_id');
+        $gudang_id = Gudang::where('gudang_id', 'GU0001')->value('gudang_id');
         $suppliers = Supplier::where('status', 0)->get();
 
         if ($request->ajax()) {
@@ -79,7 +79,9 @@ class TrTrmSupController extends Controller
                 $barangs = Barang::where('status', 0)
                     ->orderBy('brg_id', 'asc')
                     ->get();
+
                 return DataTables::of($barangs)->make(true);
+
             } elseif ($type == 'speks') {
                 $speks = DB::table('m_brg_spek as a')
                     ->join('m_brg as b', 'a.brg_id', '=', 'b.brg_id')

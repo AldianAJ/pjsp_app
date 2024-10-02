@@ -24,7 +24,9 @@ class SupplierController extends Controller
         $user = $this->userAuth();
         $path = 'supplier.';
         if($request->ajax()) {
-            $suppliers = Supplier::where('status', 0)->get();
+            $suppliers = Supplier::where('status', 0)
+            ->orderBy('supplier_id','asc')
+            ->get();
             return DataTables::of($suppliers)
             ->addColumn('action', function ($object) use ($path) {
                 $html = '<a href="' . route($path . "edit", ["supplier_id" => $object->supplier_id]) . '" class="btn btn-success waves-effect waves-light">'
@@ -43,7 +45,7 @@ class SupplierController extends Controller
     public function create()
     {
         $user = $this->userAuth();
-        $supplier_id = 'S' . str_pad(Supplier::count() + 1, 3, '0', STR_PAD_LEFT);
+        $supplier_id = 'S' . str_pad(Supplier::count() + 1, 4, '0', STR_PAD_LEFT);
         return view('pages.supplier.create', compact('supplier_id', 'user'));
     }
 
@@ -52,18 +54,14 @@ class SupplierController extends Controller
      */
     public function store(Request $request)
     {
-        $request->validate([
-            'supplier_id' => 'required|unique:m_supplier,supplier_id',
-            'nama' => 'required|string|max:50',
-            'address' => 'required',
-            'telp' => 'required|numeric',
-        ]);
-
         Supplier::create([
             'supplier_id' => $request->supplier_id,
             'nama' => $request->nama,
-            'address' => $request->address,
+            'alamat' => $request->alamat,
+            'email' => $request->email,
             'telp' => $request->telp,
+            'up' => $request->up,
+            'tempo_byr' => $request->tempo_byr,
         ]);
 
         return redirect()->route('supplier')->with('success', 'Data supplier berhasil ditambahkan.');
@@ -91,17 +89,14 @@ class SupplierController extends Controller
      */
     public function update(Request $request, string $supplier_id)
     {
-        $request->validate([
-            'nama' => 'required|string|max:100',
-            'address' => 'required',
-            'telp' => 'required|numeric',
-        ]);
-
         $supplier = Supplier::where('supplier_id', $supplier_id)->first();
         $supplier->update([
             'nama' => $request->nama,
-            'address' => $request->address,
+            'alamat' => $request->alamat,
+            'email' => $request->email,
             'telp' => $request->telp,
+            'up' => $request->up,
+            'tempo_byr' => $request->tempo_byr,
         ]);
 
         return redirect()->route('supplier')->with('success', 'Data supplier berhasil diperbarui.');
