@@ -24,14 +24,14 @@ Edit Supplier
 </div>
 <!-- end page title -->
 <div class="row">
-    <div class="col-8">
+    <div class="col-12">
         <div class="card">
             <div class="card-body">
                 <form action="{{ route('supplier.update', ['supplier_id' => $data->supplier_id]) }}" method="post"
                     enctype="multipart/form-data">
                     @csrf
                     <div class="mt-4 mb-3 row">
-                        <label for="supplier_id" class="col-md-2 col-form-label font-size-14">ID Supplier</label>
+                        <label for="supplier_id" class="col-md-2 col-form-label font-size-14">ID Supplier :</label>
                         <div class="col-md">
                             <input type="text" name="supplier_id" id="supplier_id" class="form-control"
                                 value="{{ $data->supplier_id }}" readonly>
@@ -42,7 +42,7 @@ Edit Supplier
                     </div>
 
                     <div class="mt-4 mb-3 row">
-                        <label for="nama" class="col-md-2 col-form-label font-size-14">Nama Supplier</label>
+                        <label for="nama" class="col-md-2 col-form-label font-size-14">Nama Supplier :</label>
                         <div class="col-md">
                             <input type="text" name="nama" id="nama" class="form-control" value="{{ $data->nama }}">
                             @error('nama')
@@ -52,21 +52,52 @@ Edit Supplier
                     </div>
 
                     <div class="mt-4 mb-3 row">
-                        <label for="address" class="col-md-2 col-form-label font-size-14">Alamat</label>
+                        <label for="alamat" class="col-md-2 col-form-label font-size-14">Alamat :</label>
                         <div class="col-md">
-                            <input type="text" name="address" id="address" class="form-control"
-                                value="{{ $data->address }}">
-                            @error('address')
+                            <input type="text" name="alamat" id="alamat" class="form-control"
+                                value="{{ $data->alamat }}">
+                            @error('alamat')
                             <p class="text-danger font-size-12 font-weight-bold">{{ $message }}</p>
                             @enderror
                         </div>
                     </div>
 
                     <div class="mt-4 mb-3 row">
-                        <label for="telp" class="col-md-2 col-form-label font-size-14">Telp</label>
+                        <label for="email" class="col-md-2 col-form-label font-size-14">Email :</label>
+                        <div class="col-md">
+                            <input type="text" name="email" id="email" class="form-control" value="{{ $data->email }}">
+                            @error('email')
+                            <p class="text-danger font-size-12 font-weight-bold">{{ $message }}</p>
+                            @enderror
+                        </div>
+                    </div>
+
+                    <div class="mt-4 mb-3 row">
+                        <label for="telp" class="col-md-2 col-form-label font-size-14">Telp :</label>
                         <div class="col-md">
                             <input type="text" name="telp" id="telp" class="form-control" value="{{ $data->telp }}">
                             @error('telp')
+                            <p class="text-danger font-size-12 font-weight-bold">{{ $message }}</p>
+                            @enderror
+                        </div>
+                    </div>
+
+                    <div class="mt-4 mb-3 row">
+                        <label for="up" class="col-md-2 col-form-label font-size-14">UP :</label>
+                        <div class="col-md">
+                            <input type="text" name="up" id="up" class="form-control" value="{{ $data->up }}">
+                            @error('up')
+                            <p class="text-danger font-size-12 font-weight-bold">{{ $message }}</p>
+                            @enderror
+                        </div>
+                    </div>
+
+                    <div class="mt-4 mb-3 row">
+                        <label for="tempo_byr" class="col-md-2 col-form-label font-size-14">Tempo Pembayaran :</label>
+                        <div class="col-md">
+                            <input type="text" name="tempo_byr" id="tempo_byr" class="form-control"
+                                value="{{ $data->tempo_byr }}">
+                            @error('tempo_byr')
                             <p class="text-danger font-size-12 font-weight-bold">{{ $message }}</p>
                             @enderror
                         </div>

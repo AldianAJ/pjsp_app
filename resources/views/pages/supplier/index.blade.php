@@ -19,15 +19,28 @@ Supplier
 <script>
     $('#datatable').DataTable({
             ajax: "{{ route('supplier') }}",
-            columns: [
+            ordering: false,
+            columns: [{
+                    data: null,
+                    render: (data, type, row, meta) => meta.row + 1
+                },
                 {
                     data: "nama"
                 },
                 {
-                    data: "address"
+                    data: "alamat"
+                },
+                {
+                    data: "email"
                 },
                 {
                     data: "telp"
+                },
+                {
+                    data: "up"
+                },
+                {
+                    data: "tempo_byr"
                 },
                 {
                     data: "action"
@@ -60,9 +73,13 @@ Supplier
                     <table id="datatable" class="table align-middle table-nowrap mb-0">
                         <thead class="table-light">
                             <tr>
+                                <th>No</th>
                                 <th>Nama Supplier</th>
                                 <th>Alamat</th>
+                                <th>Email</th>
                                 <th>Telp</th>
+                                <th>UP</th>
+                                <th>Tempo Pembayaran</th>
                                 <th>Action</th>
                             </tr>
                         </thead>
@@ -81,7 +98,7 @@ Supplier
     document.addEventListener('DOMContentLoaded', function() {
                 Swal.fire({
                     toast: true,
-                    position: 'bottom-right',
+                    position: 'top-right',
                     icon: 'success',
                     title: '{{ session('success') }}',
                     showConfirmButton: false,
