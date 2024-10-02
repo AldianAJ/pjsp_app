@@ -223,7 +223,7 @@ Edit Pengiriman
 <div class="row">
     <div class="col-12">
         <div class="page-title-box d-sm-flex align-items-center justify-content-between">
-            <h4 class="mb-sm-0 font-size-18">Edit Pengiriman</h4>
+            <h4 class="mb-sm-0 font-size-18">Edit Proses Permintaan</h4>
         </div>
     </div>
 </div>
@@ -247,7 +247,7 @@ Edit Pengiriman
     <div class="col-md-6">
         <div class="card">
             <div class="card-body">
-                <h5 class="card-title">Data Transaksi</h5>
+                <h3 class="card-title fw-bolder">Data Transaksi</h3>
                 <form id="updateForm"
                     action="{{ route('pengiriman-gudang-utama.update', ['no_krmskm' => $no_krmskm]) }}" method="post"
                     enctype="multipart/form-data">
@@ -292,7 +292,7 @@ Edit Pengiriman
     <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="editDataBarangModalLabel">Data Barang</h5>
+                <h3 class="modal-title fw-bolder" id="editDataBarangModalLabel">Data Barang</h3>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">

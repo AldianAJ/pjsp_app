@@ -61,7 +61,7 @@ class TrReqSKMController extends Controller
     public function create(Request $request)
     {
         $user = $this->userAuth();
-        $gudang_id = Gudang::where('jenis', 2)->value('gudang_id');
+        $gudang_id = Gudang::where('gudang_id', 'GU001')->value('gudang_id');
 
         if ($request->ajax()) {
             $type = $request->input('type');

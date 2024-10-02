@@ -248,7 +248,7 @@ Edit Permintaan
     <div class="col-md-6">
         <div class="card">
             <div class="card-body">
-                <h5 class="card-title">Data Transaksi</h5>
+                <h3 class="card-title fw-bolder">Data Transaksi</h3>
                 <form id="updateForm" action="{{ route('permintaan-skm.update', ['no_reqskm' => $no_reqskm]) }}"
                     method="post" enctype="multipart/form-data">
                     @csrf
@@ -286,7 +286,7 @@ Edit Permintaan
     <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="editDataBarangModalLabel">Data Barang</h5>
+                <h3 class="modal-title fw-bolder" id="editDataBarangModalLabel">Data Barang</h3>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">

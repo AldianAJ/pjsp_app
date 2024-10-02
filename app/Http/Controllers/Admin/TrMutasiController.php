@@ -117,7 +117,7 @@ class TrMutasiController extends Controller
             ]);
         }
 
-        return redirect()->route('pengiriman-batangan')->with('success', 'Data pengiriman berhasil ditambahkan.');
+        return redirect()->route('pengiriman-batangan')->with('success', 'Data pengiriman batangan berhasil ditambahkan.');
     }
 
     /**
@@ -243,9 +243,9 @@ class TrMutasiController extends Controller
 
         if ($request->ajax()) {
             $speks = DB::table('m_brg_spek as a')
-                ->join('m_brg as b', 'a.spek_id', '=', 'b.spek_id')
-                ->select('b.spek_id', 'b.nm_brg', 'a.satuan1', 'a.satuan2', 'a.konversi1', 'a.spek_id', 'a.spek')
-                ->where('b.spek_id', 'LIKE', 'BJR%')
+                ->join('m_brg as b', 'a.brg_id', '=', 'b.brg_id')
+                ->select('a.spek_id', 'b.nm_brg', 'a.satuan1', 'a.satuan2', 'a.konversi1', 'a.spek')
+                ->where('a.spek_id', 'LIKE', 'BJR%')
                 ->where('a.satuan1', 'BOX')
                 ->where('a.status', 0)
                 ->get();
@@ -282,7 +282,7 @@ class TrMutasiController extends Controller
             ]);
         }
 
-        return redirect()->route('pengiriman-bjsk')->with('success', 'Data pengiriman berhasil ditambahkan.');
+        return redirect()->route('pengiriman-bjsk')->with('success', 'Data pengiriman bjsk berhasil ditambahkan.');
     }
 
     /**
@@ -314,10 +314,10 @@ class TrMutasiController extends Controller
 
         if ($request->ajax()) {
             $details = DB::table('tr_mutasi_detail as a')
-                ->join('m_brg as b', 'a.spek_id', '=', 'b.spek_id')
+                ->join('m_brg as b', 'a.brg_id', '=', 'b.brg_id')
                 ->join('m_brg_spek as c', 'a.spek_id', '=', 'c.spek_id')
-                ->select('b.spek_id', 'b.nm_brg as nama', 'a.qty', 'a.satuan_beli', 'a.qty_std', 'a.satuan_std', 'c.konversi1')
-                ->where('mutasi_id', $no_mutasi)
+                ->select('c.spek_id', 'b.nm_brg as nama', 'a.qty', 'a.satuan_beli', 'a.qty_std', 'a.satuan_std', 'c.konversi1')
+                ->where('a.mutasi_id', $no_mutasi)
                 ->where('a.status', 0)
                 ->get();
 

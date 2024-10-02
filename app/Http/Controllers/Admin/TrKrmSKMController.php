@@ -87,7 +87,7 @@ class TrKrmSKMController extends Controller
     {
         $user = $this->userAuth();
         $no_req = str_replace('-', '/', $no_reqskm);
-        $gudang_id = Gudang::where('jenis', 'GU001')->value('gudang_id');
+        $gudang_id = Gudang::where('gudang_id', 'GU001')->value('gudang_id');
 
         if ($request->ajax()) {
             $type = $request->input('type');

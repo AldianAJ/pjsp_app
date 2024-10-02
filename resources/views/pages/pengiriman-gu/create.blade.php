@@ -229,7 +229,7 @@ Proses Permintaan
 <div class="row">
     <div class="col-12">
         <div class="page-title-box d-sm-flex align-items-center justify-content-between">
-            <h4 class="mb-sm-0 font-size-18">Tambah Pengiriman</h4>
+            <h4 class="mb-sm-0 font-size-18">Tambah Proses Permintaan</h4>
         </div>
     </div>
 </div>
@@ -253,7 +253,7 @@ Proses Permintaan
     <div class="col-md-6">
         <div class="card">
             <div class="card-body">
-                <h5 class="card-title">Data Transaksi</h5>
+                <h3 class="card-title fw-bolder">Data Transaksi</h3>
                 <form action="{{ route('pengiriman-gudang-utama.store') }}" method="post" enctype="multipart/form-data">
                     @csrf
                     <div class="form-group mt-3">
@@ -300,7 +300,7 @@ Proses Permintaan
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title fw-bolder font-size-22" id="permintaanModalLabel">Data Permintaan</h5>
+                <h3 class="modal-title fw-bolder" id="permintaanModalLabel">Data Permintaan</h3>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
@@ -330,7 +330,7 @@ Proses Permintaan
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title fw-bolder font-size-22" id="dataModalLabel">Data Barang</h5>
+                <h3 class="modal-title fw-bolder" id="dataModalLabel">Data Barang</h3>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
@@ -363,7 +363,7 @@ Proses Permintaan
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title fw-bolder font-size-22" id="qtyModalLabel">Input Qty</h5>
+                <h3 class="modal-title fw-bolder" id="qtyModalLabel">Input Qty</h3>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
@@ -408,7 +408,7 @@ Proses Permintaan
     <div class="col-lg-12 mt-2">
         <div class="card">
             <div class="card-body">
-                <h5 class="card-title">List Stok Masuk</h5>
+                <h4 class="card-title fw-bolder">List Proses Permintaan</h4>
                 <div class="table-responsive">
                     <table class="table table-striped" id="selected-items-table">
                         <thead class="table-light">

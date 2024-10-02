@@ -249,7 +249,7 @@ Tambah Permintaan
     <div class="col-md-6">
         <div class="card">
             <div class="card-body">
-                <h5 class="card-title">Data Transaksi</h5>
+                <h3 class="card-title fw-bolder">Data Transaksi</h3>
                 <form action="{{ route('permintaan-skm.store') }}" method="post" enctype="multipart/form-data">
                     @csrf
                     {{-- <div class="form-group mt-3">
@@ -288,7 +288,7 @@ Tambah Permintaan
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title fw-bolder font-size-22" id="dataModalLabel">Data Barang</h5>
+                <h3 class="modal-title fw-bolder" id="dataModalLabel">Data Barang</h3>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
@@ -322,7 +322,7 @@ Tambah Permintaan
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title fw-bolder font-size-22" id="dataSpekLabel">Data Spesifikasi</h5>
+                <h3 class="modal-title fw-bolder" id="dataSpekLabel">Data Spesifikasi</h3>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
@@ -356,7 +356,7 @@ Tambah Permintaan
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title fw-bolder font-size-22" id="qtyModalLabel">Input Qty</h5>
+                <h3 class="modal-title fw-bolder" id="qtyModalLabel">Input Qty</h3>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
@@ -383,7 +383,6 @@ Tambah Permintaan
                         <label for="modal-satuan2" class="form-label fw-bolder" id="modal-satuan2"></label>
                     </div>
                 </div>
-
                 <div class="mb-3">
                     <label for="modal-ket" class="form-label">Keterangan</label>
                     <textarea class="form-control" id="modal-ket"></textarea>
@@ -401,7 +400,7 @@ Tambah Permintaan
     <div class="col-lg-12 mt-2">
         <div class="card">
             <div class="card-body">
-                <h5 class="card-title">List Stok Masuk</h5>
+                <h4 class="card-title fw-bolder">List Stok Masuk</h4>
                 <div class="table-responsive">
                     <table class="table table-striped" id="selected-items-table">
                         <thead class="table-light">

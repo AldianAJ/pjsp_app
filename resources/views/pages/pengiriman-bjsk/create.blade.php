@@ -6,6 +6,12 @@ Tambah Pengiriman BJSK
 
 @push('after-app-style')
 <link href="{{ asset('assets/libs/sweetalert2/sweetalert2.min.css') }}" rel="stylesheet" type="text/css" />
+<style>
+    .select2-container .select2-selection--single {
+        padding: 0.30rem 0.45rem;
+        height: 38.2px;
+    }
+</style>
 @endpush
 
 @push('after-app-script')
@@ -17,6 +23,7 @@ Tambah Pengiriman BJSK
 <script src="{{ asset('assets/js/pages/datatables.init.js') }}"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/autonumeric/4.10.5/autoNumeric.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 <script>
     $(document).ready(function() {
             $('#showDataBarangButton').on('click', function() {
@@ -177,6 +184,12 @@ Tambah Pengiriman BJSK
                 saveButton.disabled = selectedItems.length === 0;
             }
         });
+
+        $(document).ready(function() {
+        $('#msn_asal').select2({
+            width: 'resolve'
+        });
+    });
 </script>
 @endpush
 
@@ -210,7 +223,7 @@ Tambah Pengiriman BJSK
     <div class="col-md-6">
         <div class="card">
             <div class="card-body">
-                <h5 class="card-title">Data Transaksi</h5>
+                <h3 class="card-title fw-bolder">Data Transaksi</h3>
                 <form action="{{ route('pengiriman-bjsk.store') }}" method="post" enctype="multipart/form-data">
                     @csrf
                     {{-- <div class="form-group mt-3">
@@ -225,7 +238,7 @@ Tambah Pengiriman BJSK
                     </div>
                     <div class="form-group mt-3">
                         <label for="msn_asal">Mesin Asal :</label>
-                        <select name="msn_asal" id="msn_asal"
+                        <select name="msn_asal" id="msn_asal" style="width: 100%"
                             class="form-control @error('msn_asal') is-invalid @enderror" style="width: 100%;" required>
                             <option value="">-- Pilih Mesin Asal --</option>
                             @foreach ($msn_asal as $mesin)
@@ -272,7 +285,7 @@ Tambah Pengiriman BJSK
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="dataSpekLabel">Data Spesifikasi</h5>
+                <h3 class="modal-title fw-bolder" id="dataSpekLabel">Data Barang</h3>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
@@ -283,7 +296,7 @@ Tambah Pengiriman BJSK
                                 <thead class="table-light">
                                     <tr>
                                         <th>No</th>
-                                        <th>Spesifikasi</th>
+                                        <th>Nama Barang</th>
                                         <th>Satuan</th>
                                         <th>Action</th>
                                     </tr>
@@ -306,7 +319,7 @@ Tambah Pengiriman BJSK
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="qtyModalLabel">Input Qty</h5>
+                <h3 class="modal-title fw-bolder" id="qtyModalLabel">Input Qty</h3>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
@@ -351,7 +364,7 @@ Tambah Pengiriman BJSK
     <div class="col-lg-12 mt-2">
         <div class="card">
             <div class="card-body">
-                <h5 class="card-title">List Stok Masuk</h5>
+                <h4 class="card-title fw-bolder">List Kirim BJSK</h4>
                 <div class="table-responsive">
                     <table class="table table-striped" id="selected-items-table">
                         <thead class="table-light">

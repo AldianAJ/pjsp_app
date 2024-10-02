@@ -258,7 +258,7 @@ Tambah Penerimaan Supplier
     <div class="col-md-8">
         <div class="card">
             <div class="card-body">
-                <h5 class="card-title">Data Transaksi</h5>
+                <h3 class="card-title fw-bolder">Data Transaksi</h3>
                 <form action="{{ route('stok-masuk.store') }}" method="post" enctype="multipart/form-data">
                     @csrf
                     <div class="form-group mt-3">
@@ -317,7 +317,7 @@ Tambah Penerimaan Supplier
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title fw-bolder font-size-22" id="dataModalLabel">Data Barang</h5>
+                <h3 class="modal-title fw-bolder" id="dataModalLabel">Data Barang</h3>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
@@ -350,7 +350,7 @@ Tambah Penerimaan Supplier
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title fw-bolder font-size-22" id="dataSpekLabel">Data Spesifikasi</h5>
+                <h3 class="modal-title fw-bolder" id="dataSpekLabel">Data Spesifikasi</h3>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
@@ -384,7 +384,7 @@ Tambah Penerimaan Supplier
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-titl fw-bolder font-size-22e" id="qtyModalLabel">Input Qty</h5>
+                <h3 class="modal-titl fw-bolder" id="qtyModalLabel">Input Qty</h3>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
@@ -428,7 +428,7 @@ Tambah Penerimaan Supplier
     <div class="col-lg-12 mt-2">
         <div class="card">
             <div class="card-body">
-                <h5 class="card-title">List Stok Masuk</h5>
+                <h4 class="card-title fw-bolder">List Penerimaan Supplier</h4>
                 <div class="table-responsive">
                     <table class="table table-striped" id="selected-items-table">
                         <thead class="table-light">

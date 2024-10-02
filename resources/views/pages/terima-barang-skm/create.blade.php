@@ -121,7 +121,7 @@ Penerimaan Barang
     <div class="col-md-6">
         <div class="card">
             <div class="card-body">
-                <h5 class="card-title">Data Transaksi</h5>
+                <h3 class="card-title fw-bolder">Data Transaksi</h3>
                 <form action="{{ route('penerimaan-barang.store') }}" method="post" enctype="multipart/form-data">
                     @csrf
                     <div class="form-group mt-3">
@@ -166,7 +166,7 @@ Penerimaan Barang
     <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title fw-bolder font-size-22" id="dataModalLabel">Data Penerimaan</h5>
+                <h3 class="modal-title fw-bolder" id="dataModalLabel">Data Penerimaan</h3>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
