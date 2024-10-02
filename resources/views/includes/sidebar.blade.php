@@ -178,12 +178,6 @@
                 </li>
                 <li class="menu-title" key="t-transactions">Form</li>
                 <li>
-                    <a href="{{ route('penerimaan-barang') }}" class="waves-effect">
-                        <i class="bx bx-check-square"></i>
-                        <span key="t-terima">Terima Barang</span>
-                    </a>
-                </li>
-                <li>
                     <a href="{{ route('pengiriman-batangan') }}" class="waves-effect">
                         <i class="bx bxs-duplicate"></i>
                         <span key="t-kirim-btg">Kirim Batangan</span>
@@ -193,25 +187,6 @@
                     <a href="{{ route('pengiriman-bjsk') }}" class="waves-effect">
                         <i class="bx bxs-duplicate"></i>
                         <span key="t-kirim-bjsk">Kirim BJSK</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="{{ route('pengiriman-skm') }}" class="waves-effect">
-                        <i class="bx bxs-duplicate"></i>
-                        <span key="t-kirim-skm">Kirim ke Mesin</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="{{ route('return-mesin') }}" class="waves-effect">
-                        <i class="bx bxs-duplicate"></i>
-                        <span key="t-return-mesin">Return ke SKM</span>
-                    </a>
-                </li>
-
-                <li>
-                    <a href="{{ route('kinerja-hari') }}" class="waves-effect">
-                        <i class="bx bxs-receipt"></i>
-                        <span key="t-kinerja">Target SKM</span>
                     </a>
                 </li>
 
@@ -233,15 +208,15 @@
                 </li>
                 <li class="menu-title" key="t-form">Form</li>
                 <li>
-                    <a href="{{ route('pengiriman-gudang-utama') }}" class="waves-effect">
-                        <i class="bx bxs-duplicate"></i>
-                        <span key="t-gudang">Proses Permintaan</span>
-                    </a>
-                </li>
-                <li>
                     <a href="{{ route('stok-masuk') }}" class="waves-effect">
                         <i class="bx bxs-widget"></i>
                         <span key="t-pemesanan">Penerimaan Supplier</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="{{ route('pengiriman-gudang-utama') }}" class="waves-effect">
+                        <i class="bx bxs-duplicate"></i>
+                        <span key="t-gudang">Proses Permintaan</span>
                     </a>
                 </li>
                 <li class="menu-title" key="t-history-minta">Riwayat</li>

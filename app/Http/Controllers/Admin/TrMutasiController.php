@@ -11,6 +11,7 @@ use App\Models\Admin\Gudang;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Yajra\DataTables\DataTables;
+use Carbon\Carbon;
 
 class TrMutasiController extends Controller
 {
@@ -61,19 +62,25 @@ class TrMutasiController extends Controller
 
         $msn_asal = DB::table('tr_target_mesin as a')
             ->join('m_mesin as b', 'a.mesin_id', '=', 'b.mesin_id')
+            ->join('tr_target_shift as c', 'a.shift_id', '=', 'c.shift_id')
+            ->join('tr_target_harian as d','c.harian_id','=','d.harian_id')
             ->select('a.msn_trgt_id', 'a.mesin_id', 'b.nama')
+            ->where('d.tgl', Carbon::today()->format('Y-m-d'))
             ->get();
 
         $msn_tujuan = DB::table('tr_target_mesin as a')
             ->join('m_mesin as b', 'a.mesin_id', '=', 'b.mesin_id')
+            ->join('tr_target_shift as c', 'a.shift_id', '=', 'c.shift_id')
+            ->join('tr_target_harian as d','c.harian_id','=','d.harian_id')
             ->select('a.msn_trgt_id', 'a.mesin_id', 'b.nama')
+            ->where('d.tgl', Carbon::today()->format('Y-m-d'))
             ->get();
 
         if ($request->ajax()) {
             $speks = DB::table('m_brg_spek as a')
-                ->join('m_brg as b', 'a.spek_id', '=', 'b.spek_id')
-                ->select('b.spek_id', 'b.nm_brg', 'a.satuan1', 'a.satuan2', 'a.konversi1', 'a.spek_id', 'a.spek')
-                ->where('b.spek_id', 'LIKE', 'WIP%')
+                ->join('m_brg as b', 'a.brg_id', '=', 'b.brg_id')
+                ->select('a.spek_id', 'b.nm_brg', 'a.satuan1', 'a.satuan2', 'a.konversi1', 'a.spek_id', 'a.spek')
+                ->where('a.spek_id', 'LIKE', 'WIP%')
                 ->where('a.satuan1', 'TRAY')
                 ->where('a.status', 0)
                 ->get();
@@ -226,7 +233,10 @@ class TrMutasiController extends Controller
 
         $msn_asal = DB::table('tr_target_mesin as a')
             ->join('m_mesin as b', 'a.mesin_id', '=', 'b.mesin_id')
+            ->join('tr_target_shift as c', 'a.shift_id', '=', 'c.shift_id')
+            ->join('tr_target_harian as d','c.harian_id','=','d.harian_id')
             ->select('a.msn_trgt_id', 'a.mesin_id', 'b.nama')
+            ->where('d.tgl', Carbon::today()->format('Y-m-d'))
             ->get();
 
         $msn_tujuan = Gudang::select('gudang_id', 'nama')->where('gudang_id', 'GU006')->first();

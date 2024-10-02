@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('title')
-Persetujuan Permintaan
+Proses Permintaan
 @endsection
 
 @push('after-style')
@@ -105,7 +105,7 @@ Persetujuan Permintaan
 <div class="row">
     <div class="col-12">
         <div class="page-title-box d-sm-flex align-items-center justify-content-between">
-            <h4 class="mb-sm-0 font-size-18">Persetujuan Permintaan</h4>
+            <h4 class="mb-sm-0 font-size-18">Proses Permintaan</h4>
         </div>
     </div>
 </div>

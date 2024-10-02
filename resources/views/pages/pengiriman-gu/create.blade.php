@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('title')
-Persetujuan Permintaan
+Proses Permintaan
 @endsection
 
 @push('after-app-style')

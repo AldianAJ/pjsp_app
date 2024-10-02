@@ -142,7 +142,7 @@ Penerimaan Supplier
                 <!-- Filters -->
                 <div class="row mb-3">
                     <div class="col-md-4 mb-3">
-                        <label for="filterSupplier">Nama Supplier :</label>
+                        <label for="filterSupplier">Filter Nama Supplier :</label>
                         <select id="filterSupplier" class="form-control" style="width: 100%">
                             <option value="">-- Pilih Supplier --</option>
                             @foreach ($suppliers as $supplier)
@@ -152,10 +152,9 @@ Penerimaan Supplier
                     </div>
 
                     <div class="col-md-4">
-                        <label for="filterMonthYear">Tanggal :</label>
+                        <label for="filterMonthYear">Filter Bulan :</label>
                         <div class="input-group" id="datepicker2">
-                            <input type="month" id="filterMonthYear" class="form-control"
-                                placeholder="-- Pilih Tanggal --" autocomplete="off" />
+                            <input type="month" id="filterMonthYear" class="form-control" autocomplete="off" />
                         </div>
                     </div>
                 </div>
