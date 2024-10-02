@@ -49,6 +49,12 @@
                         <span key="t-pemesanan">Penerimaan Supplier</span>
                     </a>
                 </li>
+                <li>
+                    <a href="{{ route('penjualan') }}" class="waves-effect">
+                        <i class="bx bxs-widget"></i>
+                        <span key="t-penjualan">Surat Jalan</span>
+                    </a>
+                </li>
 
                 <li class="menu-title" key="t-history-minta">Riwayat</li>
                 <li>
@@ -161,6 +167,40 @@
                 </li>
                 @endif
 
+                @if ($user->role == 'gdb1')
+                <li>
+                    <a href="{{ route('dashboard') }}">
+                        <i class="bx bx-home-circle"></i>
+                        <span key="t-dashboards">Welcome</span>
+                    </a>
+                </li>
+                <li class="menu-title" key="t-form">Form</li>
+                <li>
+                    <a href="{{ route('pengiriman-gudang-utama') }}" class="waves-effect">
+                        <i class="bx bxs-duplicate"></i>
+                        <span key="t-gudang">Proses Permintaan</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="{{ route('stok-masuk') }}" class="waves-effect">
+                        <i class="bx bxs-widget"></i>
+                        <span key="t-pemesanan">Penerimaan Supplier</span>
+                    </a>
+                </li>
+                <li class="menu-title" key="t-history-minta">Riwayat</li>
+                <li>
+                    <a href="{{ route('permintaan-skm.history') }}" class="waves-effect">
+                        <i class="bx bx-notepad"></i>
+                        <span key="t-history-minta">Permintaan</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="{{ route('pengiriman-gudang-utama.history') }}" class="waves-effect">
+                        <i class="bx bx-task"></i>
+                        <span key="t-kirim">Pengiriman</span>
+                    </a>
+                </li>
+                @endif
                 @endif
             </ul>
         </div>
