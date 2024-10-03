@@ -400,7 +400,7 @@ Tambah Permintaan
     <div class="col-lg-12 mt-2">
         <div class="card">
             <div class="card-body">
-                <h4 class="card-title fw-bolder">List Stok Masuk</h4>
+                <h4 class="card-title fw-bolder">List Permintaan</h4>
                 <div class="table-responsive">
                     <table class="table table-striped" id="selected-items-table">
                         <thead class="table-light">

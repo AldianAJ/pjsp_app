@@ -184,8 +184,8 @@ Penerimaan Supplier
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h3 class="modal-title fw-bolder" id="exampleModalLabel">Detail Barang - <span id="id-terima"></span>
-                </h3>
+                <h4 class="modal-title fw-bolder" id="exampleModalLabel">Detail Barang - <span id="id-terima"></span>
+                </h4>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">

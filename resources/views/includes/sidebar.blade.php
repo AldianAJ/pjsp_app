@@ -77,7 +77,7 @@
                 </li>
                 @endif
 
-                @if ($user->role == 'skm' || $user->role == 'skm1')
+                @if ($user->role == 'skm')
                 <li class="menu-title" key="t-menu">Menu</li>
                 <li>
                     <a href="{{ route('dashboard') }}">
@@ -167,8 +167,13 @@
                 </li>
                 @endif
 
-                @if ($user->role == 'mkr1' || $user->role == 'mkr2' || $user->role == 'hlp1' || $user->role == 'hlp2' ||
-                $user->role == 'hlp3' || $user->role == 'hlp4')
+                @if (
+                $user->role == 'mkr1' ||
+                $user->role == 'mkr2' ||
+                $user->role == 'hlp1' ||
+                $user->role == 'hlp2' ||
+                $user->role == 'hlp3' ||
+                $user->role == 'hlp4')
                 <li class="menu-title" key="t-menu">Menu</li>
                 <li>
                     <a href="{{ route('dashboard') }}">
@@ -196,7 +201,6 @@
                         <span key="t-kinerja">Closing Mesin</span>
                     </a>
                 </li>
-
                 @endif
 
                 @if ($user->role == 'gdb1')
@@ -230,6 +234,41 @@
                     <a href="{{ route('pengiriman-gudang-utama.history') }}" class="waves-effect">
                         <i class="bx bx-task"></i>
                         <span key="t-kirim">Pengiriman</span>
+                    </a>
+                </li>
+                @endif
+
+                @if ($user->role == 'skm1')
+                <li>
+                    <a href="{{ route('dashboard') }}">
+                        <i class="bx bx-home-circle"></i>
+                        <span key="t-dashboards">Welcome</span>
+                    </a>
+                </li>
+                <li class="menu-title" key="t-form">Form</li>
+                <li>
+                    <a href="{{ route('permintaan-skm') }}" class="waves-effect">
+                        <i class="bx bxs-duplicate"></i>
+                        <span key="t-minta">Permintaan</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="{{ route('penerimaan-barang') }}" class="waves-effect">
+                        <i class="bx bx-check-square"></i>
+                        <span key="t-terima">Terima Barang</span>
+                    </a>
+                </li>
+                <li class="menu-title" key="t-history">Riwayat</li>
+                <li>
+                    <a href="{{ route('permintaan-skm.history') }}" class="waves-effect">
+                        <i class="bx bx-task"></i>
+                        <span key="t-history-minta">Permintaan</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="{{ route('penerimaan-barang.history') }}" class=" waves-effect">
+                        <i class="bx bx-task"></i>
+                        <span key="t-terima">Penerimaan</span>
                     </a>
                 </li>
                 @endif
