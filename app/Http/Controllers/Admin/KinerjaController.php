@@ -229,7 +229,7 @@ class KinerjaController extends Controller
         $user = $this->userAuth();
         $path = 'kinerja-shift.';
         if ($request->ajax()) {
-            $targetHari = Harian::with('targetWeek.barang')->where('week_id', $request->week_id)->get();
+            $targetHari = Harian::with('targetWeek.barang')->where('week_id', $request->week_id)->orderby('tgl', 'desc')->get();
 
             return DataTables::of($targetHari)
                 ->addColumn('action', function ($object) {
@@ -238,6 +238,9 @@ class KinerjaController extends Controller
                     if ($object->tgl == date('Y-m-d')) {
                         $html .= '<button class="btn btn-success btn-editHari waves-effect waves-light me-1" data-harian-id="' . $object->harian_id . '">'
                             . '<i class="bx bx-edit align-middle me-2 font-size-18"></i> Edit</button>';
+                    } else {
+                        $html = '<button class="btn btn-secondary btn-shift waves-effect waves-light me-1" data-harian-id="' . $object->harian_id . '">'
+                            . '<i class="bx bx-detail align-middle me-2 font-size-18"></i> Detail</button>';
                     }
                     return $html;
                 })

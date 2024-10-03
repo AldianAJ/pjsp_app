@@ -48,6 +48,7 @@ Target Harian
                     d.week = $('#filterWeek').val(); // Pass selected week
                 }
             },
+            processing: true,
             columns: [{
                     data: "tahun"
                 },
@@ -59,6 +60,9 @@ Target Harian
                 },
                 {
                     data: "qty"
+                },
+                {
+                    data: "satuan1"
                 },
                 {
                     data: "action"
@@ -76,6 +80,7 @@ Target Harian
                     d.week_id = window.currentWeekId; // Use the current week_id
                 }
             },
+            processing: true,
             lengthMenu: [5],
             columns: [{
                     data: null, // Use null because we will provide custom rendering
@@ -119,6 +124,7 @@ Target Harian
                         d.harian_id = window.currentHarianId; // Use the current week_id
                     }
                 },
+                processing: true,
                 lengthMenu: [5],
                 columns: [{
                         data: null, // Use null because we will provide custom rendering
@@ -157,6 +163,7 @@ Target Harian
                     d.shift_id = window.currentShiftId; // Use the current week_id
                 }
             },
+            processing: true,
             lengthMenu: [5],
             columns: [{
                     data: null, // Use null because we will provide custom rendering
@@ -177,11 +184,6 @@ Target Harian
                     data: "action"
                 }
             ],
-            footerCallback: function(row, data, start, end, display) {
-                var api = this.api();
-                var totalQty = api.column(3).data().reduce((a, b) => a + b, 0);
-                $(api.column(3).footer()).html(totalQty);
-            },
             autoWidth: false,
             ordering: false
         });
@@ -457,10 +459,13 @@ Target Harian
     <div class="col-12">
         <div class="card">
             <div class="card-body">
+                @if (in_array(auth()->user()->role, ['mgr', 'skm'])) {{-- pemeberian otorisasi --}}
                 <div class="d-flex justify-content-end mb-2">
                     <a href="{{ route('kinerja-hari.create') }}" class="btn btn-primary my-2"><i
                             class="bx bx-plus-circle align-middle me-2 font-size-18"></i> Tambah</a>
                 </div>
+                @endif
+
                 <!-- Filter Toolbar -->
                 <div class="row mb-3">
                     <div class="col-md-4">
@@ -493,6 +498,7 @@ Target Harian
                                 <th>Minggu</th>
                                 <th>Barang</th>
                                 <th>Jumlah</th>
+                                <th>Satuan</th>
                                 <th>Action</th>
                             </tr>
                         </thead>
@@ -510,7 +516,7 @@ Target Harian
     <div class="modal-dialog modal-dialog-scrollable modal-lg">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 id="modalTitle" class="modal-title">Target Harian</h5>
+                <h3 id="modalTitle" class="modal-title fw-bolder">Target Harian</h3>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
@@ -518,8 +524,7 @@ Target Harian
                     <div class="col-md-12">
                         <div class="card">
                             <div class="card-body">
-                                <h5 class="card-title">Data Transaksi</h5>
-
+                                @if (in_array(auth()->user()->role, ['mgr', 'skm'])) {{-- pemeberian otorisasi --}}
                                 <form id="formAction" action="{{ route('kinerja-hari.store') }}" method="post"
                                     enctype="multipart/form-data">
                                     @csrf
@@ -528,7 +533,8 @@ Target Harian
                                             <div class="form-group">
                                                 <label for="tgl">Tanggal</label>
                                                 <input type="date" class="form-control" name="tgl"
-                                                    value="{{ old('tgl', now()->format('Y-m-d')) }}" required readonly>
+                                                    value="{{ old('tgl', now()->format('Y-m-d')) }}" required>
+                                                <!-- readonly -->
                                             </div>
                                         </div>
                                         <div class="col-md-6">
@@ -545,9 +551,10 @@ Target Harian
                                     <div class="d-flex justify-content-end my-3">
                                         <button type="button" class="btn btn-secondary me-1"
                                             data-bs-dismiss="modal">Kembali</button>
-                                        <button type="submit" class="btn btn-success">Simpan</button>
+                                        <button type="submit" class="btn btn-primary">Simpan</button>
                                     </div>
                                 </form>
+                                @endif
 
                                 <div class="table-responsive">
                                     <table id="datatableDetail" class="table align-middle table-nowrap">
@@ -585,7 +592,7 @@ Target Harian
     <div class="modal-dialog modal-dialog-scrollable modal-lg">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 id="modalTitleShift" class="modal-title">Target Shift</h5>
+                <h3 id="modalTitleShift" class="modal-title fw-bolder">Target Shift</h3>
                 <button type="button" id="backHarian" class="btn-close" data-bs-dismiss="modal"
                     aria-label="Close"></button>
             </div>
@@ -595,6 +602,8 @@ Target Harian
                         <div class="card">
                             <div class="card-body">
                                 <h5 class="card-title">Data Transaksi</h5>
+
+                                @if (auth()->user()->role == 'skm') {{-- pemeberian otorisasi --}}
                                 <form id="formShift" action="{{ route('kinerja-shift.store') }}" method="post"
                                     enctype="multipart/form-data">
                                     @csrf
@@ -623,9 +632,10 @@ Target Harian
                                     <div class="d-flex justify-content-end my-3">
                                         <button type="button" id="backHarian" class="btn btn-secondary me-1"
                                             data-bs-dismiss="modal">Kembali</button>
-                                        <button type="submit" class="btn btn-success">Simpan</button>
+                                        <button type="submit" class="btn btn-primary">Simpan</button>
                                     </div>
                                 </form>
+                                @endif
 
                                 <div class="table-responsive">
                                     <table id="datatableShiftDetail" class="table align-middle table-nowrap">
@@ -664,7 +674,7 @@ Target Harian
     <div class="modal-dialog modal-dialog-scrollable modal-lg">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 id="modalTitleMesin" class="modal-title">Target Mesin</h5>
+                <h3 id="modalTitleMesin" class="modal-title fw-bolder">Target Mesin</h3>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
@@ -673,7 +683,7 @@ Target Harian
                         <div class="card">
                             <div class="card-body">
                                 <h5 class="card-title">Data Transaksi</h5>
-
+                                @if (auth()->user()->role == 'skm') {{-- pemeberian otorisasi --}}
                                 <form id="formMesin" action="{{ route('kinerja-mesin.store') }}" method="post"
                                     enctype="multipart/form-data">
                                     @csrf
@@ -696,9 +706,10 @@ Target Harian
                                     <div class="d-flex justify-content-end my-3">
                                         <button type="button" class="btn btn-secondary me-1"
                                             data-bs-dismiss="modal">Kembali</button>
-                                        <button type="submit" class="btn btn-success">Simpan</button>
+                                        <button type="submit" class="btn btn-primary">Simpan</button>
                                     </div>
                                 </form>
+                                @endif
 
                                 <div class="table-responsive">
                                     <table id="datatableMesinDetail" class="table align-middle table-nowrap">
@@ -714,10 +725,6 @@ Target Harian
                                         <tbody>
                                         </tbody>
                                         <tfoot>
-                                            <tr>
-                                                <th colspan="3" style="text-align:right">Total:</th>
-                                                <th></th>
-                                            </tr>
                                         </tfoot>
                                     </table>
                                 </div>
