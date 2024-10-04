@@ -204,7 +204,7 @@ Target Harian
 
                 $('#week_id').val(weekId);
                 window.currentWeekId = weekId;
-                $('#modalTitle').html(`Target Harian (${name}, Jumlah: ${details})`);
+                $('#modalTitle').html(`Target Harian (${name}, Jumlah: ${details} BOX)`);
                 $('#datatableDetail').DataTable().ajax.reload();
                 $('#hariModal').modal('show');
             } else {
@@ -219,12 +219,12 @@ Target Harian
 
             if (data && data.target_week && data.target_week.barang) {
                 const name = data.target_week.barang.nm_brg;
-                const tgl = data.tgl;
+                const tgl = formatTgl(data.tgl);
                 const details = data.qty;
 
                 $('#harian_id').val(harianId);
                 window.currentHarianId = harianId;
-                $('#modalTitleShift').html(`Target Shift (${tgl}) (${name}, Jumlah: ${details})`);
+                $('#modalTitleShift').html(`Target Shift (${tgl}) (${name}, Jumlah: ${details} BOX)`);
                 $('#hariModal').modal('hide');
                 $('#datatableShiftDetail').DataTable().ajax.reload();
                 $('#shiftModal').modal('show');
@@ -240,13 +240,13 @@ Target Harian
 
             if (data && data.target_hari && data.target_hari.target_week && data.target_hari.target_week.barang) {
                 const name = data.target_hari.target_week.barang.nm_brg;
-                const tgl = data.target_hari.tgl;
+                const tgl = formatTgl(data.target_hari.tgl);
                 const details = data.qty;
                 const shift = data.shift;
 
                 $('#shift_id').val(shiftId);
                 window.currentShiftId = shiftId;
-                $('#modalTitleMesin').html(`Target Mesin (${tgl}) (Shift ${shift}) (${name}, Jumlah: ${details})`);
+                $('#modalTitleMesin').html(`Target Mesin (${tgl}) (Shift ${shift}) (${name}, Jumlah: ${details} BOX)`);
                 $('#shiftModal').modal('hide');
                 $('#datatableMesinDetail').DataTable().ajax.reload();
                 $('#mesinModal').modal('show');
@@ -436,10 +436,38 @@ Target Harian
             var mainModal = new bootstrap.Modal(document.getElementById('hariModal'));
             mainModal.show();
         });
+        $('#backHarian2').on('click', function() {
+            var mainModal = new bootstrap.Modal(document.getElementById('hariModal'));
+            mainModal.show();
+        });
         $('#mesinModal').on('hidden.bs.modal', function() {
             var mainModal = new bootstrap.Modal(document.getElementById('shiftModal'));
             mainModal.show(); // Tampilkan kembali modal utama jika belum ditampilkan
         });
+
+        function formatTgl(tanggal) {
+            // Daftar nama bulan dalam bahasa Indonesia
+            var bulanIndo = [
+                "Januari", "Februari", "Maret", "April", "Mei", "Juni",
+                "Juli", "Agustus", "September", "Oktober", "November", "Desember"
+            ];
+
+            // Membuat objek Date dari input tanggal
+            var date = new Date(tanggal);
+
+            // Mendapatkan hari, bulan, dan tahun
+            var day = date.getDate();
+            var month = date.getMonth(); // Tidak perlu +1 karena kita akan mengambil nama bulan dari array
+            var year = date.getFullYear();
+
+            // Menambahkan leading zero jika hari kurang dari 10
+            if (day < 10) {
+                day = '0' + day;
+            }
+
+            // Menggabungkan menjadi format '03 Oktober 2024'
+            return day + ' ' + bulanIndo[month] + ' ' + year;
+        }
 </script>
 @endpush
 
@@ -448,7 +476,7 @@ Target Harian
 <div class="row">
     <div class="col-12">
         <div class="page-title-box d-sm-flex align-items-center justify-content-between">
-            <h4 class="mb-sm-0 font-size-18">Target Harian</h4>
+            <h4 class="mb-sm-0 font-size-18">Target Mingguan</h4>
         </div>
     </div>
 </div>
@@ -516,7 +544,7 @@ Target Harian
     <div class="modal-dialog modal-dialog-scrollable modal-lg">
         <div class="modal-content">
             <div class="modal-header">
-                <h3 id="modalTitle" class="modal-title fw-bolder">Target Harian</h3>
+                <h4 id="modalTitle" class="modal-title fw-bolder">Target Harian</h4>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
@@ -592,7 +620,7 @@ Target Harian
     <div class="modal-dialog modal-dialog-scrollable modal-lg">
         <div class="modal-content">
             <div class="modal-header">
-                <h3 id="modalTitleShift" class="modal-title fw-bolder">Target Shift</h3>
+                <h4 id="modalTitleShift" class="modal-title fw-bolder">Target Shift</h4>
                 <button type="button" id="backHarian" class="btn-close" data-bs-dismiss="modal"
                     aria-label="Close"></button>
             </div>
@@ -630,7 +658,7 @@ Target Harian
                                         value="{{ old('harian_id') }}" required readonly>
                                     <div id="items-container"></div> <!-- Container for items input fields -->
                                     <div class="d-flex justify-content-end my-3">
-                                        <button type="button" id="backHarian" class="btn btn-secondary me-1"
+                                        <button type="button" id="backHarian2" class="btn btn-secondary me-1"
                                             data-bs-dismiss="modal">Kembali</button>
                                         <button type="submit" class="btn btn-primary">Simpan</button>
                                     </div>
@@ -674,7 +702,7 @@ Target Harian
     <div class="modal-dialog modal-dialog-scrollable modal-lg">
         <div class="modal-content">
             <div class="modal-header">
-                <h3 id="modalTitleMesin" class="modal-title fw-bolder">Target Mesin</h3>
+                <h4 id="modalTitleMesin" class="modal-title fw-bolder">Target Mesin</h4>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
