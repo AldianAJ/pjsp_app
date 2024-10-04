@@ -26,9 +26,9 @@
                                 <label for="input-' . $index . '">' . $field['label'] . '</label>
                                 <div class="input-group">
                                     <div class="col-xl-9">
-                                        <input type="text" class="form-control number" value="'. $formData[$field['name']] .'" name="' . $field['name'] .'" id="input-' . $index . '" placeholder="' . $field['placeholder'] . '" pattern="\d*" inputmode="numeric" required readonly>
+                                        <input type="text" class="form-control number" value="'. $formData[$field['name']] .'" name="' . $field['name'] .'" id="input-' . $index . '" placeholder="' . $field['placeholder'] . '" pattern="^\d+(\.\d+)?$" inputmode="numeric" required readonly>
                                     </div>
-                                    <label class="col-md-2 col-form-label ms-2">' . $field['satuan'] . '</label>
+                                    <label class="col-md-2 col-form-label fw-bolder ms-2">' . $field['satuan'] . '</label>
                                 </div>
                             </div>
                           </div>';
@@ -44,17 +44,17 @@
         <form id="rejectHLPForm">
             <?php
                 $fields = [
-                    ["label" => "Foil", "placeholder" => "Enter Foil", "name" => "foil", 'satuan' => 'ROLL'],
-                    ["label" => "Inner", "placeholder" => "Enter Inner", "name" => "inner", 'satuan' => 'ROLL'],
-                    ["label" => "Etiket", "placeholder" => "Enter Etiket", "name" => "etiket", 'satuan' => 'PCS'],
-                    ["label" => "Pita Cukai", "placeholder" => "Enter Pita Cukai", "name" => "pc", 'satuan' => 'PCS'],
-                    ["label" => "OPP Pack", "placeholder" => "Enter OPP Pack", "name" => "opp_pack", 'satuan' => 'ROLL'],
-                    ["label" => "Teartape", "placeholder" => "Enter Teartape", "name" => "teartape", 'satuan' => 'ROLL'],
-                    ["label" => "OPP Slop", "placeholder" => "Enter OPP Slop", "name" => "opp_slop", 'satuan' => 'PCS'],
-                    ["label" => "Barcode Slop", "placeholder" => "Enter Segel Slop", "name" => "barcode_slop", 'satuan' => 'PCS'],
-                    ["label" => "Kertas Ball", "placeholder" => "Enter Kertas Ball", "name" => "kertas_ball", 'satuan' => 'PCS'],
-                    ["label" => "Cap Ball", "placeholder" => "Enter Segel Ball", "name" => "cap_ball", 'satuan' => 'PCS'],
-                    ["label" => "Karton", "placeholder" => "Enter Karton", "name" => "karton", 'satuan' => 'PCS'],
+                    ["label" => "Foil", "placeholder" => "Enter Foil", "name" => "foil", 'satuan' => 'KG'],
+                    ["label" => "Inner", "placeholder" => "Enter Inner", "name" => "inner", 'satuan' => 'KG'],
+                    ["label" => "Etiket", "placeholder" => "Enter Etiket", "name" => "etiket", 'satuan' => 'KG'],
+                    ["label" => "Pita Cukai", "placeholder" => "Enter Pita Cukai", "name" => "pc", 'satuan' => 'KG'],
+                    ["label" => "OPP Pack & Teartape", "placeholder" => "Enter OPP Pack", "name" => "opp_pack_teartape", 'satuan' => 'KG'],
+                    ["label" => "OPP Slop", "placeholder" => "Enter OPP Slop", "name" => "opp_slop", 'satuan' => 'KG'],
+                    ["label" => "Barcode Slop", "placeholder" => "Enter Segel Slop", "name" => "barcode_slop", 'satuan' => 'KG'],
+                    ["label" => "Kertas Ball", "placeholder" => "Enter Kertas Ball", "name" => "kertas_ball", 'satuan' => 'KG'],
+                    ["label" => "Cap Ball", "placeholder" => "Enter Segel Ball", "name" => "cap_ball", 'satuan' => 'KG'],
+                    ["label" => "Karton", "placeholder" => "Enter Karton", "name" => "karton", 'satuan' => 'KG'],
+                    ["label" => "Batangan", "placeholder" => "Enter Batangan", "name" => "batangan", 'satuan' => 'KG'],
                 ];
 
                 echo '<div class="row">';
@@ -69,9 +69,9 @@
                                 <label for="input-' . $index . '">' . $field['label'] . ' Reject</label>
                                 <div class="input-group">
                                     <div class="col-xl-9">
-                                        <input type="text" class="form-control number" value="'. $formReject[$field['name']] .'" name="' . $field['name'] .'" id="input-' . $index . '" placeholder="' . $field['placeholder'] . '" pattern="\d*" inputmode="numeric" required readonly>
+                                        <input type="text" class="form-control number" value="'. $formReject[$field['name']] .'" name="' . $field['name'] .'" id="input-' . $index . '" placeholder="' . $field['placeholder'] . '" pattern="^\d+(\.\d+)?$" inputmode="numeric" required readonly>
                                         </div>
-                                    <label class="col-md-2 col-form-label ms-2">' . $field['satuan'] . '</label>
+                                    <label class="col-md-2 col-form-label fw-bolder ms-2">' . $field['satuan'] . '</label>
                                 </div>
                             </div>
                           </div>';
@@ -81,23 +81,35 @@
         </form>
     </section>
 
-    <h3>SisaBahan</h3>
+    <h3>Sisa Bahan</h3>
     <section>
         <div>
             <form id="bahanHLPForm">
                 <?php
                 $fields = [
                     ["label" => "Foil", "placeholder" => "Enter Foil", "name" => "foil", 'satuan' => 'ROLL'],
+                    ["label" => "Foil", "placeholder" => "Enter Foil", "name" => "foil", 'satuan' => 'KG'],
                     ["label" => "Inner", "placeholder" => "Enter Inner", "name" => "inner", 'satuan' => 'ROLL'],
-                    ["label" => "Etiket", "placeholder" => "Enter Etiket", "name" => "etiket", 'satuan' => 'PCS'],
+                    ["label" => "Inner", "placeholder" => "Enter Inner", "name" => "inner", 'satuan' => 'KG'],
+                    ["label" => "Etiket", "placeholder" => "Enter Etiket", "name" => "etiket", 'satuan' => 'KARTON'],
+                    ["label" => "Etiket", "placeholder" => "Enter Etiket", "name" => "etiket", 'satuan' => 'BANDEL'],
                     ["label" => "Pita Cukai", "placeholder" => "Enter Pita Cukai", "name" => "pc", 'satuan' => 'PCS'],
+                    ["label" => "Pita Cukai", "placeholder" => "Enter Pita Cukai", "name" => "pc", 'satuan' => 'KG'],
                     ["label" => "OPP Pack", "placeholder" => "Enter OPP Pack", "name" => "opp_pack", 'satuan' => 'ROLL'],
+                    ["label" => "OPP Pack", "placeholder" => "Enter OPP Pack", "name" => "opp_pack", 'satuan' => 'KG'],
                     ["label" => "Teartape", "placeholder" => "Enter Teartape", "name" => "teartape", 'satuan' => 'ROLL'],
+                    ["label" => "Teartape", "placeholder" => "Enter Teartape", "name" => "teartape", 'satuan' => 'KG'],
                     ["label" => "OPP Slop", "placeholder" => "Enter OPP Slop", "name" => "opp_slop", 'satuan' => 'PCS'],
+                    ["label" => "OPP Slop", "placeholder" => "Enter OPP Slop", "name" => "opp_slop", 'satuan' => 'KG'],
                     ["label" => "Barcode Slop", "placeholder" => "Enter Segel Slop", "name" => "barcode_slop", 'satuan' => 'PCS'],
-                    ["label" => "Kertas Ball", "placeholder" => "Enter Kertas Ball", "name" => "kertas_ball", 'satuan' => 'PCS'],
+                    ["label" => "Barcode Slop", "placeholder" => "Enter Segel Slop", "name" => "barcode_slop", 'satuan' => 'KG'],
+                    ["label" => "Kertas Ball", "placeholder" => "Enter Kertas Ball", "name" => "kertas_ball", 'satuan' => 'RIM'],
+                    ["label" => "Kertas Ball", "placeholder" => "Enter Kertas Ball", "name" => "kertas_ball", 'satuan' => 'LBR'],
                     ["label" => "Cap Ball", "placeholder" => "Enter Segel Ball", "name" => "cap_ball", 'satuan' => 'PCS'],
+                    ["label" => "Cap Ball", "placeholder" => "Enter Segel Ball", "name" => "cap_ball", 'satuan' => 'KG'],
                     ["label" => "Karton", "placeholder" => "Enter Karton", "name" => "karton", 'satuan' => 'PCS'],
+                    ["label" => "Karton", "placeholder" => "Enter Karton", "name" => "karton", 'satuan' => 'KG'],
+                    ["label" => "Batangan", "placeholder" => "Enter Batangan", "name" => "batangan", 'satuan' => 'TRAY'],
                     ["label" => "Batangan", "placeholder" => "Enter Batangan", "name" => "batangan", 'satuan' => 'BTG'],
                 ];
 
@@ -113,9 +125,9 @@
                                 <label for="input-' . $index . '">' . $field['label'] . '</label>
                                 <div class="input-group">
                                     <div class="col-xl-9">
-                                        <input type="text" class="form-control number" value="'. $formBahan[$field['name']] .'" name="' . $field['name'] .'" id="input-' . $index . '" placeholder="' . $field['placeholder'] . '" pattern="\d*" inputmode="numeric" required readonly>
+                                        <input type="text" class="form-control number" value="'. $formBahan[$field['name']] .'" name="' . $field['name'] .'" id="input-' . $index . '" placeholder="' . $field['placeholder'] . '" pattern="^\d+(\.\d+)?$" inputmode="numeric" required readonly>
                                         </div>
-                                    <label class="col-md-2 col-form-label ms-2">' . $field['satuan'] . '</label>
+                                    <label class="col-md-2 col-form-label fw-bolder ms-2">' . $field['satuan'] . '</label>
                                 </div>
                             </div>
                           </div>';

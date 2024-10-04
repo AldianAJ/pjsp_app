@@ -52,13 +52,25 @@ class ClosingController extends Controller
             return DataTables::of($targetMesin)
                 ->addColumn('action', function ($object) use ($path) {
                     $cek = Closing::where('msn_trgt_id', $object->msn_trgt_id)->exists();
-                    $html = '<button class="btn btn-info btn-process waves-effect waves-light me-1" data-msn-trgt-id="' . $object->msn_trgt_id . '">'
-                        . '<i class="bx bx-transfer-alt align-middle me-2 font-size-18"></i> Proses</button>';
+                    if (substr($object->jenis_id, 0, 2) == 'MK') {
+                        $html = '<button class="btn btn-info btn-process waves-effect waves-light me-1" data-msn-trgt-id="' . $object->msn_trgt_id . '">'
+                            . '<i class="bx bx-transfer-alt align-middle me-2 font-size-18"></i> Proses</button>';
+                    } elseif (substr($object->jenis_id, 0, 3) == 'HLP') {
+                        $html = '<button class="btn btn-info btn-process-hlp waves-effect waves-light me-1" data-msn-trgt-id="' . $object->msn_trgt_id . '">'
+                            . '<i class="bx bx-transfer-alt align-middle me-2 font-size-18"></i> Proses</button>';
+                    }
                     if ($cek) {
-                        $html = '<button class="btn btn-secondary btn-detail waves-effect waves-light me-1" data-msn-trgt-id="' . $object->msn_trgt_id . '">'
-                            . '<i class="bx bx-detail align-middle me-2 font-size-18"></i> Detail</button>';
-                        $html .= '<button class="btn btn-success btn-edit waves-effect waves-light me-1" data-msn-trgt-id="' . $object->msn_trgt_id . '">'
-                            . '<i class="bx bx-edit align-middle me-2 font-size-18"></i> Edit</button>';
+                        if (substr($object->jenis_id, 0, 2) == 'MK') {
+                            $html = '<button class="btn btn-secondary btn-detail waves-effect waves-light me-1" data-msn-trgt-id="' . $object->msn_trgt_id . '">'
+                                . '<i class="bx bx-detail align-middle me-2 font-size-18"></i> Detail</button>';
+                            $html .= '<button class="btn btn-success btn-edit waves-effect waves-light me-1" data-msn-trgt-id="' . $object->msn_trgt_id . '">'
+                                . '<i class="bx bx-edit align-middle me-2 font-size-18"></i> Edit</button>';
+                        } elseif (substr($object->jenis_id, 0, 3) == 'HLP') {
+                            $html = '<button class="btn btn-secondary btn-detail waves-effect waves-light me-1" data-msn-trgt-id="' . $object->msn_trgt_id . '">'
+                                . '<i class="bx bx-detail align-middle me-2 font-size-18"></i> Detail</button>';
+                            $html .= '<button class="btn btn-success btn-edit waves-effect waves-light me-1" data-msn-trgt-id="' . $object->msn_trgt_id . '">'
+                                . '<i class="bx bx-edit align-middle me-2 font-size-18"></i> Edit</button>';
+                        }
                     }
 
                     return $html;
@@ -97,6 +109,7 @@ class ClosingController extends Controller
             'jenis' => '1',
         ]);
         $id = $closing->closing_id;
+        $brg_id = '';
         foreach ($request->sisaHasil as $item) {
             $brg_id = DB::table('tmp_produk_material as a')
                 ->join('m_brg_spek as b', 'b.spek_id', '=', 'a.brg_id')
@@ -104,7 +117,7 @@ class ClosingController extends Controller
                 ->where('a.brg_prod_id', $produk)
                 ->where('a.tahap', 1)
                 ->select('a.brg_id')
-                ->first()->brg_id;
+                ->value('a.brg_id');
 
             DetailClosing::create([
                 'closing_id' => $id,
@@ -130,6 +143,7 @@ class ClosingController extends Controller
                 'brg_id' => $brg_id,
                 'qty' => $item['value'],
                 'kode' => 2,
+                'satuan' => $item['name'],
                 'cek' => 1,
             ]);
         }
@@ -147,6 +161,7 @@ class ClosingController extends Controller
                 'brg_id' => $brg_id,
                 'qty' => $item['value'],
                 'kode' => 3,
+                'satuan' => $item['name'],
                 'cek' => 1,
             ]);
         }
@@ -183,7 +198,7 @@ class ClosingController extends Controller
                 ->where('a.brg_prod_id', $produk)
                 ->where('a.tahap', 1)
                 ->select('a.brg_id')
-                ->first()->brg_id;
+                ->value('a.brg_id');
 
             DetailClosing::create([
                 'closing_id' => $id,
@@ -310,12 +325,12 @@ class ClosingController extends Controller
             'inner' => $data->where('kode', 2)->where('satuan', 'inner')->first()->qty ?? 0,
             'etiket' => $data->where('kode', 2)->where('satuan', 'etiket')->first()->qty ?? 0,
             'pc' => $data->where('kode', 2)->where('satuan',  'pc')->first()->qty ?? 0,
-            'opp_pack' => $data->where('kode', 2)->where('satuan', 'opp pack')->first()->qty ?? 0,
-            'teartape' => $data->where('kode', 2)->where('satuan', 'teartape')->first()->qty ?? 0,
+            'opp_pack_teartape' => $data->where('kode', 2)->where('satuan', 'opp pack')->first()->qty ?? 0,
             'opp_slop' => $data->where('kode', 2)->where('satuan', 'opp slop')->first()->qty ?? 0,
             'barcode_slop' => $data->where('kode', 2)->where('satuan', 'barcode slop')->first()->qty ?? 0,
             'kertas_ball' => $data->where('kode', 2)->where('satuan', 'kertas ball')->first()->qty ?? 0,
             'cap_ball' => $data->where('kode', 2)->where('satuan', 'cap ball')->first()->qty ?? 0,
+            'batangan' => $data->where('kode', 2)->where('satuan', 'batangan')->first()->qty ?? 0,
             'karton' => $data->where('kode', 2)->where('satuan', 'karton')->first()->qty ?? 0,
         ];
         $formBahan = [
@@ -406,13 +421,13 @@ class ClosingController extends Controller
             'inner' => $data->where('kode', 2)->where('satuan', 'inner')->first()->qty ?? 0,
             'etiket' => $data->where('kode', 2)->where('satuan', 'etiket')->first()->qty ?? 0,
             'pc' => $data->where('kode', 2)->where('satuan',  'pc')->first()->qty ?? 0,
-            'opp_pack' => $data->where('kode', 2)->where('satuan', 'opp pack')->first()->qty ?? 0,
-            'teartape' => $data->where('kode', 2)->where('satuan', 'teartape')->first()->qty ?? 0,
+            'opp_pack_teartape' => $data->where('kode', 2)->where('satuan', 'opp pack')->first()->qty ?? 0,
             'opp_slop' => $data->where('kode', 2)->where('satuan', 'opp slop')->first()->qty ?? 0,
             'barcode_slop' => $data->where('kode', 2)->where('satuan', 'barcode slop')->first()->qty ?? 0,
             'kertas_ball' => $data->where('kode', 2)->where('satuan', 'kertas ball')->first()->qty ?? 0,
             'cap_ball' => $data->where('kode', 2)->where('satuan', 'cap ball')->first()->qty ?? 0,
             'karton' => $data->where('kode', 2)->where('satuan', 'karton')->first()->qty ?? 0,
+            'batangan' => $data->where('kode', 2)->where('satuan', 'batangan')->first()->qty ?? 0,
         ];
         $formBahan = [
             'foil' => $data->where('kode', 3)->where('satuan', 'foil')->first()->qty ?? 0,

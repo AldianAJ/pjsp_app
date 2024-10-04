@@ -18,9 +18,9 @@
                                 <label for="input-' . $index . '">' . $field['label'] . '</label>
                                 <div class="input-group">
                                     <div class="col-xl-9">
-                                        <input type="text" class="form-control number" value="'. $formData[$field['name']] .'" name="' . $field['name'] .'" id="input-' . $index . '" placeholder="' . $field['placeholder'] . '" pattern="\d*" inputmode="numeric" required readonly>
+                                        <input type="text" class="form-control number" value="'. $formData[$field['name']] .'" name="' . $field['name'] .'" id="input-' . $index . '" placeholder="' . $field['placeholder'] . '" pattern="^\d+(\.\d+)?$" inputmode="numeric" required readonly>
                                     </div>
-                                    <label class="col-md-2 col-form-label ms-2">' . $field['satuan'] . '</label>
+                                    <label class="col-md-2 col-form-label fw-bolder ms-2">' . $field['satuan'] . '</label>
                                 </div>
                             </div>
                           </div>';
@@ -49,9 +49,9 @@
                                 <label for="rejectInput-' . $index . '">' . $field['label'] . '</label>
                                 <div class="input-group">
                                     <div class="col-xl-9">
-                                        <input type="text" class="form-control number" value="'. $formReject[$field['name']] .'" name="' . $field['name'] .'" id="rejectInput-' . $index . '" placeholder="' . $field['placeholder'] . '" pattern="\d*" inputmode="numeric" required readonly>
+                                        <input type="text" class="form-control number" value="'. $formReject[$field['name']] .'" name="' . $field['name'] .'" id="rejectInput-' . $index . '" placeholder="' . $field['placeholder'] . '" pattern="^\d+(\.\d+)?$" inputmode="numeric" required readonly>
                                     </div>
-                                    <label class="col-md-2 col-form-label ms-2">' . $field['satuan'] . '</label>
+                                    <label class="col-md-2 col-form-label fw-bolder ms-2">' . $field['satuan'] . '</label>
                                 </div>
                             </div>
                           </div>';
@@ -79,9 +79,9 @@
                                 <label for="bahanInput-' . $index . '">' . $field['label'] . '</label>
                                 <div class="input-group">
                                     <div class="col-xl-9">
-                                        <input type="text" class="form-control number" value="'. $formBahan[$field['name']] .'" name="' . $field['name'] .'" id="bahanInput-' . $index . '" placeholder="' . $field['placeholder'] . '" pattern="\d*" inputmode="numeric" required readonly>
+                                        <input type="text" class="form-control number" value="'. $formBahan[$field['name']] .'" name="' . $field['name'] .'" id="bahanInput-' . $index . '" placeholder="' . $field['placeholder'] . '" pattern="^\d+(\.\d+)?$" inputmode="numeric" required readonly>
                                     </div>
-                                    <label class="col-md-2 col-form-label ms-2">' . $field['satuan'] . '</label>
+                                    <label class="col-md-2 col-form-label fw-bolder ms-2">' . $field['satuan'] . '</label>
                                 </div>
                             </div>
                           </div>';

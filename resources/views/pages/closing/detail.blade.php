@@ -19,49 +19,10 @@ Closing Mesin
 <script src="{{ asset('assets/libs/sweetalert2/sweetalert2.min.js') }}"></script>
 <!-- jquery step -->
 <script src="{{ asset('assets/libs/jquery-steps/build/jquery.steps.min.js') }}"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/autonumeric/4.10.5/autoNumeric.min.js"></script>
 
 <script>
-    document.addEventListener('DOMContentLoaded', (event) => {
-        // Function to format input value
-        function formatInput(event) {
-            let input = event.target;
-            let value = input.value;
 
-            // Replace comma with dot
-            value = value.replace(/\,/g, '.');
-
-            // Allow only digits and dot
-            value = value.replace(/[^0-9.]/g, '');
-
-            // Update the input value
-            input.value = value;
-        }
-
-        // Add event listeners to all inputs with the class 'form-control'
-        document.querySelectorAll('.number').forEach(input => {
-            // Initialize input with default value if empty
-            if (input.value === '') {
-                input.value = '0';
-            }
-
-            // Add input event listener
-            input.addEventListener('input', formatInput);
-
-            // Add focus event listener to set default value if empty on focus
-            input.addEventListener('focus', () => {
-                if (input.value === '0') {
-                    input.value = '';
-                }
-            });
-
-            // Add blur event listener to set default value if empty on blur
-            input.addEventListener('blur', () => {
-                if (input.value === '') {
-                    input.value = '0';
-                }
-            });
-        });
-    });
 </script>
 
 <script>
@@ -105,16 +66,51 @@ Closing Mesin
             const brg_id = data.brg_id;
             if ($(this).hasClass('btn-process')) {
                 window.currentWeekId = trgtId;
+                if (jenis.substring(0, 2) == 'MK') {
+                    $('#modalTitleMaker').html(`Closing MAKER (Shift ${shift}) (${nm_mesin}) (${nm_brg})`);
+                    $('#trgt_id').val(trgtId);
+                    $('#produk').val(brg_id);
+                    $('#makerModal').modal('show');
+                }
+            }
+        });
+
+        $('#datatableDetail').on('click', '.btn-process-hlp', function() {
+            const trgtId = $(this).data('msn-trgt-id');
+            const row = $(this).closest('tr');
+            const data = $('#datatableDetail').DataTable().row(row).data();
+            const nm_brg = data.nm_brg;
+            const nm_mesin = data.nama;
+            const shift = data.shift;
+            const jenis = data.jenis_id;
+            const brg_id = data.brg_id;
+            if ($(this).hasClass('btn-process-hlp')) {
+                window.currentWeekId = trgtId;
                 if (jenis.substring(0, 3) == 'HLP') {
                     $('#modalTitleHLP').html(`Closing HLP (Shift ${shift}) (${nm_mesin}) (${nm_brg})`);
                     $('#trgt_id_HLP').val(trgtId);
                     $('#produk_HLP').val(brg_id);
                     $('#hlpModal').modal('show');
-                } else if (jenis.substring(0, 2) == 'MK') {
-                    $('#modalTitleMaker').html(`Closing MAKER (Shift ${shift}) (${nm_mesin}) (${nm_brg})`);
-                    $('#trgt_id').val(trgtId);
-                    $('#produk').val(brg_id);
-                    $('#makerModal').modal('show');
+                }
+            }
+        });
+
+        $('#datatableDetail').on('click', '.btn-process-pack', function() {
+            const trgtId = $(this).data('msn-trgt-id');
+            const row = $(this).closest('tr');
+            const data = $('#datatableDetail').DataTable().row(row).data();
+            const nm_brg = data.nm_brg;
+            const nm_mesin = data.nama;
+            const shift = data.shift;
+            const jenis = data.jenis_id;
+            const brg_id = data.brg_id;
+            if ($(this).hasClass('btn-process-pack')) {
+                window.currentWeekId = trgtId;
+                if (jenis.substring(0, 3) == 'HLP') {
+                    $('#modalTitleHLPPack').html(`Closing Packing (Shift ${shift}) (${nm_mesin}) (${nm_brg})`);
+                    $('#trgt_id_HLP').val(trgtId);
+                    $('#produk_HLP').val(brg_id);
+                    $('#hlpPackModal').modal('show');
                 }
             }
         });
@@ -324,10 +320,6 @@ Closing Mesin
                                 },
                                 autoFocus: true,
                                 enableFinishButton: true,
-                                onStepChanged: function(event, currentIndex) {
-                                    // Format numbers on step change if needed
-                                    formatNumbers(); // Panggil fungsi untuk format angka
-                                },
                                 onFinished: function(event, currentIndex) {
                                     // if (validateForm("#bahanDetailForm")) {
                                         var sisaHasilData = $("#sisaHasilEditForm").serializeArray();
@@ -387,10 +379,44 @@ Closing Mesin
             $('#hlpModal').modal('hide');
             $('#form-hlp').submit();
         });
+        $('#hlpPackModal .btn-primary').on('click', function() {
+            $('#hlpPackModal').modal('hide');
+            $('#form-hlp-pack').submit();
+        });
         $('#makerModal .btn-primary').on('click', function() {
             $('#makerModal').modal('hide');
             $('#form-maker').submit();
         })
+
+        $(document).ready(function() {
+            // Add listener for inputs in the forms to format numbers and perform conversion
+            $('#input-0').on('keyup', function(e) {
+                // Get the current input value
+                var inputValue = $(this).val();
+                console.log(inputValue);
+
+                // Replace commas with dots
+                inputValue = inputValue.replace(/,/g, '.');
+
+                // Remove any non-digit character except the dot
+                inputValue = inputValue.replace(/[^\d.]/g, '');
+
+                // Add thousand separators for better readability
+                var parts = inputValue.split('.');
+                parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+                var formattedValue = parts.join('.');
+
+                // Set the formatted value back to the input
+                $(this).val(formattedValue);
+
+                // Perform unit conversion if needed (assuming a conversion factor of 1000 for example)
+                var conversionFactor = 1000; // Replace this with your desired conversion factor
+                var convertedValue = parseFloat(inputValue.replace(/,/g, '')) * conversionFactor;
+
+                // Display the converted value somewhere, or store it in a hidden input field
+                $(this).closest('section').find('.converted-value').text(convertedValue.toLocaleString('en-US'));
+            });
+        });
 
         function resetJQuerySteps(elementTarget, noOfSteps){
             var noOfSteps = noOfSteps - 1;
@@ -553,13 +579,87 @@ Closing Mesin
                                     timer: 5000
                                 });
                                 $('#hlpModal').modal('hide');
-                                $("#sisaHasiHLPlForm")[0].reset();
+                                $("#sisaHasilHLPForm")[0].reset();
                                 $("#rejectHLPForm")[0].reset();
                                 $("#bahanHLPForm")[0].reset();
                                 $('#trgt_id').val('');
                                 $('#produk').val('');
                                 $('#datatableDetail').DataTable().ajax.reload();
                                 resetJQuerySteps('#form-hlp',3);
+                            }
+                        });
+                    }
+                }
+
+            })
+
+            $("#form-hlp-pack").steps({
+                headerTag: "h3",
+                bodyTag: "section",
+                transitionEffect: "slide",
+                labels: {
+                    finish: "Finish",
+                    next: "Selanjutnya",
+                    previous: "Sebelumnya",
+                },
+                autoFocus: true,
+                onStepChanging: function(event, currentIndex, newIndex) {
+                    if (currentIndex > newIndex) {
+                        return true; // Allow back navigation
+                    }
+                    switch (currentIndex) {
+                        case 0:
+                            FormId = "#sisaHasilHLPPackForm";
+                            break;
+                        case 1:
+                            FormId = "#rejectHLPPackForm";
+                            break;
+                        case 2:
+                            FormId = "#bahanHLPPackForm";
+                            break;
+                    }
+                    return validateForm(FormId);
+                },
+                onFinished: function(event, currentIndex) {
+                    if (validateForm("#bahanHLPPackForm")) {
+                        var sisaHasilData = $("#sisaHasilHLPPackForm").serializeArray();
+                        var rejectData = $("#rejectHLPPackForm").serializeArray();
+                        var bahanData = $("#bahanHLPPackForm").serializeArray();
+                        var trgtId = $('#trgt_id_HLP').val();
+                        var produk = $('#produk_HLP').val();
+
+                        // Combine all data into one object
+                        var combinedData = {
+                            trgt_id: trgtId,
+                            produk: produk,
+                            sisaHasil: sisaHasilData,
+                            reject: rejectData,
+                            bahan: bahanData,
+                            _token: "{{ csrf_token() }}"
+                        };
+
+                        // Send updated data to server via AJAX
+                        $.ajax({
+                            url: "{{ route('closing-mesin.storeHlp') }}", // Replace with your update route
+                            type: "POST",
+                            data: combinedData,
+                            success: function(response) {
+                                Swal.fire({
+                                    toast: true,
+                                    position: 'top-right',
+                                    icon: response.success ? 'success' : 'error',
+                                    title: response.message,
+                                    showConfirmButton: false,
+                                    timer: 5000
+                                });
+                                $('#hlpPackModal').modal('hide');
+                                $("#sisaHasilHLPPackForm")[0].reset();
+                                $("#rejectHLPPackForm")[0].reset();
+                                $("#bahanHLPPackForm")[0].reset();
+                                $('#trgt_id').val('');
+                                $('#produk').val('');
+                                $('#datatableDetail').DataTable().ajax.reload();
+                                resetJQuerySteps('#form-hlp-pack',3);
                             }
                         });
                     }
@@ -579,6 +679,9 @@ Closing Mesin
                         $(this).find('input').each(function() {
                             if (!this.validity.valid) {
                                 $(this).addClass('is-invalid');
+                                if ($(this).next('.error-message').length === 0) {
+                                    $(this).after('<span class="error-message" style="color: red;">Input harus berupa angka atau desimal.</span>');
+                                }
                             } else {
                                 $(this).removeClass('is-invalid');
                             }
@@ -587,6 +690,7 @@ Closing Mesin
                 } else {
                     // Clear invalid classes if valid
                     $(".form-control").removeClass('is-invalid');
+                    $(".error-message").remove();
                 }
 
                 return isValid; // Allow step change if valid
@@ -667,7 +771,7 @@ Closing Mesin
     <div class="modal-dialog modal-xl">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 id="modalTitleMaker" class="modal-title">Closing MAKER</h5>
+                <h4 id="modalTitleMaker" class="modal-title fw-bolder">Closing MAKER</h4>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
@@ -682,6 +786,7 @@ Closing Mesin
                                         <input type="hidden" id="produk" name="produk">
                                         <form id="sisaHasilForm">
                                             <div class="row">
+                                                <h5 class="card-title">Batangan</h5>
                                                 <?php
                                                 $fields = [
                                                     ["label" => "TRAY", "placeholder" => "Enter TRAY", "name" => "TRAY", "satuan" => "TRAY"],
@@ -695,9 +800,10 @@ Closing Mesin
                                                                 <label for="input-' . $index . '">' . $field['label'] . '</label>
                                                                 <div class="input-group">
                                                                     <div class="col-xl-9">
-                                                                        <input type="text" class="form-control number" value="0" name="' . $field['name'] .'" id="input-' . $index . '" placeholder="' . $field['placeholder'] . '" pattern="\d*" inputmode="numeric" required>
+                                                                        <input type="text" class="form-control number" value="0" name="' . $field['name'] .'" id="input-' . $index . '" placeholder="' . $field['placeholder'] . '" pattern="^\d+(\.\d+)?$" inputmode="numeric" required>
                                                                     </div>
-                                                                    <label class="col-md-2 col-form-label ms-2">' . $field['satuan'] . '</label>
+                                                                    <label class="col-md-2 col-form-label fw-bolder ms-2">' . $field['satuan'] . '</label>
+                                                                    <span class="converted-value"></span>
                                                                 </div>
                                                             </div>
                                                           </div>';
@@ -726,9 +832,10 @@ Closing Mesin
                                                                 <label for="rejectInput-' . $index . '">' . $field['label'] . '</label>
                                                                 <div class="input-group">
                                                                     <div class="col-xl-9">
-                                                                        <input type="text" class="form-control number" value="0" name="' . $field['name'] .'" id="rejectInput-' . $index . '" placeholder="' . $field['placeholder'] . '" pattern="\d*" inputmode="numeric" required>
+                                                                        <input type="text" class="form-control number" value="0" name="' . $field['name'] .'" id="rejectInput-' . $index . '" placeholder="' . $field['placeholder'] . '" pattern="^\d+(\.\d+)?$" inputmode="numeric" required>
                                                                     </div>
-                                                                    <label class="col-md-2 col-form-label ms-2">' . $field['satuan'] . '</label>
+                                                                    <label class="col-md-2 col-form-label fw-bolder ms-2">' . $field['satuan'] . '</label>
+                                                                    <span class="converted-value"></span>
                                                                 </div>
                                                             </div>
                                                           </div>';
@@ -746,8 +853,11 @@ Closing Mesin
                                                 $fields = [
                                                     ["label" => "TSG", "placeholder" => "Enter TSG", "name" => "tsg", "satuan" => "KG"],
                                                     ["label" => "CP", "placeholder" => "Enter CP", "name" => "cp", "satuan" => "ROLL"],
+                                                    ["label" => "CP KG", "placeholder" => "Enter CP", "name" => "cp_kg", "satuan" => "KG"],
                                                     ["label" => "Filter", "placeholder" => "Enter Filter", "name" => "filter", "satuan" => "BTG"],
+                                                    ["label" => "Filter KG", "placeholder" => "Enter Filter", "name" => "filter_kg", "satuan" => "KG"],
                                                     ["label" => "CTP", "placeholder" => "Enter CTP", "name" => "ctp", "satuan" => "ROLL"],
+                                                    ["label" => "CTP KG", "placeholder" => "Enter CTP", "name" => "ctp_kg", "satuan" => "KG"],
                                                 ];
 
                                                 foreach ($fields as $index => $field) {
@@ -756,9 +866,10 @@ Closing Mesin
                                                                 <label for="bahanInput-' . $index . '">' . $field['label'] . '</label>
                                                                 <div class="input-group">
                                                                     <div class="col-xl-9">
-                                                                        <input type="text" class="form-control number" value="0" name="' . $field['name'] .'" id="bahanInput-' . $index . '" placeholder="' . $field['placeholder'] . '" pattern="\d*" inputmode="numeric" required>
+                                                                        <input type="text" class="form-control number" value="0" name="' . $field['name'] .'" id="bahanInput-' . $index . '" placeholder="' . $field['placeholder'] . '" pattern="^\d+(\.\d+)?$" inputmode="numeric" required>
                                                                     </div>
-                                                                    <label class="col-md-2 col-form-label ms-2">' . $field['satuan'] . '</label>
+                                                                    <label class="col-md-2 col-form-label fw-bolder ms-2">' . $field['satuan'] . '</label>
+                                                                    <span class="converted-value"></span>
                                                                 </div>
                                                             </div>
                                                           </div>';
@@ -786,7 +897,7 @@ Closing Mesin
     <div class="modal-dialog modal-xl">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 id="modalTitleDetailMaker" class="modal-title">Closing MAKER</h5>
+                <h4 id="modalTitleDetailMaker" class="modal-title fw-bolder">Closing MAKER</h4>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
@@ -811,7 +922,7 @@ Closing Mesin
     <div class="modal-dialog modal-xl">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 id="modalTitleEditMaker" class="modal-title">Closing MAKER</h5>
+                <h3 id="modalTitleEditMaker" class="modal-title fw-bolder">Closing MAKER</h3>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
@@ -836,7 +947,7 @@ Closing Mesin
     <div class="modal-dialog modal-xl">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 id="modalTitleHLP" class="modal-title">Closing HLP</h5>
+                <h4 id="modalTitleHLP" class="modal-title fw-bolder">Closing HLP</h4>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
@@ -872,9 +983,9 @@ Closing Mesin
                                                                 <label for="input-' . $index . '">' . $field['label'] . '</label>
                                                                 <div class="input-group">
                                                                     <div class="col-xl-9">
-                                                                        <input type="text" class="form-control number" value="0" name="' . $field['name'] .'" id="input-' . $index . '" placeholder="' . $field['placeholder'] . '" pattern="\d*" inputmode="numeric" required>
+                                                                        <input type="text" class="form-control number" value="0" name="' . $field['name'] .'" id="input-' . $index . '" placeholder="' . $field['placeholder'] . '" pattern="^\d+(\.\d+)?$" inputmode="numeric" required>
                                                                     </div>
-                                                                <label class="col-md-2 col-form-label ms-2">' . $field['satuan'] . '</label>
+                                                                <label class="col-md-2 col-form-label fw-bolder ms-2">' . $field['satuan'] . '</label>
                                                             </div>
                                                             </div>
                                                           </div>';
@@ -890,17 +1001,17 @@ Closing Mesin
                                         <form id="rejectHLPForm">
                                             <?php
                                                 $fields = [
-                                                    ["label" => "Foil", "placeholder" => "Enter Foil", "name" => "foil", 'satuan' => 'ROLL'],
-                                                    ["label" => "Inner", "placeholder" => "Enter Inner", "name" => "inner", 'satuan' => 'ROLL'],
-                                                    ["label" => "Etiket", "placeholder" => "Enter Etiket", "name" => "etiket", 'satuan' => 'PCS'],
-                                                    ["label" => "Pita Cukai", "placeholder" => "Enter Pita Cukai", "name" => "pc", 'satuan' => 'PCS'],
-                                                    ["label" => "OPP Pack", "placeholder" => "Enter OPP Pack", "name" => "opp_pack", 'satuan' => 'ROLL'],
-                                                    ["label" => "Teartape", "placeholder" => "Enter Teartape", "name" => "teartape", 'satuan' => 'ROLL'],
-                                                    ["label" => "OPP Slop", "placeholder" => "Enter OPP Slop", "name" => "opp_slop", 'satuan' => 'PCS'],
-                                                    ["label" => "Barcode Slop", "placeholder" => "Enter Segel Slop", "name" => "barcode_slop", 'satuan' => 'PCS'],
-                                                    ["label" => "Kertas Ball", "placeholder" => "Enter Kertas Ball", "name" => "kertas_ball", 'satuan' => 'PCS'],
-                                                    ["label" => "Cap Ball", "placeholder" => "Enter Segel Ball", "name" => "cap_ball", 'satuan' => 'PCS'],
-                                                    ["label" => "Karton", "placeholder" => "Enter Karton", "name" => "karton", 'satuan' => 'PCS'],
+                                                    ["label" => "Foil", "placeholder" => "Enter Foil", "name" => "foil", 'satuan' => 'KG'],
+                                                    ["label" => "Inner", "placeholder" => "Enter Inner", "name" => "inner", 'satuan' => 'KG'],
+                                                    ["label" => "Etiket", "placeholder" => "Enter Etiket", "name" => "etiket", 'satuan' => 'KG'],
+                                                    ["label" => "Pita Cukai", "placeholder" => "Enter Pita Cukai", "name" => "pc", 'satuan' => 'KG'],
+                                                    ["label" => "OPP Pack & Teartape", "placeholder" => "Enter OPP Pack", "name" => "opp_pack_teartape", 'satuan' => 'KG'],
+                                                    ["label" => "OPP Slop", "placeholder" => "Enter OPP Slop", "name" => "opp_slop", 'satuan' => 'KG'],
+                                                    ["label" => "Barcode Slop", "placeholder" => "Enter Segel Slop", "name" => "barcode_slop", 'satuan' => 'KG'],
+                                                    ["label" => "Kertas Ball", "placeholder" => "Enter Kertas Ball", "name" => "kertas_ball", 'satuan' => 'KG'],
+                                                    ["label" => "Cap Ball", "placeholder" => "Enter Segel Ball", "name" => "cap_ball", 'satuan' => 'KG'],
+                                                    ["label" => "Karton", "placeholder" => "Enter Karton", "name" => "karton", 'satuan' => 'KG'],
+                                                    ["label" => "Batangan", "placeholder" => "Enter Batangan", "name" => "batangan", 'satuan' => 'KG'],
                                                 ];
 
                                                 echo '<div class="row">';
@@ -915,9 +1026,9 @@ Closing Mesin
                                                                 <label for="input-' . $index . '">' . $field['label'] . ' Reject</label>
                                                                 <div class="input-group">
                                                                     <div class="col-xl-9">
-                                                                        <input type="text" class="form-control number" value="0" name="' . $field['name'] .'" id="input-' . $index . '" placeholder="' . $field['placeholder'] . '" pattern="\d*" inputmode="numeric" required>
+                                                                        <input type="text" class="form-control number" value="0" name="' . $field['name'] .'" id="input-' . $index . '" placeholder="' . $field['placeholder'] . '" pattern="^\d+(\.\d+)?$" inputmode="numeric" required>
                                                                     </div>
-                                                                <label class="col-md-2 col-form-label ms-2">' . $field['satuan'] . '</label>
+                                                                <label class="col-md-2 col-form-label fw-bolder ms-2">' . $field['satuan'] . '</label>
                                                             </div>
                                                             </div>
                                                           </div>';
@@ -927,24 +1038,36 @@ Closing Mesin
                                         </form>
                                     </section>
 
-                                    <h3>SisaBahan</h3>
+                                    <h3>Sisa Bahan</h3>
                                     <section>
                                         <div>
                                             <form id="bahanHLPForm">
                                                 <?php
                                                 $fields = [
                                                     ["label" => "Foil", "placeholder" => "Enter Foil", "name" => "foil", 'satuan' => 'ROLL'],
+                                                    ["label" => "Foil", "placeholder" => "Enter Foil", "name" => "foil", 'satuan' => 'KG'],
                                                     ["label" => "Inner", "placeholder" => "Enter Inner", "name" => "inner", 'satuan' => 'ROLL'],
-                                                    ["label" => "Etiket", "placeholder" => "Enter Etiket", "name" => "etiket", 'satuan' => 'PCS'],
+                                                    ["label" => "Inner", "placeholder" => "Enter Inner", "name" => "inner", 'satuan' => 'KG'],
+                                                    ["label" => "Etiket", "placeholder" => "Enter Etiket", "name" => "etiket", 'satuan' => 'KARTON'],
+                                                    ["label" => "Etiket", "placeholder" => "Enter Etiket", "name" => "etiket", 'satuan' => 'BANDEL'],
                                                     ["label" => "Pita Cukai", "placeholder" => "Enter Pita Cukai", "name" => "pc", 'satuan' => 'PCS'],
+                                                    ["label" => "Pita Cukai", "placeholder" => "Enter Pita Cukai", "name" => "pc", 'satuan' => 'KG'],
                                                     ["label" => "OPP Pack", "placeholder" => "Enter OPP Pack", "name" => "opp_pack", 'satuan' => 'ROLL'],
+                                                    ["label" => "OPP Pack", "placeholder" => "Enter OPP Pack", "name" => "opp_pack", 'satuan' => 'KG'],
                                                     ["label" => "Teartape", "placeholder" => "Enter Teartape", "name" => "teartape", 'satuan' => 'ROLL'],
+                                                    ["label" => "Teartape", "placeholder" => "Enter Teartape", "name" => "teartape", 'satuan' => 'KG'],
                                                     ["label" => "OPP Slop", "placeholder" => "Enter OPP Slop", "name" => "opp_slop", 'satuan' => 'PCS'],
+                                                    ["label" => "OPP Slop", "placeholder" => "Enter OPP Slop", "name" => "opp_slop", 'satuan' => 'KG'],
                                                     ["label" => "Barcode Slop", "placeholder" => "Enter Segel Slop", "name" => "barcode_slop", 'satuan' => 'PCS'],
-                                                    ["label" => "Kertas Ball", "placeholder" => "Enter Kertas Ball", "name" => "kertas_ball", 'satuan' => 'PCS'],
+                                                    ["label" => "Barcode Slop", "placeholder" => "Enter Segel Slop", "name" => "barcode_slop", 'satuan' => 'KG'],
+                                                    ["label" => "Kertas Ball", "placeholder" => "Enter Kertas Ball", "name" => "kertas_ball", 'satuan' => 'RIM'],
+                                                    ["label" => "Kertas Ball", "placeholder" => "Enter Kertas Ball", "name" => "kertas_ball", 'satuan' => 'LBR'],
                                                     ["label" => "Cap Ball", "placeholder" => "Enter Segel Ball", "name" => "cap_ball", 'satuan' => 'PCS'],
+                                                    ["label" => "Cap Ball", "placeholder" => "Enter Segel Ball", "name" => "cap_ball", 'satuan' => 'KG'],
                                                     ["label" => "Karton", "placeholder" => "Enter Karton", "name" => "karton", 'satuan' => 'PCS'],
-                                                    ["label" => "Batangan", "placeholder" => "Enter Batangan", "name" => "batangan", 'satuan' => 'PCS'],
+                                                    ["label" => "Karton", "placeholder" => "Enter Karton", "name" => "karton", 'satuan' => 'KG'],
+                                                    ["label" => "Batangan", "placeholder" => "Enter Batangan", "name" => "batangan", 'satuan' => 'TRAY'],
+                                                    ["label" => "Batangan", "placeholder" => "Enter Batangan", "name" => "batangan", 'satuan' => 'BTG'],
                                                 ];
 
                                                 echo '<div class="row">';
@@ -959,9 +1082,142 @@ Closing Mesin
                                                                 <label for="input-' . $index . '">' . $field['label'] . '</label>
                                                                 <div class="input-group">
                                                                     <div class="col-xl-9">
-                                                                        <input type="text" class="form-control number" value="0" name="' . $field['name'] .'" id="input-' . $index . '" placeholder="' . $field['placeholder'] . '" pattern="\d*" inputmode="numeric" required>
+                                                                        <input type="text" class="form-control number" value="0" name="' . $field['name'] .'" id="input-' . $index . '" placeholder="' . $field['placeholder'] . '" pattern="^\d+(\.\d+)?$" inputmode="numeric" required>
                                                                     </div>
-                                                                <label class="col-md-2 col-form-label ms-2">' . $field['satuan'] . '</label>
+                                                                <label class="col-md-2 col-form-label fw-bolder ms-2">' . $field['satuan'] . '</label>
+                                                            </div>
+                                                            </div>
+                                                          </div>';
+                                                }
+                                                echo '</div>';
+                                                ?>
+
+                                            </form>
+                                        </div>
+                                    </section>
+
+                                </div>
+
+                            </div>
+                            <!-- end card body -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal HLP-->
+<div class="modal fade" id="hlpPackModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 id="modalTitleHLPPack" class="modal-title fw-bolder">Closing HLP</h4>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="card">
+                            <div class="card-body">
+                                <div id="form-hlp-pack">
+                                    <h3>Sisa Hasil Produksi</h3>
+                                    <section>
+                                        <input type="hidden" id="trgt_id_HLP" name="trgt_id">
+                                        <input type="hidden" id="produk_HLP" name="produk">
+                                        <form id="sisaHasilHLPPackForm">
+                                            <?php
+                                                $fields = [
+                                                    ["label" => "Karton", "placeholder" => "Enter Karton", "name" => "karton", 'satuan' => 'Karton'],
+                                                    ["label" => "Ball", "placeholder" => "Enter Ball", "name" => "ball", 'satuan' => 'Ball'],
+                                                    ["label" => "Slop", "placeholder" => "Enter Slop", "name" => "slop", 'satuan' => 'Slop'],
+                                                    ["label" => "Pack OPP", "placeholder" => "Enter Pack OPP", "name" => "opp_pack", 'satuan' => 'Pack'],
+                                                    ["label" => "NPC", "placeholder" => "Enter NPC", "name" => "npc", 'satuan' => 'Pack'],
+                                                    ["label" => "Pack Reject", "placeholder" => "Enter Pack Reject", "name" => "pack_reject", 'satuan' => 'Pack'],
+                                                ];
+
+                                                echo '<div class="row">';
+                                                foreach ($fields as $index => $field) {
+                                                    // Start a new row after every 3 fields
+                                                    if ($index % 3 === 0 && $index !== 0) {
+                                                        echo '</div><div class="row">';
+                                                    }
+
+                                                    echo '<div class="col-lg-4">
+                                                            <div class="mb-3">
+                                                                <label for="input-' . $index . '">' . $field['label'] . '</label>
+                                                                <div class="input-group">
+                                                                    <div class="col-xl-9">
+                                                                        <input type="text" class="form-control number" value="0" name="' . $field['name'] .'" id="input-' . $index . '" placeholder="' . $field['placeholder'] . '" pattern="^\d+(\.\d+)?$" inputmode="numeric" required>
+                                                                    </div>
+                                                                <label class="col-md-2 col-form-label fw-bolder ms-2">' . $field['satuan'] . '</label>
+                                                            </div>
+                                                            </div>
+                                                          </div>';
+                                                }
+                                                echo '</div>';
+                                                ?>
+
+                                        </form>
+                                    </section>
+
+                                    <h3>Reject Bahan</h3>
+                                    <section>
+                                        <form id="rejectHLPPackForm">
+                                            <?php
+                                                $fields = [
+                                                ];
+
+                                                echo '<div class="row">';
+                                                foreach ($fields as $index => $field) {
+                                                    // Start a new row after every 3 fields
+                                                    if ($index % 3 === 0 && $index !== 0) {
+                                                        echo '</div><div class="row">';
+                                                    }
+
+                                                    echo '<div class="col-lg-4">
+                                                            <div class="mb-3">
+                                                                <label for="input-' . $index . '">' . $field['label'] . ' Reject</label>
+                                                                <div class="input-group">
+                                                                    <div class="col-xl-9">
+                                                                        <input type="text" class="form-control number" value="0" name="' . $field['name'] .'" id="input-' . $index . '" placeholder="' . $field['placeholder'] . '" pattern="^\d+(\.\d+)?$" inputmode="numeric" required>
+                                                                    </div>
+                                                                <label class="col-md-2 col-form-label fw-bolder ms-2">' . $field['satuan'] . '</label>
+                                                            </div>
+                                                            </div>
+                                                          </div>';
+                                                }
+                                                echo '</div>';
+                                                ?>
+                                        </form>
+                                    </section>
+
+                                    <h3>Sisa Bahan</h3>
+                                    <section>
+                                        <div>
+                                            <form id="bahanHLPPackForm">
+                                                <?php
+                                                $fields = [
+                                                ];
+
+                                                echo '<div class="row">';
+                                                foreach ($fields as $index => $field) {
+                                                    // Start a new row after every 3 fields
+                                                    if ($index % 3 === 0 && $index !== 0) {
+                                                        echo '</div><div class="row">';
+                                                    }
+
+                                                    echo '<div class="col-lg-4">
+                                                            <div class="mb-3">
+                                                                <label for="input-' . $index . '">' . $field['label'] . '</label>
+                                                                <div class="input-group">
+                                                                    <div class="col-xl-9">
+                                                                        <input type="text" class="form-control number" value="0" name="' . $field['name'] .'" id="input-' . $index . '" placeholder="' . $field['placeholder'] . '" pattern="^\d+(\.\d+)?$" inputmode="numeric" required>
+                                                                    </div>
+                                                                <label class="col-md-2 col-form-label fw-bolder ms-2">' . $field['satuan'] . '</label>
                                                             </div>
                                                             </div>
                                                           </div>';
@@ -992,7 +1248,7 @@ Closing Mesin
     <div class="modal-dialog modal-xl">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 id="modalTitleDetailHLP" class="modal-title">Closing HLP</h5>
+                <h4 id="modalTitleDetailHLP" class="modal-title fw-bolder">Closing HLP</h4>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
@@ -1017,7 +1273,7 @@ Closing Mesin
     <div class="modal-dialog modal-xl">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 id="modalTitleEditHLP" class="modal-title">Closing HLP</h5>
+                <h4 id="modalTitleEditHLP" class="modal-title fw-bolder">Closing HLP</h4>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
