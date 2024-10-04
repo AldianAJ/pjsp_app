@@ -66,10 +66,10 @@ class KinerjaController extends Controller
                 ->addColumn('action', function ($object) use ($path) {
                     $html = '<button class="btn btn-secondary btn-detailHari waves-effect waves-light me-1" data-week-id="' . $object->week_id . '">'
                         . '<i class="bx bx-list-check align-middle me-2 font-size-18"></i> Detail</button>';
-                    if ($object->WEEK == date('W')) {
-                        $html .= '<button class="btn btn-success btn-editWeek waves-effect waves-light me-1" data-week-id="' . $object->week_id . '">'
-                            . '<i class="bx bx-edit align-middle me-2 font-size-18"></i> Edit</button>';
-                    }
+                    // if ($object->WEEK == date('W')) {
+                    //     $html .= '<button class="btn btn-success btn-editWeek waves-effect waves-light me-1" data-week-id="' . $object->week_id . '">'
+                    //         . '<i class="bx bx-edit align-middle me-2 font-size-18"></i> Edit</button>';
+                    // }
 
                     return $html;
                 })
@@ -207,13 +207,13 @@ class KinerjaController extends Controller
 
             return DataTables::of($targetMinggu)
                 ->addColumn('action', function ($object) {
-                    if ($object->WEEK == date('W')) {
-                        $html = '<button class="btn btn-info btn-edit waves-effect waves-light me-1" data-week-id="' . $object->week_id . '">'
-                            . '<i class="bx bx-transfer-alt align-middle me-2 font-size-18"></i> Proses</button>';
-                    } else {
-                        $html = '<button class="btn btn-secondary btn-detailHari waves-effect waves-light me-1" data-week-id="' . $object->week_id . '" data-week="' . $object->WEEK . '">'
-                            . '<i class="bx bx-list-check align-middle me-2 font-size-18"></i> Detail</button>';
-                    }
+                    // if ($object->WEEK == date('W')) {
+                    $html = '<button class="btn btn-info btn-edit waves-effect waves-light me-1" data-week-id="' . $object->week_id . '">'
+                        . '<i class="bx bx-transfer-alt align-middle me-2 font-size-18"></i> Proses</button>';
+                    // } else {
+                    //     $html = '<button class="btn btn-secondary btn-detailHari waves-effect waves-light me-1" data-week-id="' . $object->week_id . '" data-week="' . $object->WEEK . '">'
+                    //         . '<i class="bx bx-list-check align-middle me-2 font-size-18"></i> Detail</button>';
+                    // }
 
                     return $html;
                 })
@@ -235,13 +235,13 @@ class KinerjaController extends Controller
                 ->addColumn('action', function ($object) {
                     $html = '<button class="btn btn-info btn-shift waves-effect waves-light me-1" data-harian-id="' . $object->harian_id . '">'
                         . '<i class="bx bx-transfer-alt align-middle me-2 font-size-18"></i> Proses</button>';
-                    if ($object->tgl == date('Y-m-d')) {
-                        $html .= '<button class="btn btn-success btn-editHari waves-effect waves-light me-1" data-harian-id="' . $object->harian_id . '">'
-                            . '<i class="bx bx-edit align-middle me-2 font-size-18"></i> Edit</button>';
-                    } else {
-                        $html = '<button class="btn btn-secondary btn-shift waves-effect waves-light me-1" data-harian-id="' . $object->harian_id . '">'
-                            . '<i class="bx bx-detail align-middle me-2 font-size-18"></i> Detail</button>';
-                    }
+                    // if ($object->tgl == date('Y-m-d')) {
+                    $html .= '<button class="btn btn-success btn-editHari waves-effect waves-light me-1" data-harian-id="' . $object->harian_id . '">'
+                        . '<i class="bx bx-edit align-middle me-2 font-size-18"></i> Edit</button>';
+                    // } else {
+                    //     $html = '<button class="btn btn-secondary btn-shift waves-effect waves-light me-1" data-harian-id="' . $object->harian_id . '">'
+                    //         . '<i class="bx bx-detail align-middle me-2 font-size-18"></i> Detail</button>';
+                    // }
                     return $html;
                 })
                 ->rawColumns(['action'])
