@@ -210,7 +210,7 @@
                 </li>
                 @endif
 
-                @if ($user->role == 'gdb1')
+                @if ($user->role == 'gdb1' || $user->role == 'off1')
                 <li>
                     <a href="{{ route('dashboard') }}">
                         <i class="bx bx-home-circle"></i>
