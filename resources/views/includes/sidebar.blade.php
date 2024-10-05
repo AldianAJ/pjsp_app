@@ -146,6 +146,13 @@
                 </li>
 
                 <li>
+                    <a href="{{ route('log-produksi') }}" class="waves-effect">
+                        <i class="bx bxs-receipt"></i>
+                        <span key="t-kinerja">LogBook Produksi</span>
+                    </a>
+                </li>
+
+                <li>
                     <a href="{{ route('closing-mesin') }}" class="waves-effect">
                         <i class="bx bxs-receipt"></i>
                         <span key="t-kinerja">Closing Mesin</span>

@@ -17,6 +17,8 @@ use App\Http\Controllers\Admin\TrKrmMsnController;
 use App\Http\Controllers\Admin\TrMutasiController;
 use App\Http\Controllers\Admin\PenjualanController;
 use App\Http\Controllers\Admin\ReturnMesinController;
+use App\Http\Controllers\Admin\LogProdController;
+
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -124,6 +126,15 @@ Route::middleware('user')->group(function () {
         Route::post('/closing-mesin/update-hlp', 'updateHlp')->name('closing-mesin.updateHlp');
         Route::get('/closing-mesin/detail', 'detail')->name('closing-mesin.detail');
         Route::get('/closing-mesin/detail-hlp', 'detailHlp')->name('closing-mesin.detailHlp');
+    });
+
+    Route::controller((LogProdController::class))->group(function () {
+        Route::get('/log-produksi', 'index')->name('log-produksi');
+        Route::get('/log-produksi/create', 'create')->name('log-produksi.create');
+        Route::post('/log-produksi/store', 'store')->name('log-produksi.store');
+        Route::get('/log-produksi/edit', 'edit')->name('log-produksi.edit');
+        Route::post('/log-produksi/update', 'update')->name('log-produksi.update');
+        Route::get('/log-produksi/detail', 'detail')->name('log-produksi.detail');
     });
 
     Route::controller(TrReqSKMController::class)->group(function () {
