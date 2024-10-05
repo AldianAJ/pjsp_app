@@ -23,7 +23,7 @@ class LogProdController extends Controller
                 ->join('tr_target_week as e', 'd.week_id', '=', 'e.week_id')
                 ->join('m_mesin as f', 'b.mesin_id', '=', 'f.mesin_id')
                 ->join('m_brg as g', 'e.brg_id', '=', 'g.brg_id')
-                ->select('a.logprod_id', 'a.msn_trgt_id', 'b.mesin_id', 'd.tgl', 'a.pic')
+                ->select('a.logprod_id', 'a.msn_trgt_id', 'b.mesin_id', 'd.tgl', 'a.pic', 'a.lost_time')
                 ->selectRaw('CONCAT_WS(" - ",a.waktu_mulai,a.waktu_selesai) AS waktu, f.nama as mesin, g.nm_brg as produksi');
 
             if ($request->has('tgl') && $request->tgl != '') {
@@ -50,12 +50,15 @@ class LogProdController extends Controller
 
                 return DataTables::of($shifts)->make(true);
             } elseif ($type == 'machines') {
-                $shiftId = $request->input('shift_id');
+                $date = $request->input('date');
                 $machines = DB::table('tr_target_mesin as a')
                     ->join('tr_target_shift as b', 'a.shift_id', '=', 'b.shift_id')
-                    ->join('m_mesin as c', 'a.mesin_id', '=', 'c.mesin_id')
-                    ->select('a.msn_trgt_id', 'c.nama')
-                    ->where('a.shift_id', $shiftId)->get();
+                    ->join('tr_target_harian as c', 'b.harian_id', '=', 'c.harian_id')
+                    ->join('m_mesin as d', 'a.mesin_id', '=', 'd.mesin_id')
+                    ->select('a.msn_trgt_id', 'd.nama', 'b.shift', 'c.tgl')
+                    ->where('tgl', $date)
+                    ->where('a.status', 0)
+                    ->get();
 
                 return DataTables::of($machines)->make(true);
             }
@@ -80,6 +83,7 @@ class LogProdController extends Controller
                 'waktu_mulai' => $items['waktu_mulai'],
                 'waktu_selesai' => $items['waktu_selesai'],
                 'lost_time' => $items['lost_time'],
+                'lost_time_text' => $items['lost_time_text'],
                 'ket' => $items['ket'],
                 'pic' => $items['pic'],
             ]);
@@ -107,6 +111,7 @@ class LogProdController extends Controller
                 'waktu_mulai' => $data['waktu_mulai'],
                 'waktu_selesai' => $data['waktu_selesai'],
                 'lost_time' => $data['lost_time'],
+                'lost_time_text' => $data['lost_time_text'],
                 'ket' => $data['ket'],
                 'pic' => $data['pic'],
             ]);

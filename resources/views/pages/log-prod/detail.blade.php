@@ -22,9 +22,11 @@
     </div>
 </div>
 <div class="mb-3">
-    <label for="lost_time" class="form-label">Lost Time</label>
-    <input type="text" class="form-control" name="lost_time" id="lost_time" readonly value="{{ $data->lost_time }}">
+    <label for="lost_time_text" class="form-label">Lost Time</label>
+    <input type="text" class="form-control" name="lost_time_text" id="lost_time_text" readonly
+        value="{{ $data->lost_time_text }}">
 </div>
+<input type="hidden" class="form-control" name="lost_time" id="lost_time" readonly value="{{ $data->lost_time }}">
 
 <div class="mb-3">
     <label for="ket" class="form-label">Keterangan</label>

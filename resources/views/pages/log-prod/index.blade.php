@@ -17,6 +17,7 @@ Permintaan
 <script src="{{ asset('assets/libs/datatables.net-responsive-bs4/js/responsive.bootstrap4.min.js') }}"></script>
 <script src="{{ asset('assets/js/pages/datatables.init.js') }}"></script>
 <script src="{{ asset('assets/libs/sweetalert2/sweetalert2.min.js') }}"></script>
+<script src="https://cdn.datatables.net/rowgroup/1.3.0/js/dataTables.rowGroup.min.js"></script>
 
 <script>
     $('#datatable').DataTable({
@@ -61,7 +62,23 @@ Permintaan
                         Edit
                     </button> `
                 }
-            ]
+            ],
+            // rowGroup: {
+            //     dataSrc: 4,
+            //     endRender: function (rows, group) {
+            //         var sum =
+            //             rows
+            //                 .data()
+            //                 .pluck(3)
+            //                 .reduce((a, b) => a + b, 0);
+
+            //         // Use the DataTables number formatter
+            //         return (
+            //             'Total: ' +
+            //             DataTable.render.number(null, null, 0, '$').display(sum)
+            //         );
+            //     }
+            // }
         });
         $('#datatable').on('click', '.btn-detail, .btn-edit', function() {
             const logId = $(this).data('logprod-id');
@@ -101,7 +118,7 @@ Permintaan
                 });
             }
         });
-        $('#waktu_mulai', '#waktu_selesai').on('blur', function() {
+        $('#waktu_mulai', '#waktu_selesai').on('change', function() {
             calculateTimeDifference();
         });
 
@@ -123,8 +140,11 @@ Permintaan
             // Hitung selisih dalam milidetik
             var timeDiff = end - start;
 
+            // Hitung total menit
+            var totalMinutes = Math.floor(timeDiff / 1000 / 60);  // Total menit
+
             // Konversi milidetik ke menit dan jam
-            var hours = Math.floor(timeDiff / 1000 / 60 / 60); // Hitung jam
+            var hours = Math.floor(timeDiff / 1000 / 60 / 60);  // Hitung jam
             var minutes = Math.floor((timeDiff / 1000 / 60) % 60); // Hitung menit
 
             // Format hasil
@@ -135,7 +155,8 @@ Permintaan
             result += minutes + ' menit';
 
             // Tampilkan hasil selisih waktu
-            document.getElementById('lost_time').value = result;
+            document.getElementById('lost_time').value = totalMinutes;
+            document.getElementById('lost_time_text').value = result;
         }
         $('#tgl-input').on('change', function() {
             $('#datatable').DataTable().ajax.reload(); // Reload data based on new filters

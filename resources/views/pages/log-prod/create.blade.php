@@ -22,41 +22,9 @@ Tambah Log Produksi
             width: 'resolve' // need to override the changed default
         });
 
-        $('input[name="tgl"]').on('blur', function() {
+        $('input[name="tgl"]').on('input blur', function() {
             const selectedDate = $(this).val();
 
-                if ($.fn.DataTable.isDataTable('#datatable-shifts')) {
-                    $('#datatable-shifts').DataTable().clear().destroy();
-                }
-
-                $('#datatable-shifts').DataTable({
-                    ajax: {
-                        url: "{{ route('log-produksi.create') }}",
-                        data: {
-                            type: 'shifts',
-                            date: selectedDate
-                        }
-                    },
-                    columns: [{
-                            data: null,
-                            render: (data, type, row, meta) => meta.row + 1
-                        },
-                        {
-                            data: "shift"
-                        },
-                        {
-                            data: null,
-                            render: (data, type, row) => `<button type="button" class="btn btn-primary font-size-14 waves-effect waves-light" onclick="selectShift('${row.shift_id}')">
-                        Pilih
-                    </button>`
-                        }
-                    ]
-                });
-
-                $('#dataShift').modal('show');
-            });
-
-            window.selectShift = function(shiftId) {
                 if ($.fn.DataTable.isDataTable('#datatable-machines')) {
                     $('#datatable-machines').DataTable().clear().destroy();
                 }
@@ -66,12 +34,15 @@ Tambah Log Produksi
                         url: "{{ route('log-produksi.create') }}",
                         data: {
                             type: 'machines',
-                            shift_id: shiftId
+                            date: selectedDate
                         }
                     },
                     columns: [{
                             data: null,
                             render: (data, type, row, meta) => meta.row + 1
+                        },
+                        {
+                            data: "shift"
                         },
                         {
                             data: "nama"
@@ -86,9 +57,8 @@ Tambah Log Produksi
                     ]
                 });
 
-                $('#dataShift').modal('hide');
                 $('#dataMesin').modal('show');
-            };
+            });
 
             let selectedItems = [];
 
@@ -99,6 +69,7 @@ Tambah Log Produksi
                 const waktu_mulai = document.getElementById('waktu_mulai').value;
                 const waktu_selesai = document.getElementById('waktu_selesai').value;
                 const lost_time = document.getElementById('lost_time').value;
+                const lost_time_text = document.getElementById('lost_time_text').value;
                 const ket = document.getElementById('ket').value;
                 const pic = document.getElementById('pic').value;
 
@@ -109,6 +80,7 @@ Tambah Log Produksi
                     waktu_mulai,
                     waktu_selesai,
                     lost_time,
+                    lost_time_text,
                     ket,
                     pic,
                 });
@@ -133,7 +105,7 @@ Tambah Log Produksi
                         <td>${item.penanganan}</td>
                         <td>${item.waktu_mulai}</td>
                         <td>${item.waktu_selesai}</td>
-                        <td>${item.lost_time}</td>
+                        <td>${item.lost_time_text}</td>
                         <td>${item.ket}</td>
                         <td>
                             <button class="btn btn-danger waves-effect waves-light" onclick="removeItem(${index})">
@@ -150,6 +122,7 @@ Tambah Log Produksi
                     <input type="hidden" name="items[${index}][waktu_mulai]" value="${item.waktu_mulai}">
                     <input type="hidden" name="items[${index}][waktu_selesai]" value="${item.waktu_selesai}">
                     <input type="hidden" name="items[${index}][lost_time]" value="${item.lost_time}">
+                    <input type="hidden" name="items[${index}][lost_time_text]" value="${item.lost_time_text}">
                     <input type="hidden" name="items[${index}][ket]" value="${item.ket}">
                     <input type="hidden" name="items[${index}][pic]" value="${item.pic}">
                 `).join('');
@@ -159,12 +132,13 @@ Tambah Log Produksi
 
         function pilihMesin(msn_trgt_id) {
             document.getElementById('msn_trgt_id').value = msn_trgt_id;
+            // $('#troubleModalLabel').html(`Log Produksi`);
 
             $('#dataMesin').modal('hide');
             $('#troubleModal').modal('show');
         }
 
-        $('#waktu_mulai', '#waktu_selesai').on('blur', function() {
+        $('#waktu_mulai', '#waktu_selesai').on('change', function() {
             calculateTimeDifference();
         });
 
@@ -186,6 +160,9 @@ Tambah Log Produksi
             // Hitung selisih dalam milidetik
             var timeDiff = end - start;
 
+            // Hitung total menit
+            var totalMinutes = Math.floor(timeDiff / 1000 / 60);  // Total menit
+
             // Konversi milidetik ke menit dan jam
             var hours = Math.floor(timeDiff / 1000 / 60 / 60);  // Hitung jam
             var minutes = Math.floor((timeDiff / 1000 / 60) % 60); // Hitung menit
@@ -198,9 +175,9 @@ Tambah Log Produksi
             result += minutes + ' menit';
 
             // Tampilkan hasil selisih waktu
-            document.getElementById('lost_time').value = result;
+            document.getElementById('lost_time').value = totalMinutes;
+            document.getElementById('lost_time_text').value = result;
         }
-
 </script>
 @endpush
 
@@ -247,45 +224,12 @@ Tambah Log Produksi
                     </div>
                     <div id="items-container"></div> <!-- Container for items input fields -->
                     <div class="d-flex justify-content-end mt-3">
-                        <a href="{{ route('log-produksi') }}" class="btn btn-info me-1">Kembali</a>
+                        <a href="{{ route('log-produksi') }}" class="btn btn-secondary me-1">Kembali</a>
                         <button type="submit" class="btn btn-primary waves-effect waves-light" id="saveButton" disabled>
                             <i class="bx bx bxs-save align-middle me-2 font-size-18"></i>Simpan
                         </button>
                     </div>
                 </form>
-            </div>
-        </div>
-    </div>
-</div>
-
-<div class="modal fade" id="dataShift" tabindex="-1" role="dialog" aria-labelledby="shiftModalLabel" aria-hidden="true">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="shiftModalLabel">Pilih Shift</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <div class="row">
-                    <div class="col-sm-12">
-                        <div class="table-responsive">
-                            <table id="datatable-shifts" class="table align-middle table-nowrap">
-                                <thead class="table-light">
-                                    <tr>
-                                        <th>No</th>
-                                        <th>Shift</th>
-                                        <th>Action</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
             </div>
         </div>
     </div>
@@ -307,6 +251,7 @@ Tambah Log Produksi
                                 <thead class="table-light">
                                     <tr>
                                         <th>No</th>
+                                        <th>Shift</th>
                                         <th>Mesin</th>
                                         <th>Action</th>
                                     </tr>
@@ -358,9 +303,10 @@ Tambah Log Produksi
                     </div>
                 </div>
                 <div class="mb-3">
-                    <label for="lost_time" class="form-label">Lost Time</label>
-                    <input type="text" class="form-control" name="lost_time" id="lost_time">
+                    <label for="lost_time_text" class="form-label">Lost Time</label>
+                    <input type="text" class="form-control" name="lost_time_text" id="lost_time_text">
                 </div>
+                <input type="hidden" class="form-control" name="lost_time" id="lost_time">
 
                 <div class="mb-3">
                     <label for="ket" class="form-label">Keterangan</label>
