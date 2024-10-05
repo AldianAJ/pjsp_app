@@ -138,7 +138,7 @@ Permintaan
             document.getElementById('lost_time').value = result;
         }
         $('#tgl-input').on('change', function() {
-            $('#datatableDetail').DataTable().ajax.reload(); // Reload data based on new filters
+            $('#datatable').DataTable().ajax.reload(); // Reload data based on new filters
         });
 </script>
 @endpush
