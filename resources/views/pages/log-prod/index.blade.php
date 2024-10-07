@@ -28,6 +28,8 @@ Permintaan
                     d.tgl = $('#tgl-input').val()
                 }
             },
+            processing: true,
+            ordering: false,
             columns: [{
                     data: null,
                     render: (data, type, row, meta) => meta.row + 1
@@ -63,22 +65,36 @@ Permintaan
                     </button> `
                 }
             ],
-            // rowGroup: {
-            //     dataSrc: 4,
-            //     endRender: function (rows, group) {
-            //         var sum =
-            //             rows
-            //                 .data()
-            //                 .pluck(3)
-            //                 .reduce((a, b) => a + b, 0);
+            rowGroup: {
+                dataSrc: 'mesin',
+                startRender: function (rows, group) {
+                    // Menampilkan grup di awal
+                    return `
+                        <tr>
+                            <td colspan="6">Mesin: ${group}</td>
+                            <td></td>
+                            <td></td>
+                        </tr>
+                    `;
+                },
+                endRender: function (rows, group) {
+                    // Menghitung total waktu
+                    let totalWaktu = rows.data().reduce((a, b) => a + parseFloat(b.lost_time), 0);
+                    var hours = Math.floor(totalWaktu / 60);  // Hasil jam
+                    var minutes = totalWaktu % 60;  // Sisa menit
 
-            //         // Use the DataTables number formatter
-            //         return (
-            //             'Total: ' +
-            //             DataTable.render.number(null, null, 0, '$').display(sum)
-            //         );
-            //     }
-            // }
+                    // Format hasil menjadi string
+                    var result = hours + ' jam ' + minutes + ' menit';
+                    return `
+                        <tr>
+                            <td colspan="4">Loss Time:</td>
+                            <td>${result}</td>
+                            <td></td>
+                            <td></td>
+                        </tr>
+                    `;
+                }
+            }
         });
         $('#datatable').on('click', '.btn-detail, .btn-edit', function() {
             const logId = $(this).data('logprod-id');

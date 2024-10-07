@@ -49,7 +49,7 @@ Tambah Target Mingguan
                         {
                             data: null,
                             render: (data, type, row) => `<button type="button" class="btn btn-primary font-size-10 waves-effect waves-light" onclick="showSpecs('${row.brg_id}', '${row.nm_brg}')">
-                        <i class="fas fa-plus align-middle"></i>
+                        Pilih
                     </button>`
                         }
                     ],
@@ -86,7 +86,7 @@ Tambah Target Mingguan
                         {
                             data: null,
                             render: (data, type, row) => `<button type="button" class="btn btn-primary font-size-10 waves-effect waves-light" onclick="showQtyModal('${row.brg_id}', '${row.nm_brg}', '${row.satuan1}', '${row.satuan2}', '${row.konversi1}', '${row.spek_id}', '${row.spek}')">
-                        <i class="fas fa-plus align-middle"></i>
+                        Pilih
                     </button>`
                         }
                     ],

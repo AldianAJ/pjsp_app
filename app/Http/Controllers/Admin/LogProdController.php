@@ -30,7 +30,9 @@ class LogProdController extends Controller
                 $logprod->where('d.tgl', $tgl);
             }
 
-            $logprod->get();
+            $logprod->orderBy('a.tgl', 'desc')
+                ->orderBy('mesin', 'asc')
+                ->get();
             return DataTables::of($logprod)->make(true);
         }
         return view('pages.log-prod.index');

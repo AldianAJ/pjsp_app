@@ -279,7 +279,7 @@ class KinerjaController extends Controller
                     ->join('m_brg as b', 'a.brg_id', '=', 'b.brg_id')
                     ->select('b.brg_id', 'b.nm_brg', 'a.satuan1', 'a.satuan2', 'a.konversi1', 'a.spek_id', 'a.spek')
                     ->where('a.brg_id', $request->brg_id)
-                    ->where('a.satuan1', 'box')
+                    // ->where('a.satuan1', 'box')
                     ->where('a.status', 0)
                     ->get();
 

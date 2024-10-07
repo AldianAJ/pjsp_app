@@ -265,12 +265,13 @@ class ClosingController extends Controller
         $jenis = $request->jenis;
         $data = DB::table('tr_closing_detail as a')
             ->join('tr_closing as b', 'a.closing_id', '=', 'b.closing_id')
-            ->join('m_brg_spek as c', 'a.brg_id', '=', 'c.spek_id')
-            ->join('m_brg as d', 'd.brg_id', '=', 'c.brg_id')
+            // ->join('m_brg_spek as c', 'a.brg_id', '=', 'c.spek_id')
+            // ->join('m_brg as d', 'd.brg_id', '=', 'c.brg_id')
             ->where('b.msn_trgt_id', $id)
             ->where('b.jenis', $jenis)
-            ->select('d.nm_brg', 'c.spek', 'a.*')
-            ->selectRaw("SUBSTRING_INDEX(d.nm_brg, ' ', 1) as nm_brg2")
+            // ->select('d.nm_brg', 'c.spek', 'a.*')
+            ->select('a.*')
+            // ->selectRaw("SUBSTRING_INDEX(d.nm_brg, ' ', 1) as nm_brg2")
             ->get();
 
         $formData = [
@@ -279,17 +280,20 @@ class ClosingController extends Controller
             'btg_reject' => $data->where('satuan', 'btg_reject')->first()->qty ?? 0,
         ];
         $formReject = [
-            'debu' => $data->where('kode', 2)->where('spek', 'Debu')->first()->qty ?? 0,
-            'sapon' => $data->where('kode', 2)->where('spek', 'Sapon')->first()->qty ?? 0,
-            'cp' => $data->where('kode', 2)->where('nm_brg2', 'CP')->first()->qty ?? 0,
-            'filter' => $data->where('kode', 2)->where('nm_brg2', 'Filter')->first()->qty ?? 0,
-            'ctp' => $data->where('kode', 2)->where('nm_brg2', 'CTP')->first()->qty ?? 0,
+            'debu' => $data->where('kode', 2)->where('satuan', 'debu')->first()->qty ?? 0,
+            'sapon' => $data->where('kode', 2)->where('satuan', 'sapon')->first()->qty ?? 0,
+            'cp' => $data->where('kode', 2)->where('satuan', 'cp')->first()->qty ?? 0,
+            'filter' => $data->where('kode', 2)->where('satuan', 'filter')->first()->qty ?? 0,
+            'ctp' => $data->where('kode', 2)->where('satuan', 'ctp')->first()->qty ?? 0,
         ];
         $formBahan = [
-            'tsg' => $data->where('kode', 3)->where('nm_brg2', 'TSG')->first()->qty ?? 0,
-            'cp' => $data->where('kode', 3)->where('nm_brg2', 'CP')->first()->qty ?? 0,
-            'filter' => $data->where('kode', 3)->where('nm_brg2', 'Filter')->first()->qty ?? 0,
-            'ctp' => $data->where('kode', 3)->where('nm_brg2', 'CTP')->first()->qty ?? 0,
+            'tsg' => $data->where('kode', 3)->where('satuan', 'tsg')->first()->qty ?? 0,
+            'cp' => $data->where('kode', 3)->where('satuan', 'cp')->first()->qty ?? 0,
+            'cp_kg' => $data->where('kode', 3)->where('satuan', 'cp_kg')->first()->qty ?? 0,
+            'filter' => $data->where('kode', 3)->where('satuan', 'filter')->first()->qty ?? 0,
+            'filter_kg' => $data->where('kode', 3)->where('satuan', 'filter_kg')->first()->qty ?? 0,
+            'ctp' => $data->where('kode', 3)->where('satuan', 'ctp')->first()->qty ?? 0,
+            'ctp_kg' => $data->where('kode', 3)->where('satuan', 'ctp_kg')->first()->qty ?? 0,
         ];
 
         return view('pages.closing.detail-maker', compact('user', 'formData', 'formReject', 'formBahan'))->render();
@@ -304,12 +308,13 @@ class ClosingController extends Controller
         $jenis = $request->jenis;
         $data = DB::table('tr_closing_detail as a')
             ->join('tr_closing as b', 'a.closing_id', '=', 'b.closing_id')
-            ->join('m_brg_spek as c', 'a.brg_id', '=', 'c.spek_id')
-            ->join('m_brg as d', 'd.brg_id', '=', 'c.brg_id')
+            // ->join('m_brg_spek as c', 'a.brg_id', '=', 'c.spek_id')
+            // ->join('m_brg as d', 'd.brg_id', '=', 'c.brg_id')
             ->where('b.msn_trgt_id', $id)
             ->where('b.jenis', $jenis)
-            ->select('d.nm_brg', 'c.spek', 'a.*')
-            ->selectRaw("SUBSTRING_INDEX(d.nm_brg, ' ', 1) as nm_brg2")
+            // ->select('d.nm_brg', 'c.spek', 'a.*')
+            ->select('a.*')
+            // ->selectRaw("SUBSTRING_INDEX(d.nm_brg, ' ', 1) as nm_brg2")
             ->get();
 
         $formData = [
@@ -335,17 +340,29 @@ class ClosingController extends Controller
         ];
         $formBahan = [
             'foil' => $data->where('kode', 3)->where('satuan', 'foil')->first()->qty ?? 0,
+            'foil_kg' => $data->where('kode', 3)->where('satuan', 'foil kg')->first()->qty ?? 0,
             'inner' => $data->where('kode', 3)->where('satuan', 'inner')->first()->qty ?? 0,
+            'inner_kg' => $data->where('kode', 3)->where('satuan', 'inner kg')->first()->qty ?? 0,
             'etiket' => $data->where('kode', 3)->where('satuan', 'etiket')->first()->qty ?? 0,
+            'etiket_kg' => $data->where('kode', 3)->where('satuan', 'etiket kg')->first()->qty ?? 0,
             'pc' => $data->where('kode', 3)->where('satuan',  'pc')->first()->qty ?? 0,
+            'pc_kg' => $data->where('kode', 3)->where('satuan',  'pc kg')->first()->qty ?? 0,
             'opp_pack' => $data->where('kode', 3)->where('satuan', 'opp pack')->first()->qty ?? 0,
+            'opp_pack_kg' => $data->where('kode', 3)->where('satuan', 'opp pack kg')->first()->qty ?? 0,
             'teartape' => $data->where('kode', 3)->where('satuan', 'teartape')->first()->qty ?? 0,
+            'teartape_kg' => $data->where('kode', 3)->where('satuan', 'teartape kg')->first()->qty ?? 0,
             'opp_slop' => $data->where('kode', 3)->where('satuan', 'opp slop')->first()->qty ?? 0,
+            'opp_slop_kg' => $data->where('kode', 3)->where('satuan', 'opp slop kg')->first()->qty ?? 0,
             'barcode_slop' => $data->where('kode', 3)->where('satuan', 'barcode slop')->first()->qty ?? 0,
+            'barcode_slop_kg' => $data->where('kode', 3)->where('satuan', 'barcode slop kg')->first()->qty ?? 0,
             'kertas_ball' => $data->where('kode', 3)->where('satuan', 'kertas ball')->first()->qty ?? 0,
+            'kertas_ball_kg' => $data->where('kode', 3)->where('satuan', 'kertas ball kg')->first()->qty ?? 0,
             'cap_ball' => $data->where('kode', 3)->where('satuan', 'cap ball')->first()->qty ?? 0,
+            'cap_ball_kg' => $data->where('kode', 3)->where('satuan', 'cap ball kg')->first()->qty ?? 0,
             'karton' => $data->where('kode', 3)->where('satuan', 'karton')->first()->qty ?? 0,
+            'karton_kg' => $data->where('kode', 3)->where('satuan', 'karton kg')->first()->qty ?? 0,
             'batangan' => $data->where('kode', 3)->where('satuan', 'batangan')->first()->qty ?? 0,
+            'batangan_kg' => $data->where('kode', 3)->where('satuan', 'batangan kg')->first()->qty ?? 0,
         ];
 
         return view('pages.closing.detail-hlp', compact('user', 'formData', 'formReject', 'formBahan'))->render();
@@ -361,12 +378,13 @@ class ClosingController extends Controller
         $jenis = $request->jenis;
         $data = DB::table('tr_closing_detail as a')
             ->join('tr_closing as b', 'a.closing_id', '=', 'b.closing_id')
-            ->join('m_brg_spek as c', 'a.brg_id', '=', 'c.spek_id')
-            ->join('m_brg as d', 'd.brg_id', '=', 'c.brg_id')
+            // ->join('m_brg_spek as c', 'a.brg_id', '=', 'c.spek_id')
+            // ->join('m_brg as d', 'd.brg_id', '=', 'c.brg_id')
             ->where('b.msn_trgt_id', $id)
             ->where('b.jenis', $jenis)
-            ->select('d.nm_brg', 'c.spek', 'a.*')
-            ->selectRaw("SUBSTRING_INDEX(d.nm_brg, ' ', 1) as nm_brg2")
+            // ->select('d.nm_brg', 'c.spek', 'a.*')
+            ->select('a.*')
+            // ->selectRaw("SUBSTRING_INDEX(d.nm_brg, ' ', 1) as nm_brg2")
             ->get();
 
         $formData = [
@@ -375,17 +393,20 @@ class ClosingController extends Controller
             'btg_reject' => $data->where('satuan', 'btg_reject')->first()->qty ?? 0,
         ];
         $formReject = [
-            'debu' => $data->where('kode', 2)->where('spek', 'Debu')->first()->qty ?? 0,
-            'sapon' => $data->where('kode', 2)->where('spek', 'Sapon')->first()->qty ?? 0,
-            'cp' => $data->where('kode', 2)->where('nm_brg2', 'CP')->first()->qty ?? 0,
-            'filter' => $data->where('kode', 2)->where('nm_brg2', 'Filter')->first()->qty ?? 0,
-            'ctp' => $data->where('kode', 2)->where('nm_brg2', 'CTP')->first()->qty ?? 0,
+            'debu' => $data->where('kode', 2)->where('satuan', 'debu')->first()->qty ?? 0,
+            'sapon' => $data->where('kode', 2)->where('satuan', 'sapon')->first()->qty ?? 0,
+            'cp' => $data->where('kode', 2)->where('satuan', 'cp')->first()->qty ?? 0,
+            'filter' => $data->where('kode', 2)->where('satuan', 'filter')->first()->qty ?? 0,
+            'ctp' => $data->where('kode', 2)->where('satuan', 'ctp')->first()->qty ?? 0,
         ];
         $formBahan = [
-            'tsg' => $data->where('kode', 3)->where('nm_brg2', 'TSG')->first()->qty ?? 0,
-            'cp' => $data->where('kode', 3)->where('nm_brg2', 'CP')->first()->qty ?? 0,
-            'filter' => $data->where('kode', 3)->where('nm_brg2', 'Filter')->first()->qty ?? 0,
-            'ctp' => $data->where('kode', 3)->where('nm_brg2', 'CTP')->first()->qty ?? 0,
+            'tsg' => $data->where('kode', 3)->where('satuan', 'tsg')->first()->qty ?? 0,
+            'cp' => $data->where('kode', 3)->where('satuan', 'cp')->first()->qty ?? 0,
+            'cp_kg' => $data->where('kode', 3)->where('satuan', 'cp_kg')->first()->qty ?? 0,
+            'filter' => $data->where('kode', 3)->where('satuan', 'filter')->first()->qty ?? 0,
+            'filter_kg' => $data->where('kode', 3)->where('satuan', 'filter_kg')->first()->qty ?? 0,
+            'ctp' => $data->where('kode', 3)->where('satuan', 'ctp')->first()->qty ?? 0,
+            'ctp_kg' => $data->where('kode', 3)->where('satuan', 'ctp_kg')->first()->qty ?? 0,
         ];
 
         return view('pages.closing.edit-maker', compact('user', 'formData', 'formReject', 'formBahan'))->render();
@@ -400,12 +421,13 @@ class ClosingController extends Controller
         $jenis = $request->jenis;
         $data = DB::table('tr_closing_detail as a')
             ->join('tr_closing as b', 'a.closing_id', '=', 'b.closing_id')
-            ->join('m_brg_spek as c', 'a.brg_id', '=', 'c.spek_id')
-            ->join('m_brg as d', 'd.brg_id', '=', 'c.brg_id')
+            // ->join('m_brg_spek as c', 'a.brg_id', '=', 'c.spek_id')
+            // ->join('m_brg as d', 'd.brg_id', '=', 'c.brg_id')
             ->where('b.msn_trgt_id', $id)
             ->where('b.jenis', $jenis)
-            ->select('d.nm_brg', 'c.spek', 'a.*')
-            ->selectRaw("SUBSTRING_INDEX(d.nm_brg, ' ', 1) as nm_brg2")
+            // ->select('d.nm_brg', 'c.spek', 'a.*')
+            ->select('a.*')
+            // ->selectRaw("SUBSTRING_INDEX(d.nm_brg, ' ', 1) as nm_brg2")
             ->get();
 
         $formData = [
@@ -418,9 +440,14 @@ class ClosingController extends Controller
         ];
         $formReject = [
             'foil' => $data->where('kode', 2)->where('satuan', 'foil')->first()->qty ?? 0,
+            'foil' => $data->where('kode', 2)->where('satuan', 'foil')->first()->qty ?? 0,
+            'inner' => $data->where('kode', 2)->where('satuan', 'inner')->first()->qty ?? 0,
             'inner' => $data->where('kode', 2)->where('satuan', 'inner')->first()->qty ?? 0,
             'etiket' => $data->where('kode', 2)->where('satuan', 'etiket')->first()->qty ?? 0,
+            'etiket' => $data->where('kode', 2)->where('satuan', 'etiket')->first()->qty ?? 0,
             'pc' => $data->where('kode', 2)->where('satuan',  'pc')->first()->qty ?? 0,
+            'pc' => $data->where('kode', 2)->where('satuan',  'pc')->first()->qty ?? 0,
+            'opp_pack_teartape' => $data->where('kode', 2)->where('satuan', 'opp pack')->first()->qty ?? 0,
             'opp_pack_teartape' => $data->where('kode', 2)->where('satuan', 'opp pack')->first()->qty ?? 0,
             'opp_slop' => $data->where('kode', 2)->where('satuan', 'opp slop')->first()->qty ?? 0,
             'barcode_slop' => $data->where('kode', 2)->where('satuan', 'barcode slop')->first()->qty ?? 0,
@@ -431,17 +458,29 @@ class ClosingController extends Controller
         ];
         $formBahan = [
             'foil' => $data->where('kode', 3)->where('satuan', 'foil')->first()->qty ?? 0,
+            'foil_kg' => $data->where('kode', 3)->where('satuan', 'foil kg')->first()->qty ?? 0,
             'inner' => $data->where('kode', 3)->where('satuan', 'inner')->first()->qty ?? 0,
+            'inner_kg' => $data->where('kode', 3)->where('satuan', 'inner kg')->first()->qty ?? 0,
             'etiket' => $data->where('kode', 3)->where('satuan', 'etiket')->first()->qty ?? 0,
+            'etiket_kg' => $data->where('kode', 3)->where('satuan', 'etiket kg')->first()->qty ?? 0,
             'pc' => $data->where('kode', 3)->where('satuan',  'pc')->first()->qty ?? 0,
+            'pc_kg' => $data->where('kode', 3)->where('satuan',  'pc kg')->first()->qty ?? 0,
             'opp_pack' => $data->where('kode', 3)->where('satuan', 'opp pack')->first()->qty ?? 0,
+            'opp_pack_kg' => $data->where('kode', 3)->where('satuan', 'opp pack kg')->first()->qty ?? 0,
             'teartape' => $data->where('kode', 3)->where('satuan', 'teartape')->first()->qty ?? 0,
+            'teartape_kg' => $data->where('kode', 3)->where('satuan', 'teartape kg')->first()->qty ?? 0,
             'opp_slop' => $data->where('kode', 3)->where('satuan', 'opp slop')->first()->qty ?? 0,
+            'opp_slop_kg' => $data->where('kode', 3)->where('satuan', 'opp slop kg')->first()->qty ?? 0,
             'barcode_slop' => $data->where('kode', 3)->where('satuan', 'barcode slop')->first()->qty ?? 0,
+            'barcode_slop_kg' => $data->where('kode', 3)->where('satuan', 'barcode slop kg')->first()->qty ?? 0,
             'kertas_ball' => $data->where('kode', 3)->where('satuan', 'kertas ball')->first()->qty ?? 0,
+            'kertas_ball_kg' => $data->where('kode', 3)->where('satuan', 'kertas ball kg')->first()->qty ?? 0,
             'cap_ball' => $data->where('kode', 3)->where('satuan', 'cap ball')->first()->qty ?? 0,
+            'cap_ball_kg' => $data->where('kode', 3)->where('satuan', 'cap ball kg')->first()->qty ?? 0,
             'karton' => $data->where('kode', 3)->where('satuan', 'karton')->first()->qty ?? 0,
+            'karton_kg' => $data->where('kode', 3)->where('satuan', 'karton kg')->first()->qty ?? 0,
             'batangan' => $data->where('kode', 3)->where('satuan', 'batangan')->first()->qty ?? 0,
+            'batangan_kg' => $data->where('kode', 3)->where('satuan', 'batangan kg')->first()->qty ?? 0,
         ];
         // dd($data);
         return view('pages.closing.edit-hlp', compact('user', 'formData', 'formReject', 'formBahan'))->render();
@@ -467,9 +506,9 @@ class ClosingController extends Controller
                 ->where('a.brg_prod_id', $produk)
                 ->where('a.tahap', 1)
                 ->select('a.brg_id')
-                ->first()->brg_id;
+                ->value('a.brg_id');
 
-            DetailClosing::where('closing_id', $closing_id)->where('kode', 1)->where('brg_id', $brg_id)->where('satuan', $item['name'])
+            DetailClosing::where('closing_id', $closing_id)->where('kode', 1)->where('satuan', $item['name'])
                 ->update([
                     'qty' => $item['value'],
                     'cek' => 1,
@@ -481,11 +520,10 @@ class ClosingController extends Controller
                 ->join('m_brg as c', 'c.brg_id', '=', 'b.brg_id')
                 ->where('a.brg_prod_id', $produk)
                 ->where('a.tahap', 2)
-                ->where('c.nm_brg', 'like', '%' . $item['name'] . '%')
-                ->orWhere('b.spek', 'like', '%' . $item['name'] . '%')
+                ->select('a.brg_id')
                 ->value('a.brg_id');
 
-            DetailClosing::where('closing_id', $closing_id)->where('kode', 2)->where('brg_id', $brg_id)
+            DetailClosing::where('closing_id', $closing_id)->where('kode', 2)->where('satuan', $item['name'])
                 ->update([
                     'qty' => $item['value'],
                     'cek' => 1,
@@ -500,7 +538,7 @@ class ClosingController extends Controller
                 ->where('c.nm_brg', 'like', '%' . $item['name'] . '%')
                 ->value('a.brg_id');
 
-            DetailClosing::where('closing_id', $closing_id)->where('kode', 3)->where('brg_id', $brg_id)
+            DetailClosing::where('closing_id', $closing_id)->where('kode', 3)->where('satuan', $item['name'])
                 ->update([
                     'qty' => $item['value'],
                     'cek' => 1,
@@ -534,9 +572,9 @@ class ClosingController extends Controller
                 ->where('a.brg_prod_id', $produk)
                 ->where('a.tahap', 1)
                 ->select('a.brg_id')
-                ->first()->brg_id;
+                ->value('a.brg_id');
 
-            DetailClosing::where('closing_id', $closing_id)->where('kode', 1)->where('brg_id', $brg_id)->where('satuan', $item['name'])
+            DetailClosing::where('closing_id', $closing_id)->where('kode', 1)->where('satuan', $item['name'])
                 ->update([
                     'qty' => $item['value'],
                     'cek' => 1,
@@ -554,7 +592,7 @@ class ClosingController extends Controller
                 ->value('a.brg_id');
 
 
-            DetailClosing::where('closing_id', $closing_id)->where('kode', 2)->where('brg_id', $brg_id)->where('satuan', $item['name'])
+            DetailClosing::where('closing_id', $closing_id)->where('kode', 2)->where('satuan', $item['name'])
                 ->update([
                     'qty' => $item['value'],
                     'cek' => 1,
@@ -572,7 +610,7 @@ class ClosingController extends Controller
                 ->value('a.brg_id');
 
 
-            DetailClosing::where('closing_id', $closing_id)->where('kode', 3)->where('brg_id', $brg_id)->where('satuan', $item['name'])
+            DetailClosing::where('closing_id', $closing_id)->where('kode', 3)->where('satuan', $item['name'])
                 ->update([
                     'qty' => $item['value'],
                     'cek' => 1,

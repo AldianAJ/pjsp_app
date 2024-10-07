@@ -202,15 +202,28 @@
                     </a>
                 </li>
                 <li>
-                    <a href="{{ route('log-produksi') }}" class="waves-effect">
-                        <i class="bx bxs-receipt"></i>
-                        <span key="t-kinerja">LogBook Produksi</span>
-                    </a>
-                </li>
-                <li>
                     <a href="{{ route('closing-mesin') }}" class="waves-effect">
                         <i class="bx bxs-receipt"></i>
                         <span key="t-kinerja">Closing Mesin</span>
+                    </a>
+                </li>
+                @endif
+
+                @if (
+                $user->role == 'pgws1' ||
+                $user->role == 'pgws2' ||
+                $user->role == 'pgws3')
+                <li>
+                    <a href="{{ route('dashboard') }}">
+                        <i class="bx bx-home-circle"></i>
+                        <span key="t-dashboards">Welcome</span>
+                    </a>
+                </li>
+                <li class="menu-title" key="t-form">Form</li>
+                <li>
+                    <a href="{{ route('log-produksi') }}" class="waves-effect">
+                        <i class="bx bxs-receipt"></i>
+                        <span key="t-kinerja">LogBook Produksi</span>
                     </a>
                 </li>
                 @endif

@@ -69,12 +69,15 @@
                 $fields = [
                     ["label" => "TSG", "placeholder" => "Enter TSG", "name" => "tsg", "satuan" => "KG"],
                     ["label" => "CP", "placeholder" => "Enter CP", "name" => "cp", "satuan" => "ROLL"],
+                    ["label" => "CP KG", "placeholder" => "Enter CP", "name" => "cp_kg", "satuan" => "KG"],
                     ["label" => "Filter", "placeholder" => "Enter Filter", "name" => "filter", "satuan" => "BTG"],
+                    ["label" => "Filter KG", "placeholder" => "Enter Filter", "name" => "filter_kg", "satuan" => "KG"],
                     ["label" => "CTP", "placeholder" => "Enter CTP", "name" => "ctp", "satuan" => "ROLL"],
+                    ["label" => "CTP KG", "placeholder" => "Enter CTP", "name" => "ctp_kg", "satuan" => "KG"],
                 ];
 
                 foreach ($fields as $index => $field) {
-                    echo '<div class="col-lg-4">
+                    echo '<div class="col-lg-6">
                             <div class="mb-3">
                                 <label for="bahanInput-' . $index . '">' . $field['label'] . '</label>
                                 <div class="input-group">
