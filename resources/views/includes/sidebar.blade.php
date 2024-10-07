@@ -44,9 +44,15 @@
                     </a>
                 </li>
                 <li>
-                    <a href="{{ route('stok-masuk') }}" class="waves-effect">
+                    <a href="{{ route('penerimaan-supplier') }}" class="waves-effect">
                         <i class="bx bxs-widget"></i>
                         <span key="t-pemesanan">Penerimaan Supplier</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="{{ route('return-barang') }}" class="waves-effect">
+                        <i class="bx bxs-duplicate"></i>
+                        <span key="t-return-barang">Return Barang</span>
                     </a>
                 </li>
                 <li>
@@ -129,12 +135,6 @@
                     <a href="{{ route('pengiriman-skm') }}" class="waves-effect">
                         <i class="bx bxs-duplicate"></i>
                         <span key="t-kirim-skm">Kirim ke Mesin</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="{{ route('return-mesin') }}" class="waves-effect">
-                        <i class="bx bxs-duplicate"></i>
-                        <span key="t-return-mesin">Return ke SKM</span>
                     </a>
                 </li>
 
@@ -224,7 +224,7 @@
                 </li>
                 <li class="menu-title" key="t-form">Form</li>
                 <li>
-                    <a href="{{ route('stok-masuk') }}" class="waves-effect">
+                    <a href="{{ route('penerimaan-supplier') }}" class="waves-effect">
                         <i class="bx bxs-widget"></i>
                         <span key="t-pemesanan">Penerimaan Supplier</span>
                     </a>
