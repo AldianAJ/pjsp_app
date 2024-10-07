@@ -142,6 +142,43 @@ Tambah Log Produksi
             calculateTimeDifference();
         });
 
+        function pilihTgl(){
+            const selectedDate = document.getElementById('tgl').value;
+
+                if ($.fn.DataTable.isDataTable('#datatable-machines')) {
+                    $('#datatable-machines').DataTable().clear().destroy();
+                }
+
+                $('#datatable-machines').DataTable({
+                    ajax: {
+                        url: "{{ route('log-produksi.create') }}",
+                        data: {
+                            type: 'machines',
+                            date: selectedDate
+                        }
+                    },
+                    columns: [{
+                            data: null,
+                            render: (data, type, row, meta) => meta.row + 1
+                        },
+                        {
+                            data: "shift"
+                        },
+                        {
+                            data: "nama"
+                        },
+                        {
+                            data: null,
+                            render: (data, type, row) => `
+                        <button type="button" class="btn btn-primary font-size-14 waves-effect waves-light" onclick="pilihMesin('${row.msn_trgt_id}')">
+                        Pilih
+                    </button>`
+                        }
+                    ]
+                });
+
+                $('#dataMesin').modal('show');
+        }
         // Fungsi untuk menghitung selisih waktu
         function calculateTimeDifference() {
             // Ambil nilai dari input waktu mulai dan selesai
@@ -217,9 +254,16 @@ Tambah Log Produksi
                     <div class="row">
                         <div class="form-group mt-3">
                             <label for="tgl">Tanggal</label>
-                            <input type="date" class="form-control" name="tgl"
-                                value="{{ old('tgl', \Carbon\Carbon::now()->format('Y-m-d')) }}" required>
+                            <div class="input-group">
+                                <div class="col-xl-10 me-2">
+                                    <input type="date" class="form-control" name="tgl" id="tgl"
+                                        value="{{ old('tgl', \Carbon\Carbon::now()->format('Y-m-d')) }}" required>
+                                </div>
+                                <button type="button" class="btn btn-primary btn-sm me-2"
+                                    onclick="pilihTgl()">Pilih</button>
+                            </div>
                         </div>
+
                         <input type="hidden" name="msn_trgt_id" id="msn_trgt_id" value="">
                     </div>
                     <div id="items-container"></div> <!-- Container for items input fields -->
