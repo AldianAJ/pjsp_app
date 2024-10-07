@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('title')
-Kirim Batangan
+Return Barang
 @endsection
 
 @push('after-app-style')
@@ -32,7 +32,8 @@ Kirim Batangan
     let mainTable;
 
         mainTable = $('#datatable').DataTable({
-            ajax: "{{ route('pengiriman-batangan') }}",
+            ajax: "{{ route('return-barang') }}",
+            SUPP
             ordering: false,
             columns: [{
                     data: "mutasi_id"
@@ -66,13 +67,16 @@ Kirim Batangan
                 serverSide: true,
                 ajax: {
                     type: "GET",
-                    url: "{{ route('pengiriman-batangan.detail') }}",
+                    url: "{{ route('return-barang.detail') }}",
                     data: {
                         mutasi_id: selectedData.mutasi_id
                     }
                 },
                 lengthMenu: [5],
                 columns: [{
+                        data: null,
+                        render: (data, type, row, meta) => meta.row + 1
+                    }, {
                         data: 'spek',
                         // render: function(data, type, row) {
                         //     return row.tr_trmsup_detail[0].barang.nm_brg;
@@ -103,7 +107,7 @@ Kirim Batangan
 <div class="row">
     <div class="col-12">
         <div class="page-title-box d-sm-flex align-items-center justify-content-between">
-            <h4 class="mb-sm-0 font-size-18">Kirim Batangan </h4>
+            <h4 class="mb-sm-0 font-size-18">Return Barang </h4>
         </div>
     </div>
 </div>
@@ -114,7 +118,7 @@ Kirim Batangan
         <div class="card">
             <div class="card-body">
                 <div class="d-flex justify-content-end mb-2">
-                    <a href="{{ route('pengiriman-batangan.create') }}" class="btn btn-primary my-2">
+                    <a href="{{ route('return-barang.create') }}" class="btn btn-primary my-2">
                         <i class="bx bx-plus-circle align-middle me-2 font-size-18"></i> Tambah
                     </a>
                 </div>
@@ -148,6 +152,7 @@ Kirim Batangan
                 <table class="table table-bordered dt-responsive nowrap w-100" id="detail-datatable">
                     <thead class="table-light">
                         <tr>
+                            <th>No</th>
                             <th>Nama Barang</th>
                             <th>Qty</th>
                             <th>Satuan</th>

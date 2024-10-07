@@ -35,7 +35,7 @@ Edit Penerimaan Supplier
             function initializeDataTable() {
                 $('#datatable-detail').DataTable({
                     ajax: {
-                        url: "{{ url('stok-masuk/edit') }}/" + no_trm,
+                        url: "{{ url('penerimaan-supplier/edit') }}/" + no_trm,
                         data: {
                             type: 'details'
                         }
@@ -134,7 +134,7 @@ Edit Penerimaan Supplier
                 var brg_id = $row.data('brg-id');
 
                 $.ajax({
-                    url: "{{ route('stok-masuk.update', ['no_trm' => $no_trm]) }}",
+                    url: "{{ route('penerimaan-supplier.update', ['no_trm' => $no_trm]) }}",
                     method: 'POST',
                     data: {
                         _token: "{{ csrf_token() }}",
@@ -220,7 +220,7 @@ Edit Penerimaan Supplier
                             toast: true,
                             position: 'top-right'
                         }).then(() => {
-                            window.location.href = "{{ route('stok-masuk') }}";
+                            window.location.href = "{{ route('penerimaan-supplier') }}";
                         });
                     }
                 });
@@ -259,13 +259,21 @@ Edit Penerimaan Supplier
         <div class="card">
             <div class="card-body">
                 <h3 class="card-title fw-bolder">Data Transaksi</h3>
-                <form id="updateForm" action="{{ route('stok-masuk.update', ['no_trm' => $no_trm]) }}" method="post"
-                    enctype="multipart/form-data">
+                <form id="updateForm" action="{{ route('penerimaan-supplier.update', ['no_trm' => $no_trm]) }}"
+                    method="post" enctype="multipart/form-data">
                     @csrf
                     <div class="form-group mt-3">
                         <label for="no_trm">No. Penerimaan :</label>
                         <input type="text" name="no_trm" id="no_trm" class="form-control" value="{{ $no_trms }}"
                             readonly>
+                    </div>
+                    <div class="form-group mt-3">
+                        <label for="tgl_trm">Tanggal Terima :</label>
+                        <input type="date" class="form-control" name="tgl_trm" value="{{ $tgl_trm }}" required>
+                    </div>
+                    <div class="form-group mt-3">
+                        <label for="tgl_jth_tmp">Tanggal Jatuh Tempo :</label>
+                        <input type="date" class="form-control" name="tgl_jth_tmp" value="{{ $tgl_jth_tmp }}" required>
                     </div>
                     <div class="form-group mt-3">
                         <label for="no_sj">No. SJ Supplier :</label>
@@ -284,12 +292,9 @@ Edit Penerimaan Supplier
                             @endforeach
                         </select>
                     </div>
-                    <div class="form-group mt-3">
-                        <label for="tgl">Tanggal Terima :</label>
-                        <input type="date" class="form-control" name="tgl" value="{{ $tgl }}" required>
-                    </div>
                     <div class="d-flex justify-content-end mt-3">
-                        <a href="{{ route('stok-masuk') }}" class="btn btn-secondary waves-effect waves-light me-2">
+                        <a href="{{ route('penerimaan-supplier') }}"
+                            class="btn btn-secondary waves-effect waves-light me-2">
                             <i class="bx bx-caret-left align-middle me-2 font-size-18"></i>Kembali
                         </a>
                         <button type="submit" id="submitButton" class="btn btn-primary waves-effect waves-light">

@@ -16,7 +16,6 @@ use App\Http\Controllers\Admin\TrKrmSKMController;
 use App\Http\Controllers\Admin\TrKrmMsnController;
 use App\Http\Controllers\Admin\TrMutasiController;
 use App\Http\Controllers\Admin\PenjualanController;
-use App\Http\Controllers\Admin\ReturnMesinController;
 use App\Http\Controllers\Admin\LogProdController;
 
 /*
@@ -128,7 +127,7 @@ Route::middleware('user')->group(function () {
         Route::get('/closing-mesin/detail-hlp', 'detailHlp')->name('closing-mesin.detailHlp');
     });
 
-    Route::controller((LogProdController::class))->group(function () {
+    Route::controller(LogProdController::class)->group(function () {
         Route::get('/log-produksi', 'index')->name('log-produksi');
         Route::get('/log-produksi/create', 'create')->name('log-produksi.create');
         Route::post('/log-produksi/store', 'store')->name('log-produksi.store');
@@ -177,20 +176,20 @@ Route::middleware('user')->group(function () {
         Route::get('/pengiriman-skm/history/detail', 'DetailHistory')->name('pengiriman-skm.DetailHistory');
     });
 
-    Route::controller(ReturnMesinController::class)->group(function () {
-        Route::get('/return-mesin', 'index')->name('return-mesin');
-        Route::get('/return-mesin/create', 'create')->name('return-mesin.create');
-        Route::post('/return-mesin/store', 'store')->name('return-mesin.store');
-        Route::get('/return-mesin/edit/{no_returnmsn}', 'edit')->name('return-mesin.edit');
-    });
-
     Route::controller(TrMutasiController::class)->group(function () {
-        Route::get('/pengiriman-batangan', 'index')->name('pengiriman-batangan');
-        Route::get('/pengiriman-batangan/create', 'create')->name('pengiriman-batangan.create');
-        Route::post('/pengiriman-batangan/store', 'store')->name('pengiriman-batangan.store');
-        Route::get('/pengiriman-batangan/detail', 'detail')->name('pengiriman-batangan.detail');
-        Route::get('/pengiriman-batangan/edit/{mutasi_id}', 'edit')->name('pengiriman-batangan.edit');
-        Route::post('/pengiriman-batangan/update/{mutasi_id}', 'update')->name('pengiriman-batangan.update');
+        Route::get('/return-barang', 'index')->name('return-barang');
+        Route::get('/return-barang/create', 'create')->name('return-barang.create');
+        Route::post('/return-barang/store', 'store')->name('return-barang.store');
+        Route::get('/return-barang/detail', 'detail')->name('return-barang.detail');
+        Route::get('/return-barang/edit/{mutasi_id}', 'edit')->name('return-barang.edit');
+        Route::post('/return-barang/update/{mutasi_id}', 'update')->name('return-barang.update');
+
+        Route::get('/pengiriman-batangan', 'indexBTG')->name('pengiriman-batangan');
+        Route::get('/pengiriman-batangan/create', 'createBTG')->name('pengiriman-batangan.create');
+        Route::post('/pengiriman-batangan/store', 'storeBTG')->name('pengiriman-batangan.store');
+        Route::get('/pengiriman-batangan/detail', 'detailBTG')->name('pengiriman-batangan.detail');
+        Route::get('/pengiriman-batangan/edit/{mutasi_id}', 'editBTG')->name('pengiriman-batangan.edit');
+        Route::post('/pengiriman-batangan/update/{mutasi_id}', 'updateBTG')->name('pengiriman-batangan.update');
 
         Route::get('/pengiriman-bjsk', 'indexBJSK')->name('pengiriman-bjsk');
         Route::get('/pengiriman-bjsk/create', 'createBJSK')->name('pengiriman-bjsk.create');
@@ -202,12 +201,12 @@ Route::middleware('user')->group(function () {
 
 
     Route::controller(TrTrmSupController::class)->group(function () {
-        Route::get('/stok-masuk', 'index')->name('stok-masuk');
-        Route::get('/stok-masuk/create', 'create')->name('stok-masuk.create');
-        Route::post('/stok-masuk/store', 'store')->name('stok-masuk.store');
-        Route::get('/stok-masuk/edit/{no_trm}', 'edit')->name('stok-masuk.edit');
-        Route::post('/stok-masuk/update/{no_trm}', 'update')->name('stok-masuk.update');
-        Route::get('/stok-masuk/detail', 'detail')->name('stok-masuk.detail');
+        Route::get('/penerimaan-supplier', 'index')->name('penerimaan-supplier');
+        Route::get('/penerimaan-supplier/create', 'create')->name('penerimaan-supplier.create');
+        Route::post('/penerimaan-supplier/store', 'store')->name('penerimaan-supplier.store');
+        Route::get('/penerimaan-supplier/edit/{no_trm}', 'edit')->name('penerimaan-supplier.edit');
+        Route::post('/penerimaan-supplier/update/{no_trm}', 'update')->name('penerimaan-supplier.update');
+        Route::get('/penerimaan-supplier/detail', 'detail')->name('penerimaan-supplier.detail');
     });
 
     Route::controller(PenjualanController::class)->group(function () {

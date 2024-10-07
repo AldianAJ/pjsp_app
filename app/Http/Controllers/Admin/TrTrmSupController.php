@@ -25,7 +25,7 @@ class TrTrmSupController extends Controller
     public function index(Request $request)
     {
         $user = $this->userAuth();
-        $path = 'stok-masuk.';
+        $path = 'penerimaan-supplier.';
 
         $suppliers = Supplier::where('status', 0)->get();
 
@@ -40,8 +40,8 @@ class TrTrmSupController extends Controller
                     return $query->where('supplier_id', $supplier_id);
                 })
                 ->when($selectedMonth && $selectedYear, function ($query) use ($selectedMonth, $selectedYear) {
-                    return $query->whereMonth('tgl', $selectedMonth)
-                        ->whereYear('tgl', $selectedYear);
+                    return $query->whereMonth('tgl_trm', $selectedMonth)
+                        ->whereYear('tgl_trm', $selectedYear);
                 })
                 ->orderBy('no_trm', 'desc')
                 ->get();
@@ -60,7 +60,7 @@ class TrTrmSupController extends Controller
                 ->make(true);
         }
 
-        return view('pages.stok-masuk.index', compact('user', 'suppliers'));
+        return view('pages.penerimaan-supplier.index', compact('user', 'suppliers'));
     }
 
 
@@ -68,7 +68,7 @@ class TrTrmSupController extends Controller
     public function create(Request $request)
     {
         $user = $this->userAuth();
-
+        $no_trm = 'RCV/GU' . '/' . date('y/m/' . str_pad(TrTrmSup::count() + 1, 3, '0', STR_PAD_LEFT));
         $gudang_id = Gudang::where('gudang_id', 'GU001')->value('gudang_id');
         $suppliers = Supplier::where('status', 0)->get();
 
@@ -93,21 +93,20 @@ class TrTrmSupController extends Controller
                 return DataTables::of($speks)->make(true);
             }
         }
-        return view('pages.stok-masuk.create', compact('user', 'gudang_id', 'suppliers'));
+        return view('pages.penerimaan-supplier.create', compact('user','no_trm', 'gudang_id', 'suppliers'));
     }
 
     public function store(Request $request)
     {
-
-        $no_trm = 'RCV/GU' . '/' . date('y/m/' . str_pad(TrTrmSup::count() + 1, 3, '0', STR_PAD_LEFT));
-
+        $no_trm = $request->no_trm;
         $gudang_id = $request->gudang_id;
 
         TrTrmSup::create([
             'no_trm' => $no_trm,
+            'tgl_trm' => $request->tgl_trm,
+            'tgl_jth_tmp' => $request->tgl_jth_tmp,
             'no_sj' => $request->no_sj,
             'supplier_id' => $request->supplier_id,
-            'tgl' => $request->tgl,
             'gudang_id' => $gudang_id,
         ]);
 
@@ -132,7 +131,7 @@ class TrTrmSupController extends Controller
 
             TrStok::create([
                 'stok_id' => $stok_id,
-                'tgl' => $request->tgl,
+                'tgl_trm' => $request->tgl_trm,
                 'brg_id' => $item['brg_id'],
                 'gudang_id' => $gudang_id,
                 'doc_id' => $no_trm,
@@ -144,7 +143,7 @@ class TrTrmSupController extends Controller
                 'cek' => 1,
             ]);
         }
-        return redirect()->route('stok-masuk')->with('success', 'Data stok masuk berhasil ditambahkan.');
+        return redirect()->route('penerimaan-supplier')->with('success', 'Data stok masuk berhasil ditambahkan.');
     }
 
 
@@ -160,14 +159,17 @@ class TrTrmSupController extends Controller
 
         $suppliers = Supplier::where('status', 0)->get();
 
-        $tgl = TrTrmSup::where('no_trm', $no_trms)
+        $tgl_trm = TrTrmSup::where('no_trm', $no_trms)
             ->where('status', 0)
-            ->value('tgl');
+            ->value('tgl_trm');
+
+        $tgl_jth_tmp = TrTrmSup::where('no_trm', $no_trms)
+            ->where('status', 0)
+            ->value('tgl_jth_tmp');
 
         $no_sj = TrTrmSup::where('no_trm', $no_trms)
             ->where('status', 0)
             ->value('no_sj');
-
 
         if ($request->ajax()) {
             $type = $request->input('type');
@@ -192,7 +194,7 @@ class TrTrmSupController extends Controller
 
             }
         }
-        return view('pages.stok-masuk.edit', compact('user', 'no_sj', 'data_supplier', 'suppliers', 'tgl', 'no_trm', 'no_trms'));
+        return view('pages.penerimaan-supplier.edit', compact('user', 'no_sj', 'data_supplier', 'suppliers', 'tgl_trm', 'tgl_jth_tmp',  'no_trm', 'no_trms'));
     }
     /**
      * Update the specified resource in storage.
@@ -220,9 +222,10 @@ class TrTrmSupController extends Controller
         } else {
             $data_tr_trmsup = TrTrmSup::where('no_trm', $no_trms)->first();
             $data_tr_trmsup->update([
+                'tgl_trm' => $request->tgl_trm,
+                'tgl_jth_tmp' => $request->tgl_jth_tmp,
                 'no_sj' => $request->no_sj,
                 'supplier_id' => $request->supplier_id,
-                'tgl' => $request->tgl,
             ]);
             $responseMessage = 'Data transaksi berhasil diubah.';
         }
@@ -236,8 +239,11 @@ class TrTrmSupController extends Controller
         $details = DB::table('tr_trmsup as a')
             ->join('tr_trmsup_detail as b', 'a.no_trm', '=', 'b.no_trm')
             ->join('m_brg as c', 'b.brg_id', '=', 'c.brg_id')
+            ->join('m_brg_spek as d', 'b.spek_id', '=', 'd.spek_id')
             ->where('a.no_trm', $request->no_trm)
-            ->select('c.nm_brg', 'b.qty_beli', 'b.satuan_beli')
+            ->where('a.status', 0)
+            ->where('b.status', 0)
+            ->select('c.nm_brg','d.spek', 'b.qty_beli', 'b.satuan_beli')
             ->get();
 
         return DataTables::of($details)->make(true);

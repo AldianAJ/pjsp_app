@@ -11,7 +11,6 @@ class TrTrmSup extends Model
     protected $primaryKey = 'no_trm';
     public $incrementing = false;
 
-
     public function tr_trmsup_detail()
     {
         return $this->hasMany(TrTrmSupDetail::class, 'no_trm', 'no_trm');

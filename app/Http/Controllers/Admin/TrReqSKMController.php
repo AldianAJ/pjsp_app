@@ -3,17 +3,16 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-use App\Models\Admin\user;
 use App\Models\Admin\Barang;
-use App\Models\Admin\TrStok;
-use App\Models\Admin\TrReqSKM;
-use App\Models\Admin\TrReqSKMDetail;
 use App\Models\Admin\Gudang;
 use App\Models\Admin\TrKrmSKM;
 use App\Models\Admin\TrKrmSKMDetail;
-use Illuminate\Support\Facades\DB;
+use App\Models\Admin\TrReqSKM;
+use App\Models\Admin\TrReqSKMDetail;
+use App\Models\Admin\TrStok;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Yajra\DataTables\DataTables;
 
 class TrReqSKMController extends Controller
@@ -24,8 +23,10 @@ class TrReqSKMController extends Controller
     public function userAuth()
     {
         $user = Auth::guard('user')->user();
+
         return $user;
     }
+
     /**
      * Display a listing of the resource.
      */
@@ -42,10 +43,11 @@ class TrReqSKMController extends Controller
             return DataTables::of($permintaans)
                 ->addColumn('action', function ($object) use ($path) {
                     $no = str_replace('/', '-', $object->no_reqskm);
-                    $html = '<a href="' . route($path . "edit", ["no_reqskm" => $no]) . '" class="btn btn-success waves-effect waves-light mx-1">'
-                        . ' <i class="bx bx-edit align-middle me-2 font-size-18"></i> Edit</a>';
+                    $html = '<a href="'.route($path.'edit', ['no_reqskm' => $no]).'" class="btn btn-success waves-effect waves-light mx-1">'
+                        .' <i class="bx bx-edit align-middle me-2 font-size-18"></i> Edit</a>';
                     $html .= '<button class="btn btn-secondary waves-effect waves-light btn-detail me-2" data-bs-toggle="modal" data-bs-target="#detailModal">'
-                        . '<i class="bx bx-detail font-size-18 align-middle me-2"></i>Detail</button>';
+                        .'<i class="bx bx-detail font-size-18 align-middle me-2"></i>Detail</button>';
+
                     return $html;
                 })
                 ->rawColumns(['action'])
@@ -85,6 +87,7 @@ class TrReqSKMController extends Controller
                 return DataTables::of($speks)->make(true);
             }
         }
+
         return view('pages.permintaan-skm.create', compact('user', 'gudang_id'));
     }
 
@@ -93,7 +96,7 @@ class TrReqSKMController extends Controller
      */
     public function store(Request $request)
     {
-        $no_reqskm = 'FPB/SKM' . '/' . date('y/m/' . str_pad(TrReqSKM::count() + 1, 3, '0', STR_PAD_LEFT));
+        $no_reqskm = 'FPB/SKM'.'/'.date('y/m/'.str_pad(TrReqSKM::count() + 1, 3, '0', STR_PAD_LEFT));
         $gudang_id = $request->gudang_id;
 
         TrReqSKM::create([
@@ -126,12 +129,14 @@ class TrReqSKMController extends Controller
         $details = DB::table('tr_reqskm as a')
             ->join('tr_reqskm_detail as b', 'a.no_reqskm', '=', 'b.no_reqskm')
             ->join('m_brg as c', 'b.brg_id', '=', 'c.brg_id')
+            ->join('m_brg_spek as d', 'b.spek_id', '=', 'd.spek_id')
             ->where('a.no_reqskm', $request->no_reqskm)
-            ->select('c.nm_brg', 'b.qty_beli', 'b.satuan_beli')
+            ->select('c.nm_brg', 'd.spek', 'b.qty_beli', 'b.satuan_beli')
             ->get();
 
         return DataTables::of($details)->make(true);
     }
+
     /**
      *  the form for editing the specified resource.
      */
@@ -189,9 +194,9 @@ class TrReqSKMController extends Controller
                     $nama = Barang::where('brg_id', $item['brg_id'])->value('nm_brg');
                     $data_tr_krmskm_detail->update([
                         'qty_beli' => $item['qty_beli'],
-                        'qty_std' => $item['qty_std']
+                        'qty_std' => $item['qty_std'],
                     ]);
-                    $responseMessage = 'Data ' . $nama . ' berhasil diubah. Menjadi Qty : ' . $item['qty_beli'];
+                    $responseMessage = 'Data '.$nama.' berhasil diubah. Menjadi Qty : '.$item['qty_beli'];
                 }
             }
         } else {
@@ -201,6 +206,7 @@ class TrReqSKMController extends Controller
             ]);
             $responseMessage = 'Data transaksi berhasil diubah.';
         }
+
         return response()->json(['success' => true, 'message' => $responseMessage], 200);
     }
 
@@ -216,23 +222,24 @@ class TrReqSKMController extends Controller
             return DataTables::of($permintaans)
                 ->addColumn('action', function () {
                     return '<button class="btn btn-secondary waves-effect waves-light btn-detail me-2" data-bs-toggle="modal" data-bs-target="#detailModal">'
-                        . '<i class="bx bx-detail font-size-18 align-middle me-2"></i>Detail</button>';
+                        .'<i class="bx bx-detail font-size-18 align-middle me-2"></i>Detail</button>';
                 })
                 ->rawColumns(['action'])
                 ->make(true);
         }
+
         return view('pages.history.permintaan-skm', compact('user'));
     }
-
 
     public function detailHistory(Request $request)
     {
         $details = DB::table('tr_reqskm as a')
             ->join('tr_reqskm_detail as b', 'a.no_reqskm', '=', 'b.no_reqskm')
             ->join('m_brg as c', 'b.brg_id', '=', 'c.brg_id')
+            ->join('m_brg_spek as d', 'a.spek_id', '=', 'd.spek_id')
             ->where('a.no_reqskm', $request->no_reqskm)
             ->where('a.status', 1)
-            ->select('c.nm_brg', 'b.qty_beli', 'b.satuan_beli')
+            ->select('c.nm_brg', 'd.spek', 'b.qty_beli', 'b.satuan_beli')
             ->get();
 
         return DataTables::of($details)->make(true);
@@ -252,11 +259,12 @@ class TrReqSKMController extends Controller
                 ->addColumn('action', function ($object) use ($path) {
                     $no = str_replace('/', '-', $object->no_krmskm);
                     if (is_null($object->tgl_trm)) {
-                        return '<a href="' . route($path . "create", ["no_krmskm" => $no]) . '" class="btn btn-info waves-effect waves-light mx-1">'
-                            . '<i class="bx bx-transfer-alt align-middle me-2 font-size-18"></i> Proses</a>';
+                        return '<a href="'.route($path.'create', ['no_krmskm' => $no]).'" class="btn btn-info waves-effect waves-light mx-1">'
+                            .'<i class="bx bx-transfer-alt align-middle me-2 font-size-18"></i> Proses</a>';
                     } else {
                         $detailButton = '<button class="btn btn-secondary waves-effect waves-light btn-detail me-2" data-bs-toggle="modal" data-bs-target="#detailModal">'
-                            . '<i class="bx bx-detail font-size-18 align-middle me-2"></i> Detail</button>';
+                            .'<i class="bx bx-detail font-size-18 align-middle me-2"></i> Detail</button>';
+
                         return $detailButton;
                     }
                 })
@@ -268,32 +276,42 @@ class TrReqSKMController extends Controller
     }
 
     public function createTerima(string $no_krmskm, Request $request)
-{
-    $user = $this->userAuth();
-    $no_krm = str_replace('-', '/', $no_krmskm);
-    $no_req = TrKrmSKMDetail::where('no_krmskm', $no_krm)->value('no_reqskm');
+    {
+        $user = $this->userAuth();
+        $no_krm = str_replace('-', '/', $no_krmskm);
+        $no_req = TrKrmSKMDetail::where('no_krmskm', $no_krm)->value('no_reqskm');
 
-    if ($request->ajax()) {
-        $barang_krms = DB::table('tr_krmskm_detail as a')
-            ->join('tr_reqskm_detail as b', 'a.no_reqskm', '=', 'b.no_reqskm')
-            ->join('m_brg as c', 'a.brg_id', '=', 'c.brg_id')
-            ->select('a.brg_id','c.nm_brg', 'b.qty_beli as qty_minta', 'a.qty_beli as qty_kirim', 'a.satuan_beli') // Removed empty field
-            ->where('a.no_krmskm', $no_krm)
-            ->where('a.status', 0)
-            ->get();
+        if ($request->ajax()) {
+            $barang_krms = DB::table('tr_krmskm_detail as a')
+                ->join('tr_reqskm_detail as b', function ($join) {
+                    $join->on('a.no_reqskm', '=', 'b.no_reqskm')
+                        ->on('a.brg_id', '=', 'b.brg_id');
+                })
+                ->join('m_brg_spek as c', 'a.spek_id', '=', 'c.spek_id')
+                ->join('m_brg as d', 'c.brg_id', '=', 'd.brg_id')
+                ->select(
+                    'a.brg_id',
+                    'd.nm_brg',
+                    'b.qty_beli as qty_minta',
+                    'a.qty_beli as qty_kirim',
+                    'a.satuan_beli'
+                )
+                ->where('a.no_krmskm', $no_krm)
+                ->where('a.status', 0)
+                ->groupBy('a.brg_id', 'd.nm_brg', 'a.satuan_beli', 'b.qty_beli', 'a.qty_beli')
+                ->get();
 
-        return DataTables::of($barang_krms)
-            ->addColumn('action', function ($object) {
-                return '<div class="d-flex form-check font-size-18">
-                        <input type="checkbox" class="form-check-input check-barang" value="' . $object->brg_id . '"></div>';
-            })
-            ->rawColumns(['action'])
-            ->make(true);
+            return DataTables::of($barang_krms)
+                ->addColumn('action', function ($object) {
+                    return '<div class="d-flex form-check font-size-18">
+                        <input type="checkbox" class="form-check-input check-barang" value="'.$object->brg_id.'"></div>';
+                })
+                ->rawColumns(['action'])
+                ->make(true);
+        }
+
+        return view('pages.terima-barang-skm.create', compact('user', 'no_krmskm', 'no_krm', 'no_req'));
     }
-
-    return view('pages.terima-barang-skm.create', compact('user', 'no_krmskm', 'no_krm', 'no_req'));
-}
-
 
     public function storeTerima(Request $request)
     {
@@ -327,8 +345,8 @@ class TrReqSKMController extends Controller
             $id = str_pad(TrStok::count() + 1, 3, '0', STR_PAD_LEFT);
             $stok_id = "{$gudang_id}/{$barangId}/{$id}";
             $masuk = $qty;
-            $gudangs = Gudang::where("gudang_id", $gudang_id)->value('nama');
-            $ket = "Penerimaan barang dari " . $gudangs;
+            $gudangs = Gudang::where('gudang_id', $gudang_id)->value('nama');
+            $ket = 'Penerimaan barang dari '.$gudangs;
 
             TrStok::create([
                 'stok_id' => $stok_id,
@@ -356,7 +374,6 @@ class TrReqSKMController extends Controller
             'status' => 1,
         ]);
 
-
         return redirect()->route('penerimaan-barang')->with('success', 'Data penerimaan barang berhasil ditambahkan.');
     }
 
@@ -365,9 +382,10 @@ class TrReqSKMController extends Controller
         $details = DB::table('tr_krmskm as a')
             ->join('tr_krmskm_detail as b', 'a.no_krmskm', '=', 'b.no_krmskm')
             ->join('m_brg as c', 'b.brg_id', '=', 'c.brg_id')
+            ->join('m_brg_spek as d', 'b.spek_id', '=', 'd.spek_id')
             ->where('a.no_krmskm', $request->no_krmskm)
             ->where('b.diterima', 0)
-            ->select('c.nm_brg', 'b.qty_beli', 'b.satuan_beli')
+            ->select('c.nm_brg', 'd.spek', 'b.qty_beli', 'b.satuan_beli')
             ->get();
 
         return DataTables::of($details)->make(true);
@@ -385,23 +403,24 @@ class TrReqSKMController extends Controller
             return DataTables::of($penerimaans)
                 ->addColumn('action', function () {
                     return '<button class="btn btn-secondary waves-effect waves-light btn-detail me-2" data-bs-toggle="modal" data-bs-target="#detailModal">'
-                        . '<i class="bx bx-detail font-size-18 align-middle me-2"></i>Detail</button>';
+                        .'<i class="bx bx-detail font-size-18 align-middle me-2"></i>Detail</button>';
                 })
                 ->rawColumns(['action'])
                 ->make(true);
         }
+
         return view('pages.history.penerimaan-barang', compact('user'));
     }
-
 
     public function detailTerimaHistory(Request $request)
     {
         $details = DB::table('tr_krmskm as a')
             ->join('tr_krmskm_detail as b', 'a.no_krmskm', '=', 'b.no_krmskm')
             ->join('m_brg as c', 'b.brg_id', '=', 'c.brg_id')
+            ->join('m_brg_spek as d', 'b.spek_id', '=', 'd.spek_id')
             ->where('a.no_krmskm', $request->no_krmskm)
             ->where('a.status', 1)
-            ->select('c.nm_brg', 'b.qty_beli', 'b.satuan_beli')
+            ->select('c.nm_brg', 'd.spek', 'b.qty_beli', 'b.satuan_beli')
             ->get();
 
         return DataTables::of($details)->make(true);

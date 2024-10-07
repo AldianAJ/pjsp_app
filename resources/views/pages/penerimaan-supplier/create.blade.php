@@ -1,11 +1,12 @@
 @extends('layouts.app')
 
 @section('title')
-Tambah Pengiriman Batangan
+Tambah Penerimaan Supplier
 @endsection
 
 @push('after-app-style')
 <link href="{{ asset('assets/libs/sweetalert2/sweetalert2.min.css') }}" rel="stylesheet" type="text/css" />
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
 <style>
     .select2-container .select2-selection--single {
         padding: 0.30rem 0.45rem;
@@ -17,23 +18,64 @@ Tambah Pengiriman Batangan
 @push('after-app-script')
 <script src="{{ asset('assets/libs/datatables.net/js/jquery.dataTables.min.js') }}"></script>
 <script src="{{ asset('assets/libs/datatables.net-bs4/js/dataTables.bootstrap4.min.js') }}"></script>
-<!-- Responsive examples -->
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 <script src="{{ asset('assets/libs/datatables.net-responsive/js/dataTables.responsive.min.js') }}"></script>
 <script src="{{ asset('assets/libs/datatables.net-responsive-bs4/js/responsive.bootstrap4.min.js') }}"></script>
 <script src="{{ asset('assets/js/pages/datatables.init.js') }}"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/autonumeric/4.10.5/autoNumeric.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 <script>
     $(document).ready(function() {
+            $('#supplier_id').select2({
+                width: 'resolve'
+            });
+
             $('#showDataBarangButton').on('click', function() {
+                if ($.fn.DataTable.isDataTable('#datatable-barang')) {
+                    $('#datatable-barang').DataTable().clear().destroy();
+                }
+
+                $('#datatable-barang').DataTable({
+                    ajax: {
+                        url: "{{ route('penerimaan-supplier.create') }}",
+                        data: {
+                            type: 'barangs'
+                        }
+                    },
+                    lengthMenu: [5],
+                    ordering: false,
+                    columns: [{
+                            data: null,
+                            render: (data, type, row, meta) => meta.row + 1
+                        },
+                        {
+                            data: "nm_brg"
+                        },
+                        {
+                            data: null,
+                            render: (data, type, row) => `<button type="button" class="btn btn-primary font-size-14 waves-effect waves-light" onclick="showSpecs('${row.brg_id}', '${row.nm_brg}')">
+                        Pilih
+                    </button>`
+                        }
+                    ],
+                });
+
+                $('#dataBarang').modal('show');
+            });
+
+            window.showSpecs = function(brg_id, nm_brg) {
                 if ($.fn.DataTable.isDataTable('#datatable-spek')) {
                     $('#datatable-spek').DataTable().clear().destroy();
                 }
 
                 $('#datatable-spek').DataTable({
                     ajax: {
-                        url: "{{ route('pengiriman-batangan.create') }}",
+                        url: "{{ route('penerimaan-supplier.create') }}",
+                        data: {
+                            type: 'speks',
+                            brg_id: brg_id,
+                            nm_brg: nm_brg
+                        }
                     },
                     lengthMenu: [5],
                     columns: [{
@@ -55,16 +97,15 @@ Tambah Pengiriman Batangan
                     ],
                 });
 
+                $('#dataBarang').modal('hide');
                 $('#dataSpek').modal('show');
-            });
-
-
+            };
 
             window.showQtyModal = function(brg_id, nm_brg, satuan1, satuan2, konversi1, spek_id, spek) {
                 const modal = document.getElementById('qtyModal');
                 document.getElementById('modal-brg-id').value = brg_id;
                 document.getElementById('modal-nm-brg').value = nm_brg;
-                document.getElementById('modal-qty').value = '';
+                document.getElementById('modal-qty-beli').value = '';
                 document.getElementById('modal-satuan1').innerText = satuan1;
                 document.getElementById('modal-qty-std').value = '';
                 document.getElementById('modal-konversi1').value = konversi1;
@@ -73,16 +114,17 @@ Tambah Pengiriman Batangan
                 document.getElementById('modal-spek-id').value = spek_id;
 
                 $('#dataSpek').modal('hide');
+                $('#dataBarang').modal('hide');
                 new bootstrap.Modal(modal).show();
             };
 
             $('#qtyModal .btn-primary').on('click', function() {
                 addItem();
                 $('#qtyModal').modal('hide');
-                $('#dataSpek').modal('show');
+                $('#dataBarang').modal('show');
             });
 
-            new AutoNumeric('#modal-qty', {
+            new AutoNumeric('#modal-qty-beli', {
                 decimalCharacter: ',',
                 digitGroupSeparator: '.'
             });
@@ -91,7 +133,7 @@ Tambah Pengiriman Batangan
                 digitGroupSeparator: '.'
             });
 
-            $('#modal-qty').on('keyup', function() {
+            $('#modal-qty-beli').on('keyup', function() {
                 const qtyBeli = parseFloat(AutoNumeric.getNumericString(this)) || 0;
                 const konversi1 = parseFloat($('#modal-konversi1').val());
                 const qtyStd = qtyBeli * konversi1;
@@ -104,7 +146,7 @@ Tambah Pengiriman Batangan
                 const konversi1 = ($('#modal-konversi1').val());
                 const qtyBeli = qtyStd / konversi1;
 
-                AutoNumeric.set('#modal-qty', qtyBeli);
+                AutoNumeric.set('#modal-qty-beli', qtyBeli);
             });
 
             let selectedItems = [];
@@ -112,17 +154,16 @@ Tambah Pengiriman Batangan
             function addItem() {
                 const brg_id = document.getElementById('modal-brg-id').value;
                 const nm_brg = document.getElementById('modal-nm-brg').value;
-                const qty = parseFloat(AutoNumeric.getNumericString(document.getElementById(
-                    'modal-qty'))) || 0;
+                const qty_beli = parseFloat(AutoNumeric.getNumericString(document.getElementById(
+                    'modal-qty-beli'))) || 0;
                 const satuan1 = document.getElementById('modal-satuan1').innerText;
-                const konversi1 = parseFloat(document.getElementById('modal-konversi1').value) || 0;
                 const qty_std = parseFloat(AutoNumeric.getNumericString(document.getElementById(
                     'modal-qty-std'))) || 0;
                 const satuan2 = document.getElementById('modal-satuan2').innerText;
                 const ket = document.getElementById('modal-ket').value;
                 const spek_id = document.getElementById('modal-spek-id').value;
 
-                if (qty <= 0 || qty_std <= 0) {
+                if (qty_beli <= 0 || qty_std <= 0) {
                     Swal.fire({
                         icon: 'error',
                         title: 'Tidak Bisa',
@@ -134,7 +175,7 @@ Tambah Pengiriman Batangan
                 selectedItems.push({
                     brg_id,
                     nm_brg,
-                    qty,
+                    qty_beli,
                     satuan1,
                     qty_std,
                     satuan2,
@@ -143,7 +184,7 @@ Tambah Pengiriman Batangan
                 });
                 updateItems();
 
-                AutoNumeric.set('#modal-qty', 0);
+                AutoNumeric.set('#modal-qty-beli', 0);
                 AutoNumeric.set('#modal-qty-std', 0);
             }
 
@@ -162,7 +203,7 @@ Tambah Pengiriman Batangan
                 <td>${index + 1}</td>
                 <td>${item.nm_brg}</td>
                 <td>${item.ket}</td>
-                <td>${item.qty}</td>
+                <td>${item.qty_beli}</td>
                 <td>${item.satuan1}</td>
                 <td>
                     <button class="btn btn-danger waves-effect waves-light" onclick="removeItem(${index})">
@@ -173,29 +214,18 @@ Tambah Pengiriman Batangan
         `).join('');
 
                 itemsContainer.innerHTML = selectedItems.map((item, index) => `
-            <input type="hidden" name="items[${index}][spek_id]" value="${item.spek_id}">
-            <input type="hidden" name="items[${index}][qty]" value="${item.qty}">
-            <input type="hidden" name="items[${index}][satuan]" value="${item.satuan1}">
+            <input type="hidden" name="items[${index}][brg_id]" value="${item.brg_id}">
+            <input type="hidden" name="items[${index}][qty_beli]" value="${item.qty_beli}">
+            <input type="hidden" name="items[${index}][satuan_beli]" value="${item.satuan1}">
             <input type="hidden" name="items[${index}][qty_std]" value="${item.qty_std}">
             <input type="hidden" name="items[${index}][satuan_std]" value="${item.satuan2}">
             <input type="hidden" name="items[${index}][ket]" value="${item.ket}">
+            <input type="hidden" name="items[${index}][spek_id]" value="${item.spek_id}">
         `).join('');
 
                 saveButton.disabled = selectedItems.length === 0;
             }
         });
-
-    $(document).ready(function() {
-        $('#msn_asal').select2({
-            width: 'resolve'
-        });
-    });
-
-    $(document).ready(function() {
-        $('#msn_tujuan').select2({
-            width: 'resolve'
-        });
-    });
 </script>
 @endpush
 
@@ -204,7 +234,7 @@ Tambah Pengiriman Batangan
 <div class="row">
     <div class="col-12">
         <div class="page-title-box d-sm-flex align-items-center justify-content-between">
-            <h4 class="mb-sm-0 font-size-18">Tambah Pengiriman Batangan</h4>
+            <h4 class="mb-sm-0 font-size-18">Tambah Penerimaan Supplier</h4>
         </div>
     </div>
 </div>
@@ -212,7 +242,6 @@ Tambah Pengiriman Batangan
 <!-- Main Form -->
 <div class="row">
     <div class="col-md-12">
-        <!-- Display validation errors -->
         @if ($errors->any())
         <div class="alert alert-danger">
             <ul>
@@ -226,60 +255,57 @@ Tambah Pengiriman Batangan
 </div>
 
 <div class="row">
-    <div class="col-md-6">
+    <div class="col-md-8">
         <div class="card">
             <div class="card-body">
-                <h5 class="card-title">Data Transaksi</h5>
-                <form action="{{ route('pengiriman-batangan.store') }}" method="post" enctype="multipart/form-data">
+                <h3 class="card-title fw-bolder">Data Transaksi</h3>
+                <form action="{{ route('penerimaan-supplier.store') }}" method="post" enctype="multipart/form-data">
                     @csrf
-                    {{-- <div class="form-group mt-3">
-                        <label for="no_trm">No. Dokumen</label>
-                        <input type="text" class="form-control" name="no_trm" value="{{ old('no_trm', $no_trm) }}"
-                            required>
-                    </div> --}}
                     <div class="form-group mt-3">
-                        <label for="tgl">Tanggal :</label>
-                        <input type="date" class="form-control" name="tgl"
-                            value="{{ old('tgl', \Carbon\Carbon::now()->format('Y-m-d')) }}" required>
+                        <label for="no_trm">No. Penerimaan :</label>
+                        <input type="text" name="no_trm" id="no_trm" class="form-control" value="{{ $no_trm }}"
+                            readonly>
                     </div>
                     <div class="form-group mt-3">
-                        <label for="msn_asal">Mesin Asal :</label>
-                        <select name="msn_asal" id="msn_asal" style="width: 100%"
-                            class="form-control @error('msn_asal') is-invalid @enderror" style="width: 100%;" required>
-                            <option value="">-- Pilih Mesin Asal --</option>
-                            @foreach ($msn_asal as $mesin)
-                            <option value="{{ $mesin->mesin_id }}" @if (old('msn_asal')==$mesin->mesin_id)
-                                selected @endif>
-                                {{ $mesin->nama }}
-                            </option>
-                            @endforeach
-                        </select>
-                        @error('msn_asal')
+                        <label for="no_sj">No. SJ Supplier :</label>
+                        <input type="text" class="form-control @error('no_sj') is-invalid @enderror" name="no_sj"
+                            value="{{ old('no_sj') }}" placeholder="Masukkan No. Surat Jalan dari Supplier" required>
+                        @error('no_sj')
                         <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
                     </div>
-
                     <div class="form-group mt-3">
-                        <label for="msn_tujuan">Mesin Tujuan :</label>
-                        <select name="msn_tujuan" id="msn_tujuan" style="width: 100%"
-                            class="form-control @error('msn_tujuan') is-invalid @enderror" style="width: 100%;"
+                        <label for="tgl_trm">Tanggal Terima :</label>
+                        <input type="date" class="form-control" name="tgl_trm"
+                            value="{{ old('tgl_trm', \Carbon\Carbon::now()->format('Y-m-d')) }}" required>
+                    </div>
+                    <div class="form-group mt-3">
+                        <label for="tgl_jth_tmp">Tanggal Jatuh Tempo :</label>
+                        <input type="date" class="form-control" name="tgl_jth_tmp"
+                            value="{{ old('tgl_jth_tmp', \Carbon\Carbon::now()->format('Y-m-d')) }}" required>
+                    </div>
+                    <div class="form-group mt-3">
+                        <label for="supplier_id">Nama Supplier :</label>
+                        <select name="supplier_id" id="supplier_id"
+                            class="form-control @error('supplier_id') is-invalid @enderror" style="width: 100%;"
                             required>
-                            <option value="">-- Pilih Mesin Tujuan --</option>
-                            @foreach ($msn_tujuan as $mesin)
-                            <option value="{{ $mesin->mesin_id }}" @if (old('msn_tujuan')==$mesin->mesin_id)
-                                selected @endif>
-                                {{ $mesin->nama }}
+                            <option value="">-- Pilih Supplier --</option>
+                            @foreach ($suppliers as $supplier)
+                            <option value="{{ $supplier->supplier_id }}" @if (isset($data_supplier) && $data_supplier->
+                                supplier_id == $supplier->supplier_id) selected @endif>
+                                {{ $supplier->nama }}
                             </option>
                             @endforeach
                         </select>
-                        @error('msn_tujuan')
+                        @error('supplier_id')
                         <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
                     </div>
-
+                    <input type="hidden" name="gudang_id" id="gudang_id"
+                        value="{{ old('gudang_id', $gudang_id ?? '') }}">
                     <div id="items-container"></div> <!-- Container for items input fields -->
                     <div class="d-flex justify-content-end mt-3">
-                        <a href="{{ route('pengiriman-batangan') }}"
+                        <a href="{{ route('penerimaan-supplier') }}"
                             class="btn btn-secondary waves-effect waves-light me-2">
                             <i class="bx bx-caret-left align-middle me-2 font-size-18"></i>Kembali
                         </a>
@@ -291,31 +317,29 @@ Tambah Pengiriman Batangan
             </div>
         </div>
     </div>
-    <div class="col-md-6">
+    <div class="col-md-4">
         <button type="button" class="btn btn-dark waves-effect waves-light" id="showDataBarangButton">
             <i class="bx bx-plus-circle align-middle me-2 font-size-18"></i>Tambah Data Barang
         </button>
     </div>
 </div>
 
-<!-- Modal for Input Quantity -->
-<div class="modal fade" id="dataSpek" tabindex="-1" role="dialog" aria-labelledby="dataSpekLabel" aria-hidden="true">
+<div class="modal fade" id="dataBarang" tabindex="-1" role="dialog" aria-labelledby="dataModalLabel" aria-hidden="true">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h3 class="modal-title fw-bolder" id="dataSpekLabel">Data Barang</h3>
+                <h3 class="modal-title fw-bolder" id="dataModalLabel">Data Barang</h3>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
                 <div class="row">
-                    <div class="col-md-12">
+                    <div class="col-sm-12">
                         <div class="table-responsive">
-                            <table id="datatable-spek" class="table align-middle table-nowrap">
+                            <table id="datatable-barang" class="table align-middle table-nowrap">
                                 <thead class="table-light">
                                     <tr>
                                         <th>No</th>
                                         <th>Nama Barang</th>
-                                        <th>Satuan</th>
                                         <th>Action</th>
                                     </tr>
                                 </thead>
@@ -333,11 +357,45 @@ Tambah Pengiriman Batangan
     </div>
 </div>
 
+<div class="modal fade" id="dataSpek" tabindex="-1" role="dialog" aria-labelledby="dataSpekLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title fw-bolder" id="dataSpekLabel">Data Spesifikasi</h3>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="table-responsive">
+                            <table id="datatable-spek" class="table align-middle table-nowrap">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>No</th>
+                                        <th>Spesifikasi</th>
+                                        <th>Satuan</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Batal</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <div class="modal fade" id="qtyModal" tabindex="-1" role="dialog" aria-labelledby="qtyModalLabel" aria-hidden="true">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h3 class="modal-title fw-bolder" id="qtyModalLabel">Input Qty</h3>
+                <h3 class="modal-titl fw-bolder" id="qtyModalLabel">Input Qty</h3>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
@@ -347,24 +405,23 @@ Tambah Pengiriman Batangan
                     <input type="text" class="form-control" id="modal-nm-brg" readonly>
                 </div>
                 <input type="hidden" id="modal-spek-id">
+                <input type="hidden" id="modal-konversi1">
                 <div class="mb-3">
                     <label for="modal-qty" class="form-label">Qty</label>
                     <div class="d-flex align-items-center">
-                        <input type="text" inputmode="numeric" class="form-control me-2" id="modal-qty" min="1"
+                        <input type="text" inputmode="numeric" class="form-control me-2" id="modal-qty-beli" min="1"
                             required>
                         <label for="modal-satuan1" class="form-label fw-bolder" id="modal-satuan1"></label>
                     </div>
                 </div>
-                <input type="hidden" id="modal-konversi1">
                 <div class="mb-3">
                     <label for="modal-qty-std" class="form-label">Qty Konversi</label>
                     <div class="d-flex align-items-center">
                         <input type="text" inputmode="numeric" class="form-control me-2" id="modal-qty-std" min="1"
-                            required>
+                            data-konversi1="2" required>
                         <label for="modal-satuan2" class="form-label fw-bolder" id="modal-satuan2"></label>
                     </div>
                 </div>
-
                 <div class="mb-3">
                     <label for="modal-ket" class="form-label">Keterangan</label>
                     <textarea class="form-control" id="modal-ket"></textarea>
@@ -382,7 +439,7 @@ Tambah Pengiriman Batangan
     <div class="col-lg-12 mt-2">
         <div class="card">
             <div class="card-body">
-                <h4 class="card-title fw-bolder">List Kirim Batangan</h4>
+                <h4 class="card-title fw-bolder">List Penerimaan Supplier</h4>
                 <div class="table-responsive">
                     <table class="table table-striped" id="selected-items-table">
                         <thead class="table-light">

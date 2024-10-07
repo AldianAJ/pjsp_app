@@ -8,6 +8,7 @@ use App\Models\Admin\BarangSpek;
 use App\Models\Admin\TrMutasi;
 use App\Models\Admin\TrMutasiDetail;
 use App\Models\Admin\Gudang;
+use App\Models\Admin\Mesin;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Yajra\DataTables\DataTables;
@@ -29,11 +30,11 @@ class TrMutasiController extends Controller
     public function index(Request $request)
     {
         $user = $this->userAuth();
-        $path = 'pengiriman-batangan.';
+        $path = 'return-barang.';
 
         if ($request->ajax()) {
             $mutasis = TrMutasi::where('status', 0)
-                ->where('mutasi_id', 'LIKE', 'MKR%')
+                ->where('mutasi_id', 'LIKE', 'FMB%')
                 ->orderBy('mutasi_id', 'desc')
                 ->get();
 
@@ -50,7 +51,7 @@ class TrMutasiController extends Controller
                 ->make(true);
         }
 
-        return view('pages.pengiriman-batangan.index', compact('user'));
+        return view('pages.return-barang.index', compact('user'));
     }
 
     /**
@@ -60,21 +61,8 @@ class TrMutasiController extends Controller
     {
         $user = $this->userAuth();
 
-        $msn_asal = DB::table('tr_target_mesin as a')
-            ->join('m_mesin as b', 'a.mesin_id', '=', 'b.mesin_id')
-            ->join('tr_target_shift as c', 'a.shift_id', '=', 'c.shift_id')
-            ->join('tr_target_harian as d','c.harian_id','=','d.harian_id')
-            ->select('a.msn_trgt_id', 'a.mesin_id', 'b.nama')
-            ->where('d.tgl', Carbon::today()->format('Y-m-d'))
-            ->get();
-
-        $msn_tujuan = DB::table('tr_target_mesin as a')
-            ->join('m_mesin as b', 'a.mesin_id', '=', 'b.mesin_id')
-            ->join('tr_target_shift as c', 'a.shift_id', '=', 'c.shift_id')
-            ->join('tr_target_harian as d','c.harian_id','=','d.harian_id')
-            ->select('a.msn_trgt_id', 'a.mesin_id', 'b.nama')
-            ->where('d.tgl', Carbon::today()->format('Y-m-d'))
-            ->get();
+        $gdg_asal = Gudang::where('jenis', 2)-> where('status', 0)->get();
+        $gdg_tujuan = Gudang::where('jenis', 2)-> where('status', 0)->get();
 
         if ($request->ajax()) {
             $speks = DB::table('m_brg_spek as a')
@@ -88,7 +76,7 @@ class TrMutasiController extends Controller
             return DataTables::of($speks)->make(true);
         }
 
-        return view('pages.pengiriman-batangan.create', compact('user', 'msn_asal', 'msn_tujuan'));
+        return view('pages.return-barang.create', compact('user', 'gdg_asal', 'gdg_tujuan'));
     }
 
     /**
@@ -96,7 +84,7 @@ class TrMutasiController extends Controller
      */
     public function store(Request $request)
     {
-        $mutasi_id = 'MKR/SKM' . '/' . date('y/m/' . str_pad(TrMutasi::count() + 1, 3, '0', STR_PAD_LEFT));
+        $mutasi_id = 'FMB/RSR' . '/' . date('y/m/' . str_pad(TrMutasi::count() + 1, 3, '0', STR_PAD_LEFT));
 
         TrMutasi::create([
             'mutasi_id' => $mutasi_id,
@@ -106,8 +94,8 @@ class TrMutasiController extends Controller
         foreach ($request->items as $item) {
             TrMutasiDetail::create([
                 'mutasi_id' => $mutasi_id,
-                'gdg_asal' => $request->msn_asal,
-                'gdg_tujuan' => $request->msn_tujuan,
+                'gdg_asal' => $request->gdg_asal,
+                'gdg_tujuan' => $request->gdg_tujuan,
                 'spek_id' => $item['spek_id'],
                 'qty' => $item['qty'],
                 'satuan' => $item['satuan'],
@@ -117,7 +105,7 @@ class TrMutasiController extends Controller
             ]);
         }
 
-        return redirect()->route('pengiriman-batangan')->with('success', 'Data pengiriman batangan berhasil ditambahkan.');
+        return redirect()->route('return-barang')->with('success', 'Data return barang berhasil ditambahkan.');
     }
 
     /**
@@ -158,6 +146,133 @@ class TrMutasiController extends Controller
                 ->get();
 
             return DataTables::of($details)->make(true);
+        }
+        return view('pages.return-barang.edit', compact('user', 'tgl', 'mutasi_id', 'no_mutasi'));
+    }
+
+    /**
+     * Update the specified resource in storage.
+     */
+    public function update(Request $request, string $mutasi_id)
+    {
+        $no_mutasi = str_replace('-', '/', $mutasi_id);
+        $responseMessage = '';
+
+        if (!empty($request->items)) {
+            foreach ($request->items as $item) {
+                $data_tr_mutasi_detail = TrMutasiDetail::where('mutasi_id', operator: $no_mutasi)
+                    ->where('spek_id', $item['spek_id'])
+                    ->first();
+
+                if ($data_tr_mutasi_detail) {
+                    $nama = BarangSpek::where('spek_id', $item['spek_id'])->value('spek');
+                    $data_tr_mutasi_detail->update([
+                        'qty' => $item['qty'],
+                        'qty_std' => $item['qty_std']
+                    ]);
+                    $responseMessage = 'Data ' . $nama . ' berhasil diubah. Menjadi Qty : ' . $item['qty'];
+                }
+            }
+        } else {
+            $data_tr_mutasi = TrMutasi::where('mutasi_id', $no_mutasi)->first();
+            $data_tr_mutasi->update([
+                'tgl' => $request->tgl,
+            ]);
+            $responseMessage = 'Data transaksi berhasil diubah.';
+        }
+        return response()->json(['success' => true, 'message' => $responseMessage], 200);
+    }
+
+    public function createBTG(Request $request)
+    {
+        $user = $this->userAuth();
+
+        $msn_asal = Mesin::where('status', 0)->get();
+
+        $msn_tujuan = Mesin::where('status', 0)->get();
+
+        if ($request->ajax()) {
+            $speks = DB::table('m_brg_spek as a')
+                ->join('m_brg as b', 'a.brg_id', '=', 'b.brg_id')
+                ->select('a.spek_id', 'b.nm_brg', 'a.satuan1', 'a.satuan2', 'a.konversi1', 'a.spek_id', 'a.spek')
+                ->where('a.spek_id', 'LIKE', 'WIP%')
+                ->where('a.satuan1', 'TRAY')
+                ->where('a.status', 0)
+                ->get();
+
+            return DataTables::of($speks)->make(true);
+        }
+
+        return view('pages.pengiriman-batangan.create', compact('user', 'msn_asal', 'msn_tujuan'));
+    }
+
+    /**
+     * Store a newly created resource in storage.
+     */
+    public function storeBTG(Request $request)
+    {
+        $mutasi_id = 'MKR/SKM' . '/' . date('y/m/' . str_pad(TrMutasi::count() + 1, 3, '0', STR_PAD_LEFT));
+
+        TrMutasi::create([
+            'mutasi_id' => $mutasi_id,
+            'tgl' => $request->tgl,
+        ]);
+
+        foreach ($request->items as $item) {
+            TrMutasiDetail::create([
+                'mutasi_id' => $mutasi_id,
+                'gdg_asal' => $request->msn_asal,
+                'gdg_tujuan' => $request->msn_tujuan,
+                'spek_id' => $item['spek_id'],
+                'qty' => $item['qty'],
+                'satuan' => $item['satuan'],
+                'qty_std' => $item['qty_std'],
+                'satuan_std' => $item['satuan_std'],
+                'ket' => $item['ket'],
+            ]);
+        }
+
+        return redirect()->route('pengiriman-batangan')->with('success', 'Data pengiriman batangan berhasil ditambahkan.');
+    }
+
+    /**
+     * Display the specified resource.
+     */
+    public function detailBTG(Request $request)
+    {
+        $details = DB::table('tr_mutasi as a')
+            ->join('tr_mutasi_detail as b', 'a.mutasi_id', '=', 'b.mutasi_id')
+            ->join('m_brg_spek as c', 'b.spek_id', '=', 'c.spek_id')
+            ->where('a.mutasi_id', $request->mutasi_id)
+            ->select('c.spek', 'b.qty', 'b.satuan')
+            ->get();
+
+        return DataTables::of($details)->make(true);
+    }
+
+    /**
+     *  the form for editing the specified resource.
+     */
+    public function editBTG(Request $request, string $mutasi_id)
+    {
+        $user = $this->userAuth();
+        $no_mutasi = str_replace('-', '/', $mutasi_id);
+
+        $tgl = TrMutasi::where('mutasi_id', $no_mutasi)
+            ->where('status', 0)
+            ->value('tgl');
+
+        if ($request->ajax()) {
+
+            $details = DB::table('tr_mutasi_detail as a')
+                ->join('m_brg_spek as b', 'a.spek_id', '=', 'b.spek_id')
+                ->join('m_brg as c', 'b.brg_id', '=', 'c.brg_id')
+                ->select('b.spek_id', 'c.nm_brg', 'a.qty', 'a.satuan', 'a.qty_std', 'a.satuan_std', 'b.konversi1')
+                ->where('a.mutasi_id', $no_mutasi)
+                ->where('a.status', 0)
+                ->get();
+
+            return DataTables::of($details)->make(true);
 
 
         }
@@ -167,7 +282,7 @@ class TrMutasiController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $mutasi_id)
+    public function updateBTG(Request $request, string $mutasi_id)
     {
         $no_mutasi = str_replace('-', '/', $mutasi_id);
         $responseMessage = '';
@@ -231,13 +346,7 @@ class TrMutasiController extends Controller
     {
         $user = $this->userAuth();
 
-        $msn_asal = DB::table('tr_target_mesin as a')
-            ->join('m_mesin as b', 'a.mesin_id', '=', 'b.mesin_id')
-            ->join('tr_target_shift as c', 'a.shift_id', '=', 'c.shift_id')
-            ->join('tr_target_harian as d','c.harian_id','=','d.harian_id')
-            ->select('a.msn_trgt_id', 'a.mesin_id', 'b.nama')
-            ->where('d.tgl', Carbon::today()->format('Y-m-d'))
-            ->get();
+        $msn_asal = Mesin::where('status', 0)->get();
 
         $msn_tujuan = Gudang::select('gudang_id', 'nama')->where('gudang_id', 'GU006')->first();
 

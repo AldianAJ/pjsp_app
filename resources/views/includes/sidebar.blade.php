@@ -263,6 +263,22 @@
                 </li>
                 @endif
 
+                @if ($user->role == 'gdb2')
+                <li>
+                    <a href="{{ route('dashboard') }}">
+                        <i class="bx bx-home-circle"></i>
+                        <span key="t-dashboards">Welcome</span>
+                    </a>
+                </li>
+                <li class="menu-title" key="t-form">Form</li>
+                <li>
+                    <a href="{{ route('penjualan') }}" class="waves-effect">
+                        <i class="bx bxs-widget"></i>
+                        <span key="t-penjualan">Surat Jalan</span>
+                    </a>
+                </li>
+                @endif
+
                 @if ($user->role == 'skm1')
                 <li>
                     <a href="{{ route('dashboard') }}">

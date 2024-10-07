@@ -61,10 +61,17 @@ Permintaan
                 },
                 lengthMenu: [5],
                 columns: [{
+                        data: null,
+                        render: (data, type, row, meta) => meta.row + 1
+                    },
+                    {
                         data: 'nm_brg',
                         // render: function(data, type, row) {
                         //     return row.tr_trmsup_detail[0].barang.nm_brg;
                         // }
+                    },
+                    {
+                        data: 'spek'
                     },
                     {
                         data: 'qty_beli',
@@ -123,25 +130,30 @@ Permintaan
     </div>
 </div>
 
-<div class="modal modal-md fade" id="detailModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+<div class="modal modal-lg fade" id="detailModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h4 class="modal-title fw-bolder" id="exampleModalLabel">Detail Barang - <span id="id-req"></span></h4>
+                <h4 class="modal-title fw-bolder" id="exampleModalLabel">Detail Barang - <span id="id-req"></span>
+                </h4>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <table class="table table-bordered dt-responsive nowrap w-100" id="detail-datatable">
-                    <thead class="table-light">
-                        <tr>
-                            <th>Nama Barang</th>
-                            <th>Qty</th>
-                            <th>Satuan</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                    </tbody>
-                </table>
+                <div class="table-responsive">
+                    <table class="table align-middle table-nowrap" id="detail-datatable">
+                        <thead class="table-light">
+                            <tr>
+                                <th>No</th>
+                                <th>Nama Barang</th>
+                                <th>Spek</th>
+                                <th>Qty</th>
+                                <th>Satuan</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </div>

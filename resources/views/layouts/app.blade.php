@@ -3,7 +3,7 @@
 
 <head>
     @include('includes.meta')
-    <title>RJW - @yield('title')</title>
+    <title>RSR - @yield('title')</title>
 
     @stack('before-app-style')
     @include('includes.style')

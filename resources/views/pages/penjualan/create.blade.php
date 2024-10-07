@@ -6,138 +6,160 @@ Tambah Surat Jalan
 
 @push('after-app-style')
 <link href="{{ asset('assets/libs/sweetalert2/sweetalert2.min.css') }}" rel="stylesheet" type="text/css" />
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<style>
+    .select2-container .select2-selection--single {
+        padding: 0.30rem 0.45rem;
+        height: 38.2px;
+    }
+</style>
 @endpush
 
 @push('after-app-script')
 <script src="{{ asset('assets/libs/datatables.net/js/jquery.dataTables.min.js') }}"></script>
 <script src="{{ asset('assets/libs/datatables.net-bs4/js/dataTables.bootstrap4.min.js') }}"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
 <script>
     $(document).ready(function() {
-            // Handling No PO selection
-            $('#no_po').change(function() {
-                var no_po = $(this).val();
+        $('#no_po').change(function() {
+            var no_po = $(this).val();
+            if (no_po) {
                 $.ajax({
                     url: '{{ route('penjualan.create') }}',
                     method: 'GET',
-                    data: {
-                        no_po: no_po
-                    },
+                    data: { no_po: no_po },
                     success: function(data) {
                         $('#datatable-spek tbody').empty();
                         $.each(data.data, function(index, spek) {
                             $('#datatable-spek tbody').append(
                                 `<tr>
-                            <td>${index + 1}</td>
-                            <td>${spek.spek}</td>
-                            <td>${spek.qty_krm}</td>
-                            <td>${spek.satuan_po}</td>
-                            <td><button class="btn btn-primary select-spek" data-spek-id="${spek.spek_id}" data-spek="${spek.spek}" data-qty="${spek.qty_krm}" data-satuan="${spek.satuan_po}">Pilih</button></td>
-                        </tr>`
+                                    <td>${index + 1}</td>
+                                    <td>${spek.spek}</td>
+                                    <td>${Math.floor(spek.qty_po)}</td>
+                                    <td>${spek.satuan1}</td>
+                                    <td>
+                                        <button class="btn btn-primary select-spek"
+                                                onclick="selectSpek('${spek.spek}', ${Math.floor(spek.qty_po)}, '${spek.satuan1}', '${spek.satuan1}', ${spek.konversi1}, '${spek.satuan2}', '${spek.spek_id}')">Pilih</button>
+                                    </td>
+                                </tr>`
                             );
                         });
                         $('#spekModal').modal('show');
                     }
                 });
-            });
-
-            // Selecting a spek
-            $(document).on('click', '.select-spek', function() {
-                var spek = $(this).data('spek');
-                var qty = $(this).data('qty');
-                var satuan = $(this).data('satuan');
-                var spekId = $(this).data('spek-id');
-
-                $('#spek').val(spek);
-                $('#qty_kirim').val(qty);
-                $('#satuan').text(satuan);
-                $('#keterangan').val(`${qty} ${satuan}`); // Ensure proper template literal usage
-                $('#spek').data('spek-id', spekId); // Save spek-id in the input for later use
-                $('#qtyModal').modal('show');
-            });
-
-            // Update keterangan on quantity change
-            $('#qty_kirim').on('input', function() {
-                var qty = $(this).val();
-                var satuan = $('#satuan').text();
-                $('#keterangan').val(`${qty} ${satuan}`); // Correct usage of template literal
-            });
-
-            let itemCount = 0;
-
-            // Add item to the selected list
-            $('#addItem').click(function() {
-                itemCount++;
-                var spek = $('#spek').val();
-                var qty_kirim = parseFloat($('#qty_kirim').val());
-                var no_batch = $('#no_batch').val();
-                var keterangan = $('#keterangan').val();
-                var spekId = $('#spek').data('spek-id');
-
-                $('#selected-items tbody').append(
-                    `<tr data-spek-id="${spekId}">
-                <td>${itemCount}</td>
-                <td>${spek}</td>
-                <td>${no_batch}</td>
-                <td>${keterangan}</td>
-                <td><button class="btn btn-danger remove-item"><i class="bx bxs-trash align-middle font-size-14"></i></button></td>
-            </tr>`
-                );
-
-                $('#qty_kirim').val('');
-                $('#no_batch').val('');
-                $('#keterangan').val('');
-                $('#qtyModal').modal('hide');
-            });
-
-            // Remove item from the list
-            $(document).on('click', '.remove-item', function() {
-                $(this).closest('tr').remove();
-                itemCount--;
-                $('#selected-items tbody tr').each(function(index) {
-                    $(this).find('td:first').text(index + 1);
-                });
-            });
-
-            // Form submission handling
-            // Penanganan pengiriman form
-            $('form').submit(function(e) {
-                e.preventDefault();
-
-                let items = [];
-                $('#selected-items tbody tr').each(function() {
-                    const row = $(this);
-                    const spek_id = row.data('spek-id');
-                    const no_batch = row.find('td').eq(2).text();
-                    const qty_krm = parseFloat(row.find('td').eq(3).text().split(' ')[
-                    0]);
-                    
-
-                    items.push({
-                        spek_id: spek_id,
-                        no_batch: no_batch,
-                        qty_krm: qty_krm, // Simpan hanya kuantitas tanpa satuan
-                        ket: row.find('td').eq(3).text() // Ambil keterangan jika diperlukan
-                    });
-                });
-
-                // Cek jika array items tidak kosong
-                if (items.length === 0) {
-                    alert('Silakan tambahkan setidaknya satu item.');
-                    return;
-                }
-
-                $('<input>').attr({
-                    type: 'hidden',
-                    name: 'items',
-                    value: JSON.stringify(items),
-                }).appendTo('form');
-
-                this.submit();
-            });
-
+            }
         });
+
+        window.selectSpek = function(spek, qty, satuan1Param, satuan1, konversi, satuan2, spekId) {
+            $('#spek').val(spek);
+            $('#qty_po').val(Math.floor(qty));
+            $('#konversi1').val(konversi);
+            $('#satuan').text(satuan1);
+            $('#qty_po').data('satuan1', satuan1Param);
+            $('#qty_po').data('konversi', konversi);
+            $('#qty_po').data('satuan2', satuan2);
+            $('#keterangan').val(`${Math.floor(qty)} ${satuan1Param} @${qty * konversi} ${satuan2}`);
+            $('#spek').data('spek-id', spekId);
+            $('#qtyModal').modal('show');
+        };
+
+        $('#qty_po').on('input', function() {
+            var qty = Math.floor($(this).val());
+            var satuan1 = $('#qty_po').data('satuan1');
+            var konversi = parseFloat($('#qty_po').data('konversi')) || 0;
+            var satuan2 = $('#qty_po').data('satuan2');
+
+            var qtySatuan2 = qty * konversi;
+
+            if (!isNaN(qtySatuan2)) {
+                $('#keterangan').val(`${qty} ${satuan1} @${qtySatuan2} ${satuan2}`);
+            } else {
+                $('#keterangan').val(`${qty} ${satuan1} @0 ${satuan2}`);
+            }
+        });
+
+        let itemCount = 0;
+
+        $('#addItem').click(function() {
+            itemCount++;
+            var spek = $('#spek').val();
+            var qty_po = parseFloat($('#qty_po').val());
+            var no_batch = $('#no_batch').val();
+            var keterangan = $('#keterangan').val();
+            var spekId = $('#spek').data('spek-id');
+            var konversi = parseFloat($('#qty_po').data('konversi')) || 0;
+
+            var qtySatuan2 = qty_po * konversi;
+
+            $('#selected-items tbody').append(
+                `<tr data-spek-id="${spekId}">
+                    <td>${itemCount}</td>
+                    <td>${spek}</td>
+                    <td>${no_batch}</td>
+                    <td>${keterangan}</td>
+                    <td><button class="btn btn-danger remove-item"><i class="bx bxs-trash align-middle font-size-14"></i></button></td>
+                </tr>`
+            );
+
+            $('#selected-items tbody tr:last-child').data('qty-pack', qtySatuan2);
+
+            $('#qty_po').val('');
+            $('#no_batch').val('');
+            $('#keterangan').val('');
+            $('#qtyModal').modal('hide');
+        });
+
+        $(document).on('click', '.remove-item', function() {
+            $(this).closest('tr').remove();
+            itemCount--;
+            $('#selected-items tbody tr').each(function(index) {
+                $(this).find('td:first').text(index + 1);
+            });
+        });
+
+        $('form').submit(function(e) {
+            e.preventDefault();
+
+            let items = [];
+            $('#selected-items tbody tr').each(function() {
+                const row = $(this);
+                const spek_id = row.data('spek-id');
+                const no_batch = row.find('td').eq(2).text();
+                const qty_po = parseFloat(row.find('td').eq(3).text().split(' ')[0]);
+                const qty_total = row.data('qty-pack');
+
+                items.push({
+                    spek_id: spek_id,
+                    no_batch: no_batch,
+                    qty_po: qty_po,
+                    qty_total: qty_total,
+                    ket: row.find('td').eq(3).text()
+                });
+            });
+
+            if (items.length === 0) {
+                alert('Silakan tambahkan setidaknya satu item.');
+                return;
+            }
+
+            $('<input>').attr({
+                type: 'hidden',
+                name: 'items',
+                value: JSON.stringify(items),
+            }).appendTo('form');
+
+            this.submit();
+        });
+
+        $('#no_po, #no_pol').select2({
+            width: 'resolve'
+        });
+    });
 </script>
+
+
 @endpush
 
 @section('content')
@@ -177,8 +199,8 @@ Tambah Surat Jalan
                     </div>
                     <div class="form-group mt-3">
                         <label for="no_po">No. PO :</label>
-                        <select name="no_po" id="no_po" class="form-control @error('no_po') is-invalid @enderror"
-                            required>
+                        <select name="no_po" id="no_po" style="width: 100%"
+                            class="form-control @error('no_po') is-invalid @enderror" required>
                             <option value="">-- Pilih No. PO --</option>
                             @foreach ($hms_poo as $hms_po)
                             <option value="{{ $hms_po->no_po }}">{{ $hms_po->no_po }}</option>
@@ -198,8 +220,8 @@ Tambah Surat Jalan
                     </div>
                     <div class="form-group mt-3">
                         <label for="no_pol">Armada :</label>
-                        <select name="no_pol" id="no_pol" class="form-control @error('no_pol') is-invalid @enderror"
-                            required>
+                        <select name="no_pol" id="no_pol" style="width: 100%"
+                            class="form-control @error('no_pol') is-invalid @enderror" required>
                             <option value="">-- Pilih Armada --</option>
                             @foreach ($armadas as $armada)
                             <option value="{{ $armada->no_pol }}">{{ $armada->no_pol }}</option>
@@ -232,12 +254,11 @@ Tambah Surat Jalan
     </div>
 </div>
 
-<!-- Modal untuk memilih spek -->
 <div class="modal fade" id="spekModal" tabindex="-1" role="dialog" aria-labelledby="dataModalLabel" aria-hidden="true">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">Pilih Barang</h5>
+                <h3 class="modal-title fw-bolder">Pilih Barang</h3>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
@@ -249,7 +270,7 @@ Tambah Surat Jalan
                                     <tr>
                                         <th>No</th>
                                         <th>Spek</th>
-                                        <th>Qty Kirim</th>
+                                        <th>Qty PO</th>
                                         <th>Satuan</th>
                                         <th>Action</th>
                                     </tr>
@@ -273,7 +294,7 @@ Tambah Surat Jalan
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">Input Qty</h5>
+                <h3 class="modal-title fw-bolder">Input Qty</h3>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
@@ -282,9 +303,9 @@ Tambah Surat Jalan
                     <input type="text" id="spek" class="form-control" readonly>
                 </div>
                 <div class="mb-3">
-                    <label for="qty_kirim" class="form-label">Qty Kirim :</label>
+                    <label for="qty_po" class="form-label">Qty PO :</label>
                     <div class="d-flex align-items-center">
-                        <input type="text" inputmode="numeric" id="qty_kirim" class="form-control me-2" required>
+                        <input type="text" inputmode="numeric" id="qty_po" class="form-control me-2" required>
                         <label for="satuan" class="form-label fw-bolder" id="satuan"></label>
                     </div>
                 </div>
@@ -305,20 +326,19 @@ Tambah Surat Jalan
     </div>
 </div>
 
-<!-- Tabel untuk menampilkan detail pengiriman -->
 <div class="row">
     <div class="col-lg-12 mt-2">
         <div class="card">
             <div class="card-body">
-                <h5 class="card-title">Detail Pengiriman</h5>
+                <h4 class="card-title fw-bolder">Detail Pengiriman</h4>
                 <div class="table-responsive">
                     <table class="table table-striped" id="selected-items">
-                        <thead>
+                        <thead class="table-light">
                             <tr>
                                 <th>No</th>
                                 <th>Spek</th>
-                                <th>No Batch</th>
-                                <th>Keterangan</th>
+                                <th>No. Batch</th>
+                                <th>Ket</th>
                                 <th>Action</th>
                             </tr>
                         </thead>

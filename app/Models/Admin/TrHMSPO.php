@@ -11,4 +11,8 @@ class TrHMSPO extends Model
     public $incrementing = false;
     protected $guarded = [];
 
+    public function tr_hms_po_detail()
+    {
+        return $this->hasMany(TrHMSPODetail::class, 'no_po');
+    }
 }

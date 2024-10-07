@@ -151,7 +151,7 @@ class TrKrmSKMController extends Controller
             $stok_id = "{$gudang_id}/{$item['brg_id']}/{$id}";
             $keluar = $item['qty_beli'];
             $gudangs = Gudang::where('gudang_id', $gudang_id)->value('nama');
-            $ket = "Pengiriman barang dari ". $gudangs;
+            $ket = "Pengiriman barang dari " . $gudangs;
 
             TrStok::create([
                 'stok_id' => $stok_id,
@@ -190,8 +190,9 @@ class TrKrmSKMController extends Controller
         $details = DB::table('tr_krmskm as a')
             ->join('tr_krmskm_detail as b', 'a.no_krmskm', '=', 'b.no_krmskm')
             ->join('m_brg as c', 'b.brg_id', '=', 'c.brg_id')
+            ->join('m_brg_spek as d', 'b.spek_id', '=', 'd.spek_id')
             ->where('a.no_krmskm', $request->no_krmskm)
-            ->select('c.nm_brg', 'b.qty_beli', 'b.satuan_beli')
+            ->select('c.nm_brg', 'd.spek', 'b.qty_beli', 'b.satuan_beli')
             ->get();
 
         return DataTables::of($details)->make(true);
@@ -220,7 +221,7 @@ class TrKrmSKMController extends Controller
                 $details = DB::table('tr_krmskm_detail as a')
                     ->join('m_brg as b', 'a.brg_id', '=', 'b.brg_id')
                     ->join('m_brg_spek as c', 'a.spek_id', '=', 'c.spek_id')
-                    ->select('b.brg_id', 'b.nm_brg as nama', 'a.qty_beli', 'a.satuan_beli', 'a.qty_std', 'a.satuan_std','c.konversi1')
+                    ->select('b.brg_id', 'b.nm_brg as nama', 'a.qty_beli', 'a.satuan_beli', 'a.qty_std', 'a.satuan_std', 'c.konversi1')
                     ->where('no_krmskm', $no_krm)
                     ->where('a.status', 0)
                     ->get();
@@ -305,12 +306,13 @@ class TrKrmSKMController extends Controller
     public function detailHistory(Request $request)
     {
         $details = DB::table('tr_krmskm as a')
-        ->join('tr_krmskm_detail as b', 'a.no_krmskm', '=', 'b.no_krmskm')
-        ->join('m_brg as c', 'b.brg_id', '=', 'c.brg_id')
-        ->where('a.no_krmskm', $request->no_krmskm)
-        ->where('a.status', 1)
-        ->select('c.nm_brg', 'b.qty_beli', 'b.satuan_beli')
-        ->get();
+            ->join('tr_krmskm_detail as b', 'a.no_krmskm', '=', 'b.no_krmskm')
+            ->join('m_brg as c', 'b.brg_id', '=', 'c.brg_id')
+            ->join('m_brg_spek as d', 'b.spek_id', '=', 'd.spek_id')
+            ->where('a.no_krmskm', $request->no_krmskm)
+            ->where('a.status', 1)
+            ->select('c.nm_brg', 'd.spek', 'b.qty_beli', 'b.satuan_beli')
+            ->get();
 
         return DataTables::of($details)->make(true);
     }

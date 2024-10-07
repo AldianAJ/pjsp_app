@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('title')
-Edit Pengiriman Batangan
+Edit Return Barang
 @endsection
 
 @push('after-app-style')
@@ -25,7 +25,7 @@ Edit Pengiriman Batangan
         function initializeDataTable() {
             $('#datatable-detail').DataTable({
                 ajax: {
-                    url: "{{ url('pengiriman-batangan/edit') }}/" + mutasi_id,
+                    url: "{{ url('return-barang/edit') }}/" + mutasi_id,
                 },
                 lengthMenu: [5],
                 columns: [{
@@ -121,7 +121,7 @@ Edit Pengiriman Batangan
             var spek_id = $row.data('spek-id');
 
             $.ajax({
-                url: "{{ route('pengiriman-batangan.update', ['mutasi_id' => $mutasi_id]) }}",
+                url: "{{ route('return-barang.updateBTG', ['mutasi_id' => $mutasi_id]) }}",
                 method: 'POST',
                 data: {
                     _token: "{{ csrf_token() }}",
@@ -207,13 +207,12 @@ Edit Pengiriman Batangan
                     toast: true,
                     position: 'top-right'
                 }).then(() => {
-                    window.location.href = "{{ route('pengiriman-batangan') }}";
+                    window.location.href = "{{ route('return-barang') }}";
                 });
             }
         });
     });
 </script>
-
 @endpush
 
 @section('content')
@@ -221,7 +220,7 @@ Edit Pengiriman Batangan
 <div class="row">
     <div class="col-12">
         <div class="page-title-box d-sm-flex align-items-center justify-content-between">
-            <h4 class="mb-sm-0 font-size-18">Edit Pengiriman Batangan</h4>
+            <h4 class="mb-sm-0 font-size-18">Edit Return Barang</h4>
         </div>
     </div>
 </div>
@@ -246,7 +245,7 @@ Edit Pengiriman Batangan
         <div class="card">
             <div class="card-body">
                 <h3 class="card-title fw-bolder">Data Transaksi</h3>
-                <form id="updateForm" action="{{ route('pengiriman-batangan.update', ['mutasi_id' => $mutasi_id]) }}"
+                <form id="updateForm" action="{{ route('return-barang.update', ['mutasi_id' => $mutasi_id]) }}"
                     method="post" enctype="multipart/form-data">
                     @csrf
                     <div class="form-group mt-3">
@@ -258,21 +257,8 @@ Edit Pengiriman Batangan
                         <label for="tgl">Tanggal Mutasi :</label>
                         <input type="date" class="form-control" name="tgl" value="{{ $tgl }}" required>
                     </div>
-                    <div class="form-group mt-3">
-                        <label for="msn_asal">Nama Mesin :</label>
-                        <select name="msn_asal" id="msn_asal" class="form-control" style="width: 100%;" required>
-                            <option value="">Pilih Mesin</option>
-                            @foreach ($mesins as $mesin)
-                            <option value="{{ $mesin->msn_asal }}" @if ($mesin->msn_asal == $data_mesin)
-                                selected @endif>
-                                {{ $mesin->nama }}
-                            </option>
-                            @endforeach
-                        </select>
-                    </div>
                     <div class="d-flex justify-content-end mt-3">
-                        <a href="{{ route('pengiriman-batangan') }}"
-                            class="btn btn-secondary waves-effect waves-light me-2">
+                        <a href="{{ route('return-barang') }}" class="btn btn-secondary waves-effect waves-light me-2">
                             <i class="bx bx-caret-left align-middle me-2 font-size-18"></i>Kembali
                         </a>
                         <button type="submit" id="submitButton" class="btn btn-primary waves-effect waves-light">
