@@ -231,10 +231,7 @@
                 </li>
                 @endif
 
-                @if (
-                $user->role == 'pgws1' ||
-                $user->role == 'pgws2' ||
-                $user->role == 'pgws3')
+                @if ($user->role == 'pgws1' || $user->role == 'pgws2' || $user->role == 'pgws3')
                 <li>
                     <a href="{{ route('dashboard') }}">
                         <i class="bx bx-home-circle"></i>
@@ -332,6 +329,22 @@
                     <a href="{{ route('penerimaan-barang.history') }}" class=" waves-effect">
                         <i class="bx bx-task"></i>
                         <span key="t-terima">Penerimaan</span>
+                    </a>
+                </li>
+                @endif
+
+                @if ($user->role == 'spr1')
+                <li>
+                    <a href="{{ route('dashboard') }}">
+                        <i class="bx bx-home-circle"></i>
+                        <span key="t-dashboards">Welcome</span>
+                    </a>
+                </li>
+                <li class="menu-title" key="t-apps">Form</li>
+                <li>
+                    <a href="{{ route('pemakaian-sparepart') }}" class="waves-effect">
+                        <i class="bx bxs-user-detail"></i>
+                        <span key="t-user">Pemakaian Sparepart</span>
                     </a>
                 </li>
                 @endif

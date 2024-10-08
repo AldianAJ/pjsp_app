@@ -10,6 +10,7 @@ use App\Http\Controllers\Admin\MesinController;
 use App\Http\Controllers\Admin\JenisMesinController;
 use App\Http\Controllers\Admin\SupplierController;
 use App\Http\Controllers\Admin\TrTrmSupController;
+use App\Http\Controllers\Admin\TrSpartController;
 use App\Http\Controllers\Admin\KinerjaController;
 use App\Http\Controllers\Admin\TrReqSKMController;
 use App\Http\Controllers\Admin\TrKrmSKMController;
@@ -215,6 +216,15 @@ Route::middleware('user')->group(function () {
         Route::get('/penerimaan-supplier/edit/{no_trm}', 'edit')->name('penerimaan-supplier.edit');
         Route::post('/penerimaan-supplier/update/{no_trm}', 'update')->name('penerimaan-supplier.update');
         Route::get('/penerimaan-supplier/detail', 'detail')->name('penerimaan-supplier.detail');
+    });
+
+    Route::controller(TrSpartController::class)->group(function () {
+        Route::get('/pemakaian-sparepart', 'index')->name('pemakaian-sparepart');
+        Route::get('/pemakaian-sparepart/create', 'create')->name('pemakaian-sparepart.create');
+        Route::post('/pemakaian-sparepart/store', 'store')->name('pemakaian-sparepart.store');
+        Route::get('/pemakaian-sparepart/edit/{no_spart}', 'edit')->name('pemakaian-sparepart.edit');
+        Route::post('/pemakaian-sparepart/update/{no_spart}', 'update')->name('pemakaian-sparepart.update');
+        Route::get('/pemakaian-sparepart/detail', 'detail')->name('pemakaian-sparepart.detail');
     });
 
     Route::controller(PenjualanController::class)->group(function () {
