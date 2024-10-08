@@ -218,6 +218,12 @@
                     </a>
                 </li>
                 <li>
+                    <a href="{{ route('pengiriman-skm') }}" class="waves-effect">
+                        <i class="bx bxs-duplicate"></i>
+                        <span key="t-kirim-skm">Kirim ke Mesin</span>
+                    </a>
+                </li>
+                <li>
                     <a href="{{ route('closing-mesin') }}" class="waves-effect">
                         <i class="bx bxs-receipt"></i>
                         <span key="t-kinerja">Closing Mesin</span>
