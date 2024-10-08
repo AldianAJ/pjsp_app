@@ -4,6 +4,27 @@
 Tambah User
 @endsection
 
+@push('after-app-style')
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<style>
+    .select2-container .select2-selection--single {
+        padding: 0.30rem 0.45rem;
+        height: 38.2px;
+    }
+</style>
+@endpush
+
+@push('after-app-script')
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+<script>
+    $(document).ready(function() {
+            $('#gudang_id').select2({
+                width: 'resolve'
+            });
+        });
+</script>
+@endpush
+
 @section('content')
 <!-- start page title -->
 <div class="row">
@@ -15,7 +36,7 @@ Tambah User
 </div>
 <!-- end page title -->
 <div class="row">
-    <div class="col-12">
+    <div class="col-md-8">
         <div class="card">
             <div class="card-body">
                 <form action="{{ route('super-admin.store') }}" method="post">
@@ -70,14 +91,23 @@ Tambah User
                     </div>
 
                     <div class="mt-4 mb-3 row">
-                        <label for="gudang_id" class="col-md-2 col-form-label font-size-14">Gudang ID :</label>
+                        <label for="gudang_id" class="col-md-2 col-form-label font-size-14">Nama Gudang :</label>
                         <div class="col-md">
-                            <input type="text" name="gudang_id" id="gudang_id" class="form-control"
-                                value="{{ old('gudang_id') }}">
-                            @error('gudang_id')
-                            <p class="text-danger font-size-12 font-weight-bold">{{ $message }}</p>
-                            @enderror
+                            <select name="gudang_id" id="gudang_id"
+                                class="form-control @error('gudang_id') is-invalid @enderror" style="width: 100%;"
+                                required>
+                                <option value="">-- Pilih Gudang --</option>
+                                @foreach ($gudangs as $gudang)
+                                <option value="{{ $gudang->gudang_id }}" @if (isset($data_gudang) && $data_gudang->
+                                    gudang_id == $gudang->gudang_id) selected @endif>
+                                    {{ $gudang->nama }}
+                                </option>
+                                @endforeach
+                            </select>
                         </div>
+                        @error('gudang_id')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
                     </div>
 
                     <div class="mt-4 mb-3 d-flex justify-content-end">

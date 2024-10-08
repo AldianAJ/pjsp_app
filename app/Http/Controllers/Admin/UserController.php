@@ -5,9 +5,12 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Hash; // Import Hash facade
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\DB;
 use Yajra\DataTables\DataTables;
 use App\Models\Admin\User;
+use App\Models\Admin\Gudang;
+use App\Models\Admin\UserGudang;
 
 class UserController extends Controller
 {
@@ -25,7 +28,6 @@ class UserController extends Controller
 
         $user = User::where('username', $request->username)->first();
 
-        // Check if user exists and verify the hashed password
         if ($user && Hash::check($request->password, $user->password)) {
             Auth::login($user);
             $request->session()->regenerate();
@@ -50,7 +52,12 @@ class UserController extends Controller
     {
         $path = 'super-admin.';
         if ($request->ajax()) {
-            $users = User::where('status', 0)->get();
+            $users = DB::table('m_user as a')
+            ->join('m_user_gdg as b', 'a.user_id', '=', 'b.user_id')
+            ->leftjoin('m_gudang as c', 'b.gudang_id', '=', 'c.gudang_id')
+            ->select('a.user_id', 'a.nama as nm_user', 'a.username', 'a.role', 'c.nama as nm_gdg')
+            ->where('a.status', 0)
+            ->get();
 
             return DataTables::of($users)
                 ->addColumn('action', function ($object) use ($path) {
@@ -67,7 +74,8 @@ class UserController extends Controller
     public function create()
     {
         $user_id = 'U' . str_pad(User::count() + 1, 4, '0', STR_PAD_LEFT);
-        return view('pages.super-admin.create', compact('user_id'));
+        $gudangs = Gudang::where('status', 0)->get();
+        return view('pages.super-admin.create', compact('user_id', 'gudangs'));
     }
 
     public function store(Request $request)
@@ -78,6 +86,10 @@ class UserController extends Controller
             'username' => $request->username,
             'password' => Hash::make($request->password),
             'role' => $request->role,
+        ]);
+
+        UserGudang::create([
+            'user_id' => $request->user_id,
             'gudang_id' => $request->gudang_id ?? 0,
         ]);
 

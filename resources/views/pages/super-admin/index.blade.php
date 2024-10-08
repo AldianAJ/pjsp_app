@@ -22,10 +22,10 @@ User
                 data: null,
                 render: (data, type, row, meta) => meta.row + 1
             },
-            { data: "nama" },
+            { data: "nm_user" },
             { data: "username" },
             { data: "role" },
-            { data: "gudang_id" },
+            { data: "nm_gdg" },
             { data: "action" }
         ],
     });
