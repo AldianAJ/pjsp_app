@@ -252,11 +252,11 @@ Tambah Permintaan
                 <h3 class="card-title fw-bolder">Data Transaksi</h3>
                 <form action="{{ route('permintaan-skm.store') }}" method="post" enctype="multipart/form-data">
                     @csrf
-                    {{-- <div class="form-group mt-3">
-                        <label for="no_trm">No. Dokumen</label>
-                        <input type="text" class="form-control" name="no_trm" value="{{ old('no_trm', $no_trm) }}"
-                            required>
-                    </div> --}}
+                    <div class="form-group mt-3">
+                        <label for="no_reqskm">No. Permintaan :</label>
+                        <input type="text" name="no_reqskm" id="no_reqskm" class="form-control" value="{{ $no_reqskm }}"
+                            readonly>
+                    </div>
                     <div class="form-group mt-3">
                         <label for="tgl">Tanggal :</label>
                         <input type="date" class="form-control" name="tgl"

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Admin\Barang;
+use App\Models\Admin\Gudang;
 use App\Models\Admin\Supplier;
 use Illuminate\Http\Request;
 use Yajra\DataTables\DataTables;
@@ -139,36 +140,34 @@ class BarangController extends Controller
     public function indexStok(Request $request)
     {
         $user = $this->userAuth();
-        $all_barang = Barang::where('status', 0)->get();
 
         if ($request->ajax()) {
-            $brg_id = $request->get('brg_id');
-            $date = $request->get('date');
+            $type = $request->input('type');
 
-            $barangs = DB::table('tr_stok as a')
-                ->join('m_brg as b', 'a.brg_id', '=', 'b.brg_id')
-                ->select('a.tgl', 'b.nm_brg', 'a.doc_id', 'a.ket', 'a.akhir')
-                ->when($brg_id, function ($query, $brg_id) {
-                    return $query->where('brg_id', $brg_id);
-                })
-                ->when($date, function ($query, $date) {
-                    $formattedDate = \Carbon\Carbon::createFromFormat('d-m-Y', $date)->format('Y-m-d');
-                    return $query->whereDate('tgl', $formattedDate);
-                })
-                ->when(auth()->user()->role == 'skm', function ($query) {
-                    return $query->where('a.doc_id', 'LIKE', 'SJ%');
-                })
-                ->when(auth()->user()->role == 'gdb', function ($query) {
-                    return $query->where('a.doc_id', 'LIKE', 'RCV%');
-                })
-                ->orderBy('a.tgl', 'desc')
-                ->orderBy('stok_id','desc')
-                ->get();
+            if ($type == 'gudangs') {
+                $gudangs = Gudang::where('status', 0)->where('jenis', 2)->get();
+                return DataTables::of($gudangs)->make(true);
 
+            } elseif ($type == 'barangs') {
+                $barangs = Barang::where('status', 0)->get();
+                return DataTables::of($barangs)->make(true);
 
-            return DataTables::of($barangs)->make(true);
+            } elseif ($type == 'data_stoks') {
+                $gudang_id = $request->input('gudang_id');
+                $brg_id = $request->input('brg_id');
+
+                $data_stoks = DB::table('tr_stok as a')
+                    ->join('m_brg as b', 'a.brg_id', '=', 'b.brg_id')
+                    ->select('a.tgl', 'b.nm_brg', 'a.doc_id', 'a.ket', 'a.akhir')
+                    ->where('a.gudang_id', $gudang_id) // Assuming 'gudang_id' is a column in 'tr_stok'
+                    ->where('a.brg_id', $brg_id)
+                    ->orderBy('a.tgl', 'desc')
+                    ->get();
+
+                return DataTables::of($data_stoks)->make(true);
+            }
         }
-
-        return view('pages.stok.index', compact('user', 'all_barang'));
+        return view('pages.stok.index', compact('user'));
     }
+
 }

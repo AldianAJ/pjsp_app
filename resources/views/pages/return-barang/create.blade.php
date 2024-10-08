@@ -232,6 +232,11 @@ Tambah Return Barang
                             required>
                     </div> --}}
                     <div class="form-group mt-3">
+                        <label for="mutasi_id">No. Return Barang :</label>
+                        <input type="text" name="mutasi_id" id="mutasi_id" class="form-control" value="{{ $mutasi_id }}"
+                            readonly>
+                    </div>
+                    <div class="form-group mt-3">
                         <label for="tgl">Tanggal :</label>
                         <input type="date" class="form-control" name="tgl"
                             value="{{ old('tgl', \Carbon\Carbon::now()->format('Y-m-d')) }}" required>

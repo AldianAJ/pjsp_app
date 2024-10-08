@@ -74,7 +74,7 @@ class PenjualanController extends Controller
     public function create(Request $request)
     {
         $user = $this->userAuth();
-
+        $no_sj = 'SJ/RSR-HMS' . '/' . date('y/m/' . str_pad(TrSJ::count() + 1, 3, '0', STR_PAD_LEFT));
         $hms_poo = TrHMSPO::with(['tr_hms_po_detail'])->where('status', 0)->get();
         $cust_id = Cust::where('cust_id', 'CS0001')->value('cust_id');
         $armadas = Armada::where('status', 0)->get();
@@ -91,7 +91,7 @@ class PenjualanController extends Controller
 
             return DataTables::of($speks)->make(true);
         }
-        return view('pages.penjualan.create', compact('user', 'hms_poo', 'armadas', 'cust_id'));
+        return view('pages.penjualan.create', compact('user', 'no_sj','hms_poo', 'armadas', 'cust_id'));
     }
 
 
@@ -101,8 +101,7 @@ class PenjualanController extends Controller
      */
     public function store(Request $request)
     {
-        $no_sj = 'SJ/RSR-HMS' . '/' . date('y/m/' . str_pad(TrSJ::count() + 1, 3, '0', STR_PAD_LEFT));
-
+        $no_sj = $request->no_sj;
         $items = json_decode($request->items, true);
 
         $trSj = TrSJ::create([

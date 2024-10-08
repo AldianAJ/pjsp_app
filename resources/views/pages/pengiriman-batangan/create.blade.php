@@ -232,11 +232,11 @@ Tambah Pengiriman Batangan
                 <h5 class="card-title">Data Transaksi</h5>
                 <form action="{{ route('pengiriman-batangan.store') }}" method="post" enctype="multipart/form-data">
                     @csrf
-                    {{-- <div class="form-group mt-3">
-                        <label for="no_trm">No. Dokumen</label>
-                        <input type="text" class="form-control" name="no_trm" value="{{ old('no_trm', $no_trm) }}"
-                            required>
-                    </div> --}}
+                    <div class="form-group mt-3">
+                        <label for="mutasi_id">No. Pengiriman Batangan :</label>
+                        <input type="text" name="mutasi_id" id="mutasi_id" class="form-control" value="{{ $mutasi_id }}"
+                            readonly>
+                    </div>
                     <div class="form-group mt-3">
                         <label for="tgl">Tanggal :</label>
                         <input type="date" class="form-control" name="tgl"

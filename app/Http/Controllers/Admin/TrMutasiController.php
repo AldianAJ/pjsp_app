@@ -60,7 +60,7 @@ class TrMutasiController extends Controller
     public function create(Request $request)
     {
         $user = $this->userAuth();
-
+        $mutasi_id = 'FMB/RSR' . '/' . date('y/m/' . str_pad(TrMutasi::count() + 1, 3, '0', STR_PAD_LEFT));
         $gdg_asal = Gudang::where('jenis', 2)-> where('status', 0)->get();
         $gdg_tujuan = Gudang::where('jenis', 2)-> where('status', 0)->get();
 
@@ -76,7 +76,7 @@ class TrMutasiController extends Controller
             return DataTables::of($speks)->make(true);
         }
 
-        return view('pages.return-barang.create', compact('user', 'gdg_asal', 'gdg_tujuan'));
+        return view('pages.return-barang.create', compact('user','mutasi_id', 'gdg_asal', 'gdg_tujuan'));
     }
 
     /**
@@ -84,8 +84,7 @@ class TrMutasiController extends Controller
      */
     public function store(Request $request)
     {
-        $mutasi_id = 'FMB/RSR' . '/' . date('y/m/' . str_pad(TrMutasi::count() + 1, 3, '0', STR_PAD_LEFT));
-
+        $mutasi_id = $request->mutasi_id;
         TrMutasi::create([
             'mutasi_id' => $mutasi_id,
             'tgl' => $request->tgl,
@@ -186,9 +185,8 @@ class TrMutasiController extends Controller
     public function createBTG(Request $request)
     {
         $user = $this->userAuth();
-
+        $mutasi_id = 'MKR/SKM' . '/' . date('y/m/' . str_pad(TrMutasi::count() + 1, 3, '0', STR_PAD_LEFT));
         $msn_asal = Mesin::where('status', 0)->get();
-
         $msn_tujuan = Mesin::where('status', 0)->get();
 
         if ($request->ajax()) {
@@ -203,7 +201,7 @@ class TrMutasiController extends Controller
             return DataTables::of($speks)->make(true);
         }
 
-        return view('pages.pengiriman-batangan.create', compact('user', 'msn_asal', 'msn_tujuan'));
+        return view('pages.pengiriman-batangan.create', compact('user','mutasi_id', 'msn_asal', 'msn_tujuan'));
     }
 
     /**
@@ -211,8 +209,7 @@ class TrMutasiController extends Controller
      */
     public function storeBTG(Request $request)
     {
-        $mutasi_id = 'MKR/SKM' . '/' . date('y/m/' . str_pad(TrMutasi::count() + 1, 3, '0', STR_PAD_LEFT));
-
+        $mutasi_id = $request->mutasi_id;
         TrMutasi::create([
             'mutasi_id' => $mutasi_id,
             'tgl' => $request->tgl,
@@ -345,9 +342,8 @@ class TrMutasiController extends Controller
     public function createBJSK(Request $request)
     {
         $user = $this->userAuth();
-
+        $mutasi_id = 'PKG/SKM' . '/' . date('y/m/' . str_pad(TrMutasi::count() + 1, 3, '0', STR_PAD_LEFT));
         $msn_asal = Mesin::where('status', 0)->get();
-
         $msn_tujuan = Gudang::select('gudang_id', 'nama')->where('gudang_id', 'GU006')->first();
 
         if ($request->ajax()) {
@@ -362,7 +358,7 @@ class TrMutasiController extends Controller
             return DataTables::of($speks)->make(true);
         }
 
-        return view('pages.pengiriman-bjsk.create', compact('user', 'msn_asal', 'msn_tujuan'));
+        return view('pages.pengiriman-bjsk.create', compact('user','mutasi_id', 'msn_asal', 'msn_tujuan'));
     }
 
     /**
@@ -370,8 +366,7 @@ class TrMutasiController extends Controller
      */
     public function storeBJSK(Request $request)
     {
-        $mutasi_id = 'PKG/SKM' . '/' . date('y/m/' . str_pad(TrMutasi::count() + 1, 3, '0', STR_PAD_LEFT));
-
+        $mutasi_id = $request->mutasi_id;
         TrMutasi::create([
             'mutasi_id' => $mutasi_id,
             'tgl' => $request->tgl,

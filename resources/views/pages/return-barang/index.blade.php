@@ -126,8 +126,8 @@ Return Barang
                     <table id="datatable" class="table align-middle table-nowrap">
                         <thead class="table-light">
                             <tr>
-                                <th>No. Pengiriman</th>
-                                <th>Tanggal Kirim</th>
+                                <th>No. Return</th>
+                                <th>Tanggal Return</th>
                                 <th>Action</th>
                             </tr>
                         </thead>

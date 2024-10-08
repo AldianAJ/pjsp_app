@@ -87,6 +87,7 @@ class TrKrmSKMController extends Controller
     {
         $user = $this->userAuth();
         $no_req = str_replace('-', '/', $no_reqskm);
+        $no_krmskm = 'SJ/GU' . '/' . date('y/m/' . str_pad(TrKrmSKM::count() + 1, 3, '0', STR_PAD_LEFT));
         $gudang_id = Gudang::where('gudang_id', 'GU001')->value('gudang_id');
 
         if ($request->ajax()) {
@@ -109,12 +110,9 @@ class TrKrmSKMController extends Controller
                     ->get();
 
                 return DataTables::of($barangs)->make(true);
-
             }
         }
-
-
-        return view('pages.pengiriman-gu.create', compact('user', 'no_reqskm', 'no_req', 'gudang_id'));
+        return view('pages.pengiriman-gu.create', compact('user','no_krmskm', 'no_reqskm', 'no_req', 'gudang_id'));
     }
 
 
@@ -124,7 +122,7 @@ class TrKrmSKMController extends Controller
      */
     public function store(Request $request)
     {
-        $no_krmskm = 'SJ/GU' . '/' . date('y/m/' . str_pad(TrKrmSKM::count() + 1, 3, '0', STR_PAD_LEFT));
+        $no_krmskm = $request->no_krmskm;
         $gudang_id = $request->gudang_id;
         $no_reqskm = $request->no_reqskm;
 

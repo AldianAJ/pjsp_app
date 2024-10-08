@@ -11,6 +11,21 @@
                 $user = auth()->user();
                 @endphp
 
+                @if ($user->role == 'admin' || $user->role == 'super')
+                <li>
+                    <a href="{{ route('dashboard') }}">
+                        <i class="bx bx-home-circle"></i>
+                        <span key="t-dashboards">Welcome</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="{{ route('super-admin') }}" class="waves-effect">
+                        <i class="bx bxs-component"></i>
+                        <span key="t-stok-gudang">Admin</span>
+                    </a>
+                </li>
+                @endif
+
                 @if ($user->role == 'gdb')
                 <li class="menu-title" key="t-menu">Menu</li>
                 <li>
@@ -20,7 +35,7 @@
                     </a>
                 </li>
 
-                {{-- <li class="menu-title" key="t-apps">Laporan</li>
+                <li class="menu-title" key="t-apps">Laporan</li>
 
                 <li>
                     <a href="{{ route('stok') }}" class="waves-effect">
@@ -33,7 +48,7 @@
                         <i class="bx bxs-component"></i>
                         <span key="t-mutasi">Mutasi</span>
                     </a>
-                </li> --}}
+                </li>
 
                 <li class="menu-title" key="t-transactions">Form</li>
 

@@ -7,7 +7,7 @@
     <title>{{ $title }}</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
+            font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif
         }
 
         table {
@@ -42,17 +42,24 @@
             font-size: 12px;
         }
 
+        .header-left {
+            width: 30%;
+            font-weight: bolder
+        }
+
         .header-center {
-            width: 15%;
+            width: 30%;
         }
 
         .header-right {
             width: 30%;
+            font-weight: bolder
         }
 
         .details {
             text-align: center;
             font-size: 12px;
+            font-weight: bolder
         }
 
         .ttd-section {
@@ -71,7 +78,6 @@
         }
 
         h3 {
-            margin-top: -20px;
             text-align: center
         }
 
@@ -95,29 +101,32 @@
 
     <table class="header-table">
         <tr>
-            <td>
+            <td class="header-left">
                 <strong>PT. Rajawali Sumber Rejeki</strong><br>
-                Mojoroto, Mojotamping, Bangsal,<br>
-                Mojokerto Regency, East Java 61381<br>
+                Jl. Raya Ngranggon - Kutorejo KM 03<br>
+                Dusun Tamping, Desa Mojotamping<br>
+                Kec. Bangsal, Kabupaten Mojokerto<br>
                 Phone: (0353) 881783
             </td>
             <td class="header-center">
 
             </td>
-            <td>
+            <td class="header-right">
                 <strong>Mojokerto,
-                    {{ $sj_header ? \Carbon\Carbon::parse($sj_header->tgl)->format('d F Y') : '' }}</strong><br>
-                Kepada: {{ $sj_header->nama }}<br>
-                Alamat: {{ $sj_header->alamat_sj }}<br>
+                    {{ $sj_header? \Carbon\Carbon::parse($sj_header->tgl)->locale('id')->translatedFormat('d F Y'): ''
+                    }}
+                </strong><br>
+                Kepada : {{ $sj_header->nama }}<br>
+                Alamat : {{ $sj_header->alamat_sj }}<br>
                 {{ $sj_header->kota_sj }}
             </td>
         </tr>
     </table>
-    <br>
     <table class="no-border">
         <tr>
             <td class="no-border">
-                <strong>No. Surat Jalan: {{ $sj_header->no_sj }}</strong><br><br>
+                <strong>No. Surat Jalan :</strong><br>
+                {{ $sj_header->no_sj }}<br><br>
                 <strong>Bersama ini kami menyerahkan barang sesuai dengan Purchase Order No :
                     {{ $sj_header->no_po }}</strong>
                 <br>
@@ -144,25 +153,27 @@
                 <td>{{ number_format($detail->pc, 0, ',', '.') }}</td>
                 <td>{{ number_format($detail->qty_total, 0, ',', '.') }}</td>
                 <td style="text-align: left;">{{ $detail->ket }}</td>
-                <td style="text-align: left;">{{ $detail->no_batch ?? '-' }}</td>
+                <td>{{ $detail->no_batch ?? '-' }}</td>
             </tr>
             @endforeach
             <tr class="total-row">
                 <td colspan="3">Total</td>
                 <td>{{ number_format($sj_details->sum('qty_total'), 0, ',', '.') }}</td>
-                <td>{{ number_format($sj_details->sum('qty_karton'), 0, ',', '.') }} Karton</td>
+                <td style="text-align: left;">{{ number_format($sj_details->sum('qty_karton'), 0, ',', '.') }} Karton
+                </td>
                 <td>-</td>
             </tr>
         </tbody>
     </table>
-
+    <br>
     <table class="no-border">
         <tr>
             <td class="no-border">
                 <strong>No. Pol Kendaraan : {{ $sj_header->no_pol }}</strong>
             </td>
-        </tr>
-        <tr>
+            <td class="no-border" style="width: 15%">
+
+            </td>
             <td class="no-border">
                 <strong>No. Segel Kendaraan : {{ $sj_header->no_segel }}</strong>
             </td>
@@ -176,9 +187,9 @@
             <td><strong>Hormat Kami</strong></td>
         </tr>
         <tr>
-            <td style="height: 30vh">(<span style="display: inline-block; margin-left: 120px;"></span>)</td>
-            <td style="height: 30vh">( Bp. Bagas )</td>
-            <td style="height: 30vh">( Ibu. Lisan / Bp. Sutris)</td>
+            <td style="height: 100px">(<span style="display: inline-block; margin-left: 120px;"></span>)</td>
+            <td style="height: 100px"><strong>( {{ $sj_header->driver }} )</strong></td>
+            <td style="height: 100px"><strong>( Ibu. Lisna )</strong></td>
         </tr>
     </table>
 </body>

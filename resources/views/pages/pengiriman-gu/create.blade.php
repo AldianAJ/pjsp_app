@@ -257,6 +257,11 @@ Proses Permintaan
                 <form action="{{ route('pengiriman-gudang-utama.store') }}" method="post" enctype="multipart/form-data">
                     @csrf
                     <div class="form-group mt-3">
+                        <label for="no_krmskm">No. Pengiriman :</label>
+                        <input type="text" name="no_krmskm" id="no_krmskm" class="form-control" value="{{ $no_krmskm }}"
+                            readonly>
+                    </div>
+                    <div class="form-group mt-3">
                         <label for="no_reqskm">No. Dokumen Permintaan :</label>
                         <input type="text" name="no_reqskm" id="no_reqskm" class="form-control" value="{{ $no_req }}"
                             readonly>

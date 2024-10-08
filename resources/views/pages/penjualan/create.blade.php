@@ -193,6 +193,10 @@ Tambah Surat Jalan
                 <form action="{{ route('penjualan.store') }}" method="post" enctype="multipart/form-data">
                     @csrf
                     <div class="form-group mt-3">
+                        <label for="no_sj">No. Surat Jalan :</label>
+                        <input type="text" name="no_sj" id="no_sj" class="form-control" value="{{ $no_sj }}" readonly>
+                    </div>
+                    <div class="form-group mt-3">
                         <label for="tgl">Tanggal :</label>
                         <input type="date" class="form-control" name="tgl"
                             value="{{ old('tgl', \Carbon\Carbon::now()->format('Y-m-d')) }}" required>
@@ -213,7 +217,7 @@ Tambah Surat Jalan
                     <div class="form-group mt-3">
                         <label for="no_segel">No. Segel:</label>
                         <input type="text" class="form-control @error('no_segel') is-invalid @enderror" name="no_segel"
-                            value="{{ old('no_segel') }}" required>
+                            value="{{ old('no_segel') }}" placeholder="Masukkan Nomor Segel" required>
                         @error('no_segel')
                         <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
@@ -232,9 +236,9 @@ Tambah Surat Jalan
                         @enderror
                     </div>
                     <div class="form-group mt-3">
-                        <label for="driver">Driver :</label>
+                        <label for="driver">Pengantar :</label>
                         <input type="text" class="form-control @error('driver') is-invalid @enderror" name="driver"
-                            value="{{ old('driver') }}" required>
+                            value="{{ old('driver') }}" placeholder="Masukkan Driver / Helper" required>
                         @error('driver')
                         <div class="invalid-feedback">{{ $message }}</div>
                         @enderror

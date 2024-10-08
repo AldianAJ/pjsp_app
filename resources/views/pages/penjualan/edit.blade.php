@@ -274,7 +274,8 @@ Edit Surat Jalan
                     </div>
                     <div class="form-group mt-3">
                         <label for="no_segel">No. Segel :</label>
-                        <input type="text" class="form-control" name="no_segel" value="{{ $segels }}" required>
+                        <input type="text" class="form-control" name="no_segel" value="{{ $segels }}"
+                            placeholder="Masukkan Nomor Segel" required>
                     </div>
                     <div class="form-group mt-3">
                         <label for="no_pol">No. Pol :</label>
@@ -288,8 +289,9 @@ Edit Surat Jalan
                         </select>
                     </div>
                     <div class="form-group mt-3">
-                        <label for="driver">Driver :</label>
-                        <input type="text" class="form-control" name="driver" value="{{ $drivers }}" required>
+                        <label for="driver">Pengantar :</label>
+                        <input type="text" class="form-control" name="driver" value="{{ $drivers }}"
+                            placeholder="Masukkan Driver / Helper" required>
                     </div>
                     <div class="d-flex justify-content-end mt-3">
                         <a href="{{ route('penjualan') }}" class="btn btn-secondary waves-effect waves-light me-2">

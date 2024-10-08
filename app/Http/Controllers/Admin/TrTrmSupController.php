@@ -131,7 +131,7 @@ class TrTrmSupController extends Controller
 
             TrStok::create([
                 'stok_id' => $stok_id,
-                'tgl_trm' => $request->tgl_trm,
+                'tgl' => $request->tgl_trm,
                 'brg_id' => $item['brg_id'],
                 'gudang_id' => $gudang_id,
                 'doc_id' => $no_trm,

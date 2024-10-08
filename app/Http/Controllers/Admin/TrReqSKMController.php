@@ -63,6 +63,7 @@ class TrReqSKMController extends Controller
     public function create(Request $request)
     {
         $user = $this->userAuth();
+        $no_reqskm = 'FPB/SKM'.'/'.date('y/m/'.str_pad(TrReqSKM::count() + 1, 3, '0', STR_PAD_LEFT));
         $gudang_id = Gudang::where('gudang_id', 'GU001')->value('gudang_id');
 
         if ($request->ajax()) {
@@ -88,7 +89,7 @@ class TrReqSKMController extends Controller
             }
         }
 
-        return view('pages.permintaan-skm.create', compact('user', 'gudang_id'));
+        return view('pages.permintaan-skm.create', compact('user','no_reqskm', 'gudang_id'));
     }
 
     /**
@@ -96,7 +97,7 @@ class TrReqSKMController extends Controller
      */
     public function store(Request $request)
     {
-        $no_reqskm = 'FPB/SKM'.'/'.date('y/m/'.str_pad(TrReqSKM::count() + 1, 3, '0', STR_PAD_LEFT));
+        $no_reqskm = $request->no_reqskm;
         $gudang_id = $request->gudang_id;
 
         TrReqSKM::create([

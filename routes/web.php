@@ -44,13 +44,21 @@ Route::middleware('user')->group(function () {
         Route::get('/dashboard', 'index')->name('dashboard');
     });
 
+    Route::controller(UserController::class)->group(function () {
+        Route::get('/super-admin', 'indexUser')->name('super-admin');
+        Route::get('/super-admin/create', 'create')->name('super-admin.create');
+        Route::get('/super-admin/edit/{user_id}', 'edit')->name('super-admin.edit');
+        Route::post('/super-admin/store', 'store')->name('super-admin.store');
+        Route::post('/super-admin/update/{user_id}', 'update')->name('super-admin.update');
+    });
+
     Route::controller(BarangController::class)->group(function () {
         Route::get('/barang', 'index')->name('barang');
         Route::get('/barang/create', 'create')->name('barang.create');
         Route::get('/barang/edit/{brg_id}', 'edit')->name('barang.edit');
         Route::post('/barang/store', 'store')->name('barang.store');
         Route::post('/barang/update/{brg_id}', 'update')->name('barang.update');
-        Route::get('/', [BarangController::class, 'getSidebarData']);
+        // Route::get('/', [BarangController::class, 'getSidebarData']);
 
         Route::get('/stok', 'indexStok')->name('stok');
     });
