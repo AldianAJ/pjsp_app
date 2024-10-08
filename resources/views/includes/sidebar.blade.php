@@ -11,17 +11,18 @@
                 $user = auth()->user();
                 @endphp
 
-                @if ($user->role == 'admin' || $user->role == 'super')
+                @if ($user->role == 'super')
                 <li>
                     <a href="{{ route('dashboard') }}">
                         <i class="bx bx-home-circle"></i>
                         <span key="t-dashboards">Welcome</span>
                     </a>
                 </li>
+                <li class="menu-title" key="t-apps">Data Master</li>
                 <li>
                     <a href="{{ route('super-admin') }}" class="waves-effect">
-                        <i class="bx bxs-component"></i>
-                        <span key="t-stok-gudang">Admin</span>
+                        <i class="bx bxs-user-detail"></i>
+                        <span key="t-user">User</span>
                     </a>
                 </li>
                 @endif

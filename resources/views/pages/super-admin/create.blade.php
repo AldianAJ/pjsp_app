@@ -94,8 +94,7 @@ Tambah User
                         <label for="gudang_id" class="col-md-2 col-form-label font-size-14">Nama Gudang :</label>
                         <div class="col-md">
                             <select name="gudang_id" id="gudang_id"
-                                class="form-control @error('gudang_id') is-invalid @enderror" style="width: 100%;"
-                                required>
+                                class="form-control @error('gudang_id') is-invalid @enderror" style="width: 100%;">
                                 <option value="">-- Pilih Gudang --</option>
                                 @foreach ($gudangs as $gudang)
                                 <option value="{{ $gudang->gudang_id }}" @if (isset($data_gudang) && $data_gudang->
@@ -109,6 +108,7 @@ Tambah User
                         <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
                     </div>
+
 
                     <div class="mt-4 mb-3 d-flex justify-content-end">
                         <a href="{{ route('super-admin') }}" class="btn btn-secondary waves-effect waves-light me-2">
