@@ -14,7 +14,6 @@ class LogProdController extends Controller
     public function index(Request $request)
     {
         if ($request->ajax()) {
-            $tgl = Carbon::parse($request->tgl);
 
             $logprod = DB::table('tr_log_prod as a')
                 ->join('tr_target_mesin as b', 'a.msn_trgt_id', '=', 'b.msn_trgt_id')
@@ -26,8 +25,10 @@ class LogProdController extends Controller
                 ->select('a.logprod_id', 'a.msn_trgt_id', 'b.mesin_id', 'd.tgl', 'a.pic', 'a.lost_time')
                 ->selectRaw('CONCAT_WS(" - ",a.waktu_mulai,a.waktu_selesai) AS waktu, f.nama as mesin, g.nm_brg as produksi');
 
-            if ($request->has('tgl') && $request->tgl != '') {
-                $logprod->where('d.tgl', $tgl);
+            if ($request->has('tgl_start') && $request->has('tgl_end') && $request->tgl_start != '' && $request->tgl_end != '') {
+                $tgl_start = Carbon::parse($request->tgl_start);
+                $tgl_end = Carbon::parse($request->tgl_end);
+                $logprod->whereBetween('d.tgl', [$tgl_start, $tgl_end]);
             }
 
             $logprod->orderBy('a.tgl', 'desc')
@@ -56,8 +57,10 @@ class LogProdController extends Controller
                 $machines = DB::table('tr_target_mesin as a')
                     ->join('tr_target_shift as b', 'a.shift_id', '=', 'b.shift_id')
                     ->join('tr_target_harian as c', 'b.harian_id', '=', 'c.harian_id')
-                    ->join('m_mesin as d', 'a.mesin_id', '=', 'd.mesin_id')
-                    ->select('a.msn_trgt_id', 'd.nama', 'b.shift', 'c.tgl')
+                    ->join('tr_target_week as d', 'c.week_id', '=', 'd.week_id')
+                    ->join('m_mesin as e', 'a.mesin_id', '=', 'e.mesin_id')
+                    ->join('m_brg as f', 'd.brg_id', '=', 'f.brg_id')
+                    ->select('a.msn_trgt_id', 'e.nama', 'b.shift', 'c.tgl', 'f.nm_brg')
                     ->where('tgl', $date)
                     ->where('a.status', 0)
                     ->get();

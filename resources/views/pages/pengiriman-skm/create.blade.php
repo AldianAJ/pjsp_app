@@ -93,16 +93,16 @@ Tambah Pengiriman ke Mesin
             $('input[name="tgl"]').on('change', function() {
                 const selectedDate = $(this).val();
 
-                if ($.fn.DataTable.isDataTable('#datatable-shifts')) {
-                    $('#datatable-shifts').DataTable().clear().destroy();
+                if ($.fn.DataTable.isDataTable('#datatable-machines')) {
+                    $('#datatable-machines').DataTable().clear().destroy();
                 }
 
-                $('#datatable-shifts').DataTable({
+                $('#datatable-machines').DataTable({
                     ajax: {
                         url: "{{ route('pengiriman-skm.create') }}",
                         data: {
-                            type: 'shifts',
-                            date: selectedDate
+                            type: 'machines',
+                            date: selectedDate,
                         }
                     },
                     columns: [{
@@ -113,57 +113,21 @@ Tambah Pengiriman ke Mesin
                             data: "shift"
                         },
                         {
-                            data: null,
-                            render: (data, type, row) => `<button type="button" class="btn btn-primary font-size-14 waves-effect waves-light" onclick="selectShift('${row.shift_id}')">
-                        Pilih
-                    </button>`
-                        }
-                    ]
-                });
-
-                $('#dataShift').modal('show');
-            });
-
-            window.selectShift = function(shiftId) {
-                if ($.fn.DataTable.isDataTable('#datatable-machines')) {
-                    $('#datatable-machines').DataTable().clear().destroy();
-                }
-
-                $('#datatable-machines').DataTable({
-                    ajax: {
-                        url: "{{ route('pengiriman-skm.create') }}",
-                        data: {
-                            type: 'machines',
-                            shift_id: shiftId
-                        }
-                    },
-                    columns: [{
-                            data: null,
-                            render: (data, type, row, meta) => meta.row + 1
-                        },
-                        {
                             data: "nama"
                         },
                         {
                             data: null,
                             render: (data, type, row) => `
-                        <button type="button" class="btn btn-primary font-size-14 waves-effect waves-light" onclick="select('${row.msn_trgt_id}')">
+                        <button type="button" class="btn btn-primary font-size-14 waves-effect waves-light" onclick="select('${row.msn_trgt_id}','${row.mesin_id}')">
                         Pilih
                     </button>`
                         }
                     ]
                 });
 
-                $('#dataShift').modal('hide');
                 $('#dataMesin').modal('show');
-            };
 
-            function select(msn_trgt_id) {
-            document.getElementById('msn_trgt_id').value = msn_trgt_id;
-
-            $('#dataMesin').modal('hide');
-        }
-
+            });
 
             window.showQtyModal = function(brg_id, nm_brg, satuan1, satuan2, konversi1, spek_id, spek) {
                 const modal = document.getElementById('qtyModal');
@@ -291,6 +255,52 @@ Tambah Pengiriman ke Mesin
                 saveButton.disabled = selectedItems.length === 0;
             }
         });
+
+        function select(msn_trgt_id, gdg_tujuan) {
+            document.getElementById('msn_trgt_id').value = msn_trgt_id;
+            document.getElementById('gdg_tujuan').value = gdg_tujuan;
+
+            $('#dataMesin').modal('hide');
+        }
+
+        function pilihTgl(){
+            const selectedDate = document.getElementById('tgl').value;
+
+            if ($.fn.DataTable.isDataTable('#datatable-machines')) {
+                    $('#datatable-machines').DataTable().clear().destroy();
+                }
+
+                $('#datatable-machines').DataTable({
+                    ajax: {
+                        url: "{{ route('pengiriman-skm.create') }}",
+                        data: {
+                            type: 'machines',
+                            date: selectedDate,
+                        }
+                    },
+                    columns: [{
+                            data: null,
+                            render: (data, type, row, meta) => meta.row + 1
+                        },
+                        {
+                            data: "shift"
+                        },
+                        {
+                            data: "nama"
+                        },
+                        {
+                            data: null,
+                            render: (data, type, row) => `
+                        <button type="button" class="btn btn-primary font-size-14 waves-effect waves-light" onclick="select('${row.msn_trgt_id}', '${row.mesin_id}')">
+                        Pilih
+                    </button>`
+                        }
+                    ]
+                });
+
+                $('#dataMesin').modal('show');
+        }
+
 </script>
 @endpush
 
@@ -299,7 +309,7 @@ Tambah Pengiriman ke Mesin
 <div class="row">
     <div class="col-12">
         <div class="page-title-box d-sm-flex align-items-center justify-content-between">
-            <h4 class="mb-sm-0 font-size-18">Tambah Permintaan</h4>
+            <h4 class="mb-sm-0 font-size-18">Tambah Pengiriman ke Mesin</h4>
         </div>
     </div>
 </div>
@@ -334,10 +344,43 @@ Tambah Pengiriman ke Mesin
                     </div> --}}
                     <div class="form-group mt-3">
                         <label for="tgl">Tanggal</label>
-                        <input type="date" class="form-control" name="tgl"
-                            value="{{ old('tgl', \Carbon\Carbon::now()->format('Y-m-d')) }}" required>
+                        <div class="input-group">
+                            <div class="col-xl-10 me-2">
+                                <input type="date" class="form-control" name="tgl" id="tgl"
+                                    value="{{ old('tgl', \Carbon\Carbon::now()->format('Y-m-d')) }}" required>
+                            </div>
+                            <button type="button" class="btn btn-primary btn-sm me-2"
+                                onclick="pilihTgl()">Pilih</button>
+                        </div>
                     </div>
                     <input type="hidden" name="msn_trgt_id" id="msn_trgt_id" value="">
+                    <div class="form-group mt-3">
+                        <label for="gdg_asal">Gudang Asal :</label>
+                        <input type="text" class="form-control" name="gudang" id="gudang"
+                            value="{{ $gudangs[0]->nama }}" readonly>
+                        <input type="hidden" class="form-control" name="gdg_asal" id="gdg_asal"
+                            value="{{ $gudang_id }}">
+                        @error('gdg_asal')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                    </div>
+
+                    <div class="form-group mt-3">
+                        <label for="gdg_tujuan">Mesin Tujuan :</label>
+                        <select name="gdg_tujuan" id="gdg_tujuan" style="width: 100%"
+                            class="form-control @error('gdg_tujuan') is-invalid @enderror" style="width: 100%;"
+                            required>
+                            <option value="">-- Pilih Mesin Tujuan --</option>
+                            @foreach ($mesins as $mesin)
+                            <option value="{{ $mesin->mesin_id }}">
+                                {{ $mesin->nama }}
+                            </option>
+                            @endforeach
+                        </select>
+                        @error('gdg_tujuan')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                    </div>
                     <div id="items-container"></div> <!-- Container for items input fields -->
                     <div class="d-flex justify-content-end mt-3">
                         <a href="{{ route('pengiriman-skm') }}" class="btn btn-secondary waves-effect waves-light me-2">
@@ -407,6 +450,7 @@ Tambah Pengiriman ke Mesin
                                 <thead class="table-light">
                                     <tr>
                                         <th>No</th>
+                                        <th>Shift</th>
                                         <th>Mesin</th>
                                         <th>Action</th>
                                     </tr>

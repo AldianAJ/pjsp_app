@@ -42,6 +42,9 @@ Tambah Log Produksi
                             render: (data, type, row, meta) => meta.row + 1
                         },
                         {
+                            data: "nm_brg"
+                        },
+                        {
                             data: "shift"
                         },
                         {
@@ -50,7 +53,7 @@ Tambah Log Produksi
                         {
                             data: null,
                             render: (data, type, row) => `
-                        <button type="button" class="btn btn-primary font-size-14 waves-effect waves-light" onclick="pilihMesin('${row.msn_trgt_id}')">
+                        <button type="button" class="btn btn-primary font-size-14 waves-effect waves-light" onclick="pilihMesin('${row.msn_trgt_id}','${row.shift}','${row.nm_brg}')">
                         Pilih
                     </button>`
                         }
@@ -64,6 +67,8 @@ Tambah Log Produksi
 
             function addItem() {
                 const msn_trgt_id = document.getElementById('msn_trgt_id').value;
+                const shift = document.getElementById('shift').value;
+                const produksi = document.getElementById('produksi').value;
                 const trouble = document.getElementById('trouble').value;
                 const penanganan = document.getElementById('penanganan').value;
                 const waktu_mulai = document.getElementById('waktu_mulai').value;
@@ -75,6 +80,8 @@ Tambah Log Produksi
 
                 selectedItems.push({
                     msn_trgt_id,
+                    shift,
+                    produksi,
                     trouble,
                     penanganan,
                     waktu_mulai,
@@ -101,6 +108,8 @@ Tambah Log Produksi
                 itemsTable.innerHTML = selectedItems.map((item, index) => `
                     <tr>
                         <td>${index + 1}</td>
+                        <td>${item.produksi}</td>
+                        <td>${item.shift}</td>
                         <td>${item.trouble}</td>
                         <td>${item.penanganan}</td>
                         <td>${item.waktu_mulai}</td>
@@ -130,8 +139,11 @@ Tambah Log Produksi
                 saveButton.disabled = selectedItems.length === 0;
             }
 
-        function pilihMesin(msn_trgt_id) {
+        function pilihMesin(msn_trgt_id, shift, nm_brg) {
             document.getElementById('msn_trgt_id').value = msn_trgt_id;
+            document.getElementById('shift').value = shift;
+            document.getElementById('produksi').value = nm_brg;
+            $('#troubleModalLabel').html(`Log Produksi (${nm_brg}, Shift ${shift})`);
             // $('#troubleModalLabel').html(`Log Produksi`);
 
             $('#dataMesin').modal('hide');
@@ -162,6 +174,9 @@ Tambah Log Produksi
                             render: (data, type, row, meta) => meta.row + 1
                         },
                         {
+                            data: "nm_brg"
+                        },
+                        {
                             data: "shift"
                         },
                         {
@@ -170,7 +185,7 @@ Tambah Log Produksi
                         {
                             data: null,
                             render: (data, type, row) => `
-                        <button type="button" class="btn btn-primary font-size-14 waves-effect waves-light" onclick="pilihMesin('${row.msn_trgt_id}')">
+                        <button type="button" class="btn btn-primary font-size-14 waves-effect waves-light" onclick="pilihMesin('${row.msn_trgt_id}','${row.shift}','${row.nm_brg}')">
                         Pilih
                     </button>`
                         }
@@ -265,6 +280,8 @@ Tambah Log Produksi
                         </div>
 
                         <input type="hidden" name="msn_trgt_id" id="msn_trgt_id" value="">
+                        <input type="hidden" name="shift" id="shift" value="">
+                        <input type="hidden" name="produksi" id="produksi" value="">
                     </div>
                     <div id="items-container"></div> <!-- Container for items input fields -->
                     <div class="d-flex justify-content-end mt-3">
@@ -295,6 +312,7 @@ Tambah Log Produksi
                                 <thead class="table-light">
                                     <tr>
                                         <th>No</th>
+                                        <th>Produk</th>
                                         <th>Shift</th>
                                         <th>Mesin</th>
                                         <th>Action</th>
@@ -329,6 +347,8 @@ Tambah Log Produksi
                     <textarea class="form-control" name="trouble" id="trouble" rows="6"></textarea>
                 </div>
                 <input type="hidden" id="msn_trgt_id">
+                <input type="hidden" id="shift">
+                <input type="hidden" id="produksi">
                 <div class="mb-3">
                     <label for="penanganan" class="form-label">Penanganan</label>
                     <textarea class="form-control" name="penanganan" id="penanganan" rows="6"></textarea>
@@ -380,6 +400,8 @@ Tambah Log Produksi
                         <thead class="table-light">
                             <tr>
                                 <th>No</th>
+                                <th>Produksi</th>
+                                <th>Shift</th>
                                 <th>Trouble</th>
                                 <th>Penanganan</th>
                                 <th>Waktu Mulai</th>

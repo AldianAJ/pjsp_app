@@ -25,7 +25,8 @@ Permintaan
                 url: "{{ route('log-produksi') }}",
                 type: "GET",
                 data: function(d) {
-                    d.tgl = $('#tgl-input').val()
+                    d.tgl_start = $('#tgl-start').val()
+                    d.tgl_end = $('#tgl-end').val()
                 }
             },
             processing: true,
@@ -177,6 +178,9 @@ Permintaan
         $('#tgl-input').on('change', function() {
             $('#datatable').DataTable().ajax.reload(); // Reload data based on new filters
         });
+        function filterData() {
+            $('#datatable').DataTable().ajax.reload(); // Reload data based on new filters
+        }
 </script>
 @endpush
 
@@ -201,12 +205,22 @@ Permintaan
                 </div>
                 <div class="d-flex flex-column">
                     <div class="row w-75">
-                        <div class="col-sm-4 d-flex me-3">
+                        <div class="col-sm-3 d-flex me-2">
                             <div class="mb-3 flex-grow-1">
-                                <label for="filterTahun">Tanggal:</label>
-                                <input type="date" class="form-control" name="tgl" id="tgl-input"
+                                <label for="startDate">Tanggal Mulai:</label>
+                                <input type="date" class="form-control" name="start_date" id="tgl-start"
                                     value="{{ \Carbon\Carbon::now()->format('Y-m-d') }}">
                             </div>
+                        </div>
+                        <div class="col-sm-3 d-flex me-2">
+                            <div class="mb-3 flex-grow-1">
+                                <label for="endDate">Tanggal Akhir:</label>
+                                <input type="date" class="form-control" name="end_date" id="tgl-end"
+                                    value="{{ \Carbon\Carbon::now()->format('Y-m-d') }}">
+                            </div>
+                        </div>
+                        <div class="col-sm-2 d-flex me-2 align-items-center">
+                            <button class="btn btn-primary" onclick="filterData()">Cari</button>
                         </div>
                     </div>
                 </div>
