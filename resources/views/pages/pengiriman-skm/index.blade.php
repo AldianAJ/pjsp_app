@@ -18,6 +18,8 @@ Pengiriman ke Mesin
 <script>
     $('#datatable').DataTable({
         ajax: "{{ route('pengiriman-skm') }}",
+        processing: true,
+        ordering: false,
         columns: [{
                 data: "mutasi_id",
             },
@@ -42,8 +44,8 @@ Pengiriman ke Mesin
             $("#id-kirim-skm").text(selectedData.mutasi_id);
 
             if ($.fn.DataTable.isDataTable('#detail-datatable')) {
-                $('#detail-datatable').DataTable().destroy();
-            }
+                    $('#detail-datatable').DataTable().clear().destroy();
+                }
             $('#detail-datatable').DataTable({
                 processing: true,
                 serverSide: true,
@@ -54,8 +56,13 @@ Pengiriman ke Mesin
                         mutasi_id: selectedData.mutasi_id
                     }
                 },
+                ordering: false,
+                processing: true,
                 lengthMenu: [5],
                 columns: [{
+                        data: 'nm_brg',
+                },
+                    {
                         data: 'spek',
                         // render: function(data, type, row) {
                         //     return row.tr_trmsup_detail[0].barang.nm_brg;
@@ -126,17 +133,20 @@ Pengiriman ke Mesin
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <table class="table table-bordered dt-responsive nowrap w-100" id="detail-datatable">
-                    <thead class="table-light">
-                        <tr>
-                            <th>Nama Barang</th>
-                            <th>Qty</th>
-                            <th>Satuan</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                    </tbody>
-                </table>
+                <div class="table-responsive">
+                    <table class="table align-middle table-nowrap" id="detail-datatable">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Nama Barang</th>
+                                <th>Spek Barang</th>
+                                <th>Qty</th>
+                                <th>Satuan</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                    </table>
+                </div>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>

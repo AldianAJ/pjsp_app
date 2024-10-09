@@ -20,39 +20,6 @@ Tambah Pengiriman ke Mesin
 <script>
     $(document).ready(function() {
             $('#showDataBarangButton').on('click', function() {
-                if ($.fn.DataTable.isDataTable('#datatable-barang')) {
-                    $('#datatable-barang').DataTable().clear().destroy();
-                }
-
-                $('#datatable-barang').DataTable({
-                    ajax: {
-                        url: "{{ route('pengiriman-skm.create') }}",
-                        data: {
-                            type: 'barangs'
-                        }
-                    },
-                    lengthMenu: [5],
-                    ordering: false,
-                    columns: [{
-                            data: null,
-                            render: (data, type, row, meta) => meta.row + 1
-                        },
-                        {
-                            data: "nm_brg"
-                        },
-                        {
-                            data: null,
-                            render: (data, type, row) => `<button type="button" class="btn btn-primary font-size-10 waves-effect waves-light" onclick="showSpecs('${row.brg_id}', '${row.nm_brg}')">
-                        <i class="fas fa-plus align-middle"></i>
-                    </button>`
-                        }
-                    ],
-                });
-
-                $('#dataBarang').modal('show');
-            });
-
-            window.showSpecs = function(brg_id, nm_brg) {
                 if ($.fn.DataTable.isDataTable('#datatable-spek')) {
                     $('#datatable-spek').DataTable().clear().destroy();
                 }
@@ -62,14 +29,17 @@ Tambah Pengiriman ke Mesin
                         url: "{{ route('pengiriman-skm.create') }}",
                         data: {
                             type: 'speks',
-                            brg_id: brg_id,
-                            nm_brg: nm_brg
                         }
                     },
+                    processing: true,
+                    ordering: false,
                     lengthMenu: [5],
                     columns: [{
                             data: null,
                             render: (data, type, row, meta) => meta.row + 1
+                        },
+                        {
+                            data: "nm_brg"
                         },
                         {
                             data: "spek"
@@ -80,15 +50,15 @@ Tambah Pengiriman ke Mesin
                         {
                             data: null,
                             render: (data, type, row) => `<button type="button" class="btn btn-primary font-size-14 waves-effect waves-light" onclick="showQtyModal('${row.brg_id}', '${row.nm_brg}', '${row.satuan1}', '${row.satuan2}', '${row.konversi1}', '${row.spek_id}', '${row.spek}')">
-                        Pilih
-                    </button>`
-                        }
-                    ],
-                });
+                                Pilih
+                                </button>`
+                            }
+                        ],
+                    });
 
-                $('#dataBarang').modal('hide');
-                $('#dataSpek').modal('show');
-            };
+                    $('#dataBarang').modal('hide');
+                    $('#dataSpek').modal('show');
+                });
 
             $('input[name="tgl"]').on('change', function() {
                 const selectedDate = $(this).val();
@@ -105,6 +75,8 @@ Tambah Pengiriman ke Mesin
                             date: selectedDate,
                         }
                     },
+                    orderprocessing: true,
+                    ordering: false,
                     columns: [{
                             data: null,
                             render: (data, type, row, meta) => meta.row + 1
@@ -149,7 +121,7 @@ Tambah Pengiriman ke Mesin
             $('#qtyModal .btn-primary').on('click', function() {
                 addItem();
                 $('#qtyModal').modal('hide');
-                $('#dataBarang').modal('show');
+                $('#dataSpek').modal('show');
             });
 
             new AutoNumeric('#modal-qty-beli', {
@@ -356,10 +328,15 @@ Tambah Pengiriman ke Mesin
                     <input type="hidden" name="msn_trgt_id" id="msn_trgt_id" value="">
                     <div class="form-group mt-3">
                         <label for="gdg_asal">Gudang Asal :</label>
-                        <input type="text" class="form-control" name="gudang" id="gudang"
-                            value="{{ $gudangs[0]->nama }}" readonly>
-                        <input type="hidden" class="form-control" name="gdg_asal" id="gdg_asal"
-                            value="{{ $gudang_id }}">
+                        <select name="gdg_asal" id="gdg_asal" style="width: 100%"
+                            class="form-control @error('gdg_asal') is-invalid @enderror" style="width: 100%;" required>
+                            <option value="{{ $gudang_id }}" selected>{{ $gudangs[0]->nama }}</option>
+                            @foreach ($mesins as $mesin)
+                            <option value="{{ $mesin->mesin_id }}">
+                                {{ $mesin->nama }}
+                            </option>
+                            @endforeach
+                        </select>
                         @error('gdg_asal')
                         <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
@@ -514,10 +491,11 @@ Tambah Pengiriman ke Mesin
                 <div class="row">
                     <div class="col-md-12">
                         <div class="table-responsive">
-                            <table id="datatable-spek" class="table align-middle table-nowrap">
+                            <table id="datatable-spek" class="table align-middle table-wrap">
                                 <thead class="table-light">
                                     <tr>
                                         <th>No</th>
+                                        <th>Barang</th>
                                         <th>Spesifikasi</th>
                                         <th>Satuan</th>
                                         <th>Action</th>
@@ -531,7 +509,7 @@ Tambah Pengiriman ke Mesin
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Batal</button>
+                <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Selesai</button>
             </div>
         </div>
     </div>
@@ -586,7 +564,7 @@ Tambah Pengiriman ke Mesin
     <div class="col-lg-12 mt-2">
         <div class="card">
             <div class="card-body">
-                <h5 class="card-title">List Stok Masuk</h5>
+                <h5 class="card-title">List Kirim Barang</h5>
                 <div class="table-responsive">
                     <table class="table table-striped" id="selected-items-table">
                         <thead class="table-light">

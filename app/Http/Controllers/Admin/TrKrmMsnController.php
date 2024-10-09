@@ -36,7 +36,7 @@ class TrKrmMsnController extends Controller
 
         if ($request->ajax()) {
             $pengirimans = TrMutasi::where('status', 0)
-                ->where('jenis', '3')
+                ->where('mutasi_id', 'LIKE', 'TBI/SKM%')
                 ->orderBy('mutasi_id', 'desc')
                 ->get();
 
@@ -83,7 +83,6 @@ class TrKrmMsnController extends Controller
                 $speks = DB::table('m_brg_spek as a')
                     ->join('m_brg as b', 'a.brg_id', '=', 'b.brg_id')
                     ->select('b.brg_id', 'b.nm_brg', 'a.satuan1', 'a.satuan2', 'a.konversi1', 'a.spek_id', 'a.spek')
-                    ->where('a.brg_id', $request->brg_id)
                     ->where('a.status', 0)
                     ->get();
 
@@ -119,15 +118,13 @@ class TrKrmMsnController extends Controller
      */
     public function store(Request $request)
     {
-        $no_krmmsn = 'TBI/SKM' . '/' . date('y/m/' . str_pad(TrMutasi::where('mutasi_id', 'like', 'TBI/SKM' . '/' . date('y/m/') . '%')->where('jenis', 3)->count() + 1, 3, '0', STR_PAD_LEFT));
+        $no_krmmsn = 'TBI/SKM' . '/' . date('y/m/' . str_pad(TrMutasi::where('mutasi_id', 'like', 'TBI/SKM' . '/' . date('y/m/') . '%')->count() + 1, 3, '0', STR_PAD_LEFT));
         $msn_trgt_id = $request->msn_trgt_id;
         $gudang_id = $request->gdg_asal;
         // dd($request->all(), $no_krmmsn, $msn_trgt_id);
         TrMutasi::create([
             'mutasi_id' => $no_krmmsn,
-            'msn_trgt_id' => $msn_trgt_id,
             'tgl' => $request->tgl,
-            'jenis' => 3,
         ]);
 
         foreach ($request->items as $item) {
@@ -140,28 +137,28 @@ class TrKrmMsnController extends Controller
                 'satuan' => $item['satuan_beli'],
                 'qty_std' => $item['qty_std'],
                 'satuan_std' => $item['satuan_std'],
-                'ket' => $item['ket'],
+                'ket' => $msn_trgt_id,
             ]);
 
             $id = str_pad(TrStok::count() + 1, 3, '0', STR_PAD_LEFT);
-            $stok_id = "{$gudang_id}/{$item['brg_id']}/{$id}";
+            $stok_id = "{$gudang_id}/{$item['spek_id']}/{$id}";
             $keluar = $item['qty_beli'];
             $gudangs = Gudang::where('gudang_id', $gudang_id)->value('nama');
             $ket = "Pengiriman barang dari " . $gudangs;
 
-            // TrStok::create([
-            //     'stok_id' => $stok_id,
-            //     'tgl' => $request->tgl,
-            //     'brg_id' => $item['brg_id'],
-            //     'gudang_id' => $gudang_id,
-            //     'doc_id' => $no_krmmsn,
-            //     'ket' => $ket,
-            //     'awal' => 0,
-            //     'masuk' => 0,
-            //     'keluar' => $keluar,
-            //     'akhir' => 0,
-            //     'cek' => 1,
-            // ]);
+            TrStok::create([
+                'stok_id' => $stok_id,
+                'tgl' => $request->tgl,
+                'spek_id' => $item['spek_id'],
+                'gudang_id' => $gudang_id,
+                'doc_id' => $no_krmmsn,
+                'ket' => $ket,
+                'awal' => 0,
+                'masuk' => 0,
+                'keluar' => $keluar,
+                'akhir' => 0,
+                'cek' => 1,
+            ]);
         }
 
         return redirect()->route('pengiriman-skm')->with('success', 'Data permintaan berhasil ditambahkan.');
@@ -175,8 +172,9 @@ class TrKrmMsnController extends Controller
         $details = DB::table('tr_mutasi as a')
             ->join('tr_mutasi_detail as b', 'a.mutasi_id', '=', 'b.mutasi_id')
             ->join('m_brg_spek as c', 'b.spek_id', '=', 'c.spek_id')
+            ->join('m_brg as d', 'c.brg_id', '=', 'd.brg_id')
             ->where('a.mutasi_id', $request->mutasi_id)
-            ->select('c.spek', 'b.qty', 'b.satuan')
+            ->select('d.nm_brg', 'c.spek', 'b.qty', 'b.satuan')
             ->get();
 
         return DataTables::of($details)->make(true);
