@@ -123,7 +123,7 @@ class TrTrmSupController extends Controller
             ]);
 
             $id = str_pad(TrStok::count() + 1, 3, '0', STR_PAD_LEFT);
-            $stok_id = "{$gudang_id}/{$item['brg_id']}/{$id}";
+            $stok_id = "{$gudang_id}/{$item['spek_id']}/{$id}";
             $suppliers = Supplier::where('supplier_id', $request->supplier_id)->value('nama');
             $ket = "Penerimaan barang dari " . $suppliers;
 
@@ -132,7 +132,7 @@ class TrTrmSupController extends Controller
             TrStok::create([
                 'stok_id' => $stok_id,
                 'tgl' => $request->tgl_trm,
-                'brg_id' => $item['brg_id'],
+                'spek_id' => $item['spek_id'],
                 'gudang_id' => $gudang_id,
                 'doc_id' => $no_trm,
                 'ket' => $ket,
@@ -215,6 +215,13 @@ class TrTrmSupController extends Controller
                     $data_tr_trmsup_detail->update([
                         'qty_beli' => $item['qty_beli'],
                         'qty_std' => $item['qty_std']
+                    ]);
+
+                    $masuk = $item['qty_beli'];
+                    $data_stok = TrStok::where('doc_id', $no_trms);
+                    $data_stok->update([
+                        'masuk' => $masuk,
+                        'cek' => 1,
                     ]);
                     $responseMessage = 'Data ' . $nama . ' berhasil diubah. Menjadi Qty : ' . $item['qty_beli'];
                 }

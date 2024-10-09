@@ -146,7 +146,7 @@ class TrKrmSKMController extends Controller
             ]);
 
             $id = str_pad(TrStok::count() + 1, 3, '0', STR_PAD_LEFT);
-            $stok_id = "{$gudang_id}/{$item['brg_id']}/{$id}";
+            $stok_id = "{$gudang_id}/{$item['spek_id']}/{$id}";
             $keluar = $item['qty_beli'];
             $gudangs = Gudang::where('gudang_id', $gudang_id)->value('nama');
             $ket = "Pengiriman barang dari " . $gudangs;
@@ -154,7 +154,7 @@ class TrKrmSKMController extends Controller
             TrStok::create([
                 'stok_id' => $stok_id,
                 'tgl' => $request->tgl_krm,
-                'brg_id' => $item['brg_id'],
+                'spek_id' => $item['spek_id'],
                 'gudang_id' => $gudang_id,
                 'doc_id' => $no_krmskm,
                 'ket' => $ket,

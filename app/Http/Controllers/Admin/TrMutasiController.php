@@ -68,8 +68,6 @@ class TrMutasiController extends Controller
             $speks = DB::table('m_brg_spek as a')
                 ->join('m_brg as b', 'a.brg_id', '=', 'b.brg_id')
                 ->select('a.spek_id', 'b.nm_brg', 'a.satuan1', 'a.satuan2', 'a.konversi1', 'a.spek_id', 'a.spek')
-                ->where('a.spek_id', 'LIKE', 'WIP%')
-                ->where('a.satuan1', 'TRAY')
                 ->where('a.status', 0)
                 ->get();
 
@@ -115,8 +113,9 @@ class TrMutasiController extends Controller
         $details = DB::table('tr_mutasi as a')
             ->join('tr_mutasi_detail as b', 'a.mutasi_id', '=', 'b.mutasi_id')
             ->join('m_brg_spek as c', 'b.spek_id', '=', 'c.spek_id')
+            ->join('m_brg as d', 'c.brg_id', '=', 'd.brg_id')
             ->where('a.mutasi_id', $request->mutasi_id)
-            ->select('c.spek', 'b.qty', 'b.satuan')
+            ->select('d.nm_brg','c.spek', 'b.qty', 'b.satuan')
             ->get();
 
         return DataTables::of($details)->make(true);
@@ -135,7 +134,6 @@ class TrMutasiController extends Controller
             ->value('tgl');
 
         if ($request->ajax()) {
-
             $details = DB::table('tr_mutasi_detail as a')
                 ->join('m_brg_spek as b', 'a.spek_id', '=', 'b.spek_id')
                 ->join('m_brg as c', 'b.brg_id', '=', 'c.brg_id')
@@ -180,6 +178,33 @@ class TrMutasiController extends Controller
             $responseMessage = 'Data transaksi berhasil diubah.';
         }
         return response()->json(['success' => true, 'message' => $responseMessage], 200);
+    }
+
+    public function indexBTG(Request $request)
+    {
+        $user = $this->userAuth();
+        $path = 'pengiriman-batangan.';
+
+        if ($request->ajax()) {
+            $mutasis = TrMutasi::where('status', 0)
+                ->where('mutasi_id', 'LIKE', 'MKR%')
+                ->orderBy('mutasi_id', 'desc')
+                ->get();
+
+            return DataTables::of($mutasis)
+                ->addColumn('action', function ($object) use ($path) {
+                    $no = str_replace('/', '-', $object->mutasi_id);
+                    $html = '<a href="' . route($path . "edit", ["mutasi_id" => $no]) . '" class="btn btn-success waves-effect waves-light mx-1">'
+                        . ' <i class="bx bx-edit align-middle me-2 font-size-18"></i> Edit</a>';
+                    $html .= '<button class="btn btn-secondary waves-effect waves-light btn-detail me-2" data-bs-toggle="modal" data-bs-target="#detailModal">'
+                        . '<i class="bx bx-detail font-size-18 align-middle me-2"></i>Detail</button>';
+                    return $html;
+                })
+                ->rawColumns(['action'])
+                ->make(true);
+        }
+
+        return view('pages.pengiriman-batangan.index', compact('user'));
     }
 
     public function createBTG(Request $request)
@@ -351,7 +376,7 @@ class TrMutasiController extends Controller
                 ->join('m_brg as b', 'a.brg_id', '=', 'b.brg_id')
                 ->select('a.spek_id', 'b.nm_brg', 'a.satuan1', 'a.satuan2', 'a.konversi1', 'a.spek')
                 ->where('a.spek_id', 'LIKE', 'BJR%')
-                ->where('a.satuan1', 'BOX')
+                ->where('a.satuan1', 'Karton')
                 ->where('a.status', 0)
                 ->get();
 

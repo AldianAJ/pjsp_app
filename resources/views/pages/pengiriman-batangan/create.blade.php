@@ -41,6 +41,9 @@ Tambah Pengiriman Batangan
                             render: (data, type, row, meta) => meta.row + 1
                         },
                         {
+                            data: "nm_brg"
+                        },
+                        {
                             data: "spek"
                         },
                         {
@@ -185,17 +188,11 @@ Tambah Pengiriman Batangan
             }
         });
 
-    $(document).ready(function() {
-        $('#msn_asal').select2({
-            width: 'resolve'
+        $(document).ready(function() {
+            $('#msn_asal, #msn_tujuan').select2({
+                width: 'resolve'
+            });
         });
-    });
-
-    $(document).ready(function() {
-        $('#msn_tujuan').select2({
-            width: 'resolve'
-        });
-    });
 </script>
 @endpush
 
@@ -248,8 +245,8 @@ Tambah Pengiriman Batangan
                             class="form-control @error('msn_asal') is-invalid @enderror" style="width: 100%;" required>
                             <option value="">-- Pilih Mesin Asal --</option>
                             @foreach ($msn_asal as $mesin)
-                            <option value="{{ $mesin->mesin_id }}" @if (old('msn_asal')==$mesin->mesin_id)
-                                selected @endif>
+                            <option value="{{ $mesin->mesin_id }}" @if (old('msn_asal')==$mesin->mesin_id) selected
+                                @endif>
                                 {{ $mesin->nama }}
                             </option>
                             @endforeach
@@ -266,8 +263,8 @@ Tambah Pengiriman Batangan
                             required>
                             <option value="">-- Pilih Mesin Tujuan --</option>
                             @foreach ($msn_tujuan as $mesin)
-                            <option value="{{ $mesin->mesin_id }}" @if (old('msn_tujuan')==$mesin->mesin_id)
-                                selected @endif>
+                            <option value="{{ $mesin->mesin_id }}" @if (old('msn_tujuan')==$mesin->mesin_id) selected
+                                @endif>
                                 {{ $mesin->nama }}
                             </option>
                             @endforeach
@@ -315,6 +312,7 @@ Tambah Pengiriman Batangan
                                     <tr>
                                         <th>No</th>
                                         <th>Nama Barang</th>
+                                        <th>Spek</th>
                                         <th>Satuan</th>
                                         <th>Action</th>
                                     </tr>

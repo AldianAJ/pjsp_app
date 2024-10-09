@@ -4,8 +4,8 @@ namespace App\Models\Admin;
 
 use Illuminate\Database\Eloquent\Model;
 
-class TrSJDetail extends Model
+class TrSpartDetail extends Model
 {
-    protected $table = 'tr_sj_detail';
+    protected $table = 'tr_spart_d';
     protected $guarded = [];
 }

@@ -25,6 +25,30 @@
                         <span key="t-user">User</span>
                     </a>
                 </li>
+                <li>
+                    <a href="{{ route('barang') }}" class="waves-effect">
+                        <i class="bx bxs-package"></i>
+                        <span key="t-barang">Barang</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="{{ route('gudang') }}" class="waves-effect">
+                        <i class="bx bxs-business"></i>
+                        <span key="t-gudang">Gudang</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="{{ route('mesin') }}" class="waves-effect">
+                        <i class="bx bxs-wrench"></i>
+                        <span key="t-mesin">Mesin</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="{{ route('supplier') }}" class="waves-effect">
+                        <i class="bx bxs-store"></i>
+                        <span key="t-supplier">User</span>
+                    </a>
+                </li>
                 @endif
 
                 @if ($user->role == 'gdb')
@@ -151,6 +175,12 @@
                     <a href="{{ route('pengiriman-skm') }}" class="waves-effect">
                         <i class="bx bxs-duplicate"></i>
                         <span key="t-kirim-skm">Kirim ke Mesin</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="{{ route('return-barang') }}" class="waves-effect">
+                        <i class="bx bxs-duplicate"></i>
+                        <span key="t-return">Return Barang</span>
                     </a>
                 </li>
 

@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('title')
-Tambah Pengiriman BJSK
+Tambah Pemakaian Spare Part
 @endsection
 
 @push('after-app-style')
@@ -33,15 +33,12 @@ Tambah Pengiriman BJSK
 
                 $('#datatable-spek').DataTable({
                     ajax: {
-                        url: "{{ route('pengiriman-bjsk.create') }}",
+                        url: "{{ route('pemakaian-sparepart.create') }}",
                     },
                     lengthMenu: [5],
                     columns: [{
                             data: null,
                             render: (data, type, row, meta) => meta.row + 1
-                        },
-                        {
-                            data: "nm_brg"
                         },
                         {
                             data: "spek"
@@ -57,7 +54,6 @@ Tambah Pengiriman BJSK
                         }
                     ],
                 });
-
                 $('#dataSpek').modal('show');
             });
 
@@ -72,7 +68,6 @@ Tambah Pengiriman BJSK
                 document.getElementById('modal-qty-std').value = '';
                 document.getElementById('modal-konversi1').value = konversi1;
                 document.getElementById('modal-satuan2').innerText = satuan2;
-                document.getElementById('modal-ket').value = spek;
                 document.getElementById('modal-spek-id').value = spek_id;
 
                 $('#dataSpek').modal('hide');
@@ -95,9 +90,9 @@ Tambah Pengiriman BJSK
             });
 
             $('#modal-qty').on('keyup', function() {
-                const qtyBeli = parseFloat(AutoNumeric.getNumericString(this)) || 0;
+                const qty = parseFloat(AutoNumeric.getNumericString(this)) || 0;
                 const konversi1 = parseFloat($('#modal-konversi1').val());
-                const qtyStd = qtyBeli * konversi1;
+                const qtyStd = qty * konversi1;
 
                 AutoNumeric.set('#modal-qty-std', qtyStd);
             });
@@ -105,9 +100,9 @@ Tambah Pengiriman BJSK
             $('#modal-qty-std').on('keyup', function() {
                 const qtyStd = parseFloat(AutoNumeric.getNumericString(this)) || 0;
                 const konversi1 = ($('#modal-konversi1').val());
-                const qtyBeli = qtyStd / konversi1;
+                const qty = qtyStd / konversi1;
 
-                AutoNumeric.set('#modal-qty', qtyBeli);
+                AutoNumeric.set('#modal-qty', qty);
             });
 
             let selectedItems = [];
@@ -122,7 +117,6 @@ Tambah Pengiriman BJSK
                 const qty_std = parseFloat(AutoNumeric.getNumericString(document.getElementById(
                     'modal-qty-std'))) || 0;
                 const satuan2 = document.getElementById('modal-satuan2').innerText;
-                const ket = document.getElementById('modal-ket').value;
                 const spek_id = document.getElementById('modal-spek-id').value;
 
                 if (qty <= 0 || qty_std <= 0) {
@@ -141,7 +135,6 @@ Tambah Pengiriman BJSK
                     satuan1,
                     qty_std,
                     satuan2,
-                    ket,
                     spek_id,
                 });
                 updateItems();
@@ -164,7 +157,6 @@ Tambah Pengiriman BJSK
             <tr>
                 <td>${index + 1}</td>
                 <td>${item.nm_brg}</td>
-                <td>${item.ket}</td>
                 <td>${item.qty}</td>
                 <td>${item.satuan1}</td>
                 <td>
@@ -181,7 +173,6 @@ Tambah Pengiriman BJSK
             <input type="hidden" name="items[${index}][satuan]" value="${item.satuan1}">
             <input type="hidden" name="items[${index}][qty_std]" value="${item.qty_std}">
             <input type="hidden" name="items[${index}][satuan_std]" value="${item.satuan2}">
-            <input type="hidden" name="items[${index}][ket]" value="${item.ket}">
         `).join('');
 
                 saveButton.disabled = selectedItems.length === 0;
@@ -189,7 +180,7 @@ Tambah Pengiriman BJSK
         });
 
         $(document).ready(function() {
-            $('#msn_asal').select2({
+            $('#mesin_id').select2({
                 width: 'resolve'
             });
         });
@@ -201,7 +192,7 @@ Tambah Pengiriman BJSK
 <div class="row">
     <div class="col-12">
         <div class="page-title-box d-sm-flex align-items-center justify-content-between">
-            <h4 class="mb-sm-0 font-size-18">Tambah Pengiriman BJSK</h4>
+            <h4 class="mb-sm-0 font-size-18">Tambah Pemakaian Spare Part</h4>
         </div>
     </div>
 </div>
@@ -226,12 +217,12 @@ Tambah Pengiriman BJSK
     <div class="col-md-6">
         <div class="card">
             <div class="card-body">
-                <h3 class="card-title fw-bolder">Data Transaksi</h3>
-                <form action="{{ route('pengiriman-bjsk.store') }}" method="post" enctype="multipart/form-data">
+                <h5 class="card-title">Data Transaksi</h5>
+                <form action="{{ route('pemakaian-sparepart.store') }}" method="post" enctype="multipart/form-data">
                     @csrf
                     <div class="form-group mt-3">
-                        <label for="mutasi_id">No. Pengiriman BJSK :</label>
-                        <input type="text" name="mutasi_id" id="mutasi_id" class="form-control" value="{{ $mutasi_id }}"
+                        <label for="no_spart">No. Pemakaian :</label>
+                        <input type="text" name="no_spart" id="no_spart" class="form-control" value="{{ $no_spart }}"
                             readonly>
                     </div>
                     <div class="form-group mt-3">
@@ -240,31 +231,32 @@ Tambah Pengiriman BJSK
                             value="{{ old('tgl', \Carbon\Carbon::now()->format('Y-m-d')) }}" required>
                     </div>
                     <div class="form-group mt-3">
-                        <label for="msn_asal">Mesin Asal :</label>
-                        <select name="msn_asal" id="msn_asal" style="width: 100%"
-                            class="form-control @error('msn_asal') is-invalid @enderror" style="width: 100%;" required>
+                        <label for="mesin_id">Nama Mesin :</label>
+                        <select name="mesin_id" id="mesin_id"
+                            class="form-control @error('mesin_id') is-invalid @enderror" style="width: 100%;" required>
                             <option value="">-- Pilih Mesin Asal --</option>
-                            @foreach ($msn_asal as $mesin)
-                            <option value="{{ $mesin->msn_trgt_id }}" @if (old('msn_asal')==$mesin->msn_trgt_id)
-                                selected @endif>
+                            @foreach ($mesins as $mesin)
+                            <option value=" {{ $mesin->mesin_id }}" @if (old('mesin_id')==$mesin->mesin_id) selected
+                                @endif>
                                 {{ $mesin->nama }}
                             </option>
                             @endforeach
                         </select>
-                        @error('msn_asal')
+                        @error('mesin_id')
                         <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
                     </div>
-
                     <div class="form-group mt-3">
-                        <label for="">Mesin Tujuan :</label>
-                        <input type="hidden" name="gudang_id" value="{{ $msn_tujuan->gudang_id }}" required>
-                        <input type="text" class="form-control" value="{{ $msn_tujuan->nama }}" readonly>
+                        <label for="ket">Keterangan :</label>
+                        <input type="text" class="form-control @error('ket') is-invalid @enderror" name="ket"
+                            value="{{ old('ket') }}" placeholder="Masukkan Keterangan" required>
+                        @error('ket')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
                     </div>
-
-                    <div id="items-container"></div> <!-- Container for items input fields -->
+                    <div id="items-container"></div> <!-- Kontainer untuk input items -->
                     <div class="d-flex justify-content-end mt-3">
-                        <a href="{{ route('pengiriman-bjsk') }}"
+                        <a href="{{ route('pemakaian-sparepart') }}"
                             class="btn btn-secondary waves-effect waves-light me-2">
                             <i class="bx bx-caret-left align-middle me-2 font-size-18"></i>Kembali
                         </a>
@@ -300,7 +292,6 @@ Tambah Pengiriman BJSK
                                     <tr>
                                         <th>No</th>
                                         <th>Nama Barang</th>
-                                        <th>Spek</th>
                                         <th>Satuan</th>
                                         <th>Action</th>
                                     </tr>
@@ -350,11 +341,6 @@ Tambah Pengiriman BJSK
                         <label for="modal-satuan2" class="form-label fw-bolder" id="modal-satuan2"></label>
                     </div>
                 </div>
-
-                <div class="mb-3">
-                    <label for="modal-ket" class="form-label">Keterangan</label>
-                    <textarea class="form-control" id="modal-ket"></textarea>
-                </div>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
@@ -368,14 +354,13 @@ Tambah Pengiriman BJSK
     <div class="col-lg-12 mt-2">
         <div class="card">
             <div class="card-body">
-                <h4 class="card-title fw-bolder">List Kirim BJSK</h4>
+                <h4 class="card-title fw-bolder">List Pemakaian Spare Part</h4>
                 <div class="table-responsive">
                     <table class="table table-striped" id="selected-items-table">
                         <thead class="table-light">
                             <tr>
                                 <th>No</th>
                                 <th>Nama</th>
-                                <th>Ket</th>
                                 <th>Qty</th>
                                 <th>Satuan</th>
                                 <th>Action</th>

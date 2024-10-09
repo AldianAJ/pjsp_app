@@ -1,42 +1,29 @@
 @extends('layouts.app')
 
 @section('title')
-Return Barang
+Pemakaian Spare Part
 @endsection
 
 @push('after-app-style')
 <!-- Sweet Alert-->
 <link href="{{ asset('assets/libs/sweetalert2/sweetalert2.min.css') }}" rel="stylesheet" type="text/css" />
-<link rel="stylesheet"
-    href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.10.0/css/bootstrap-datepicker.min.css">
-<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
-<style>
-    .select2-container .select2-selection--single {
-        padding: 0.30rem 0.45rem;
-        height: 38.2px;
-    }
-</style>
 @endpush
 
 @push('after-app-script')
 <script src="{{ asset('assets/libs/datatables.net/js/jquery.dataTables.min.js') }}"></script>
 <script src="{{ asset('assets/libs/datatables.net-bs4/js/dataTables.bootstrap4.min.js') }}"></script>
+<!-- Responsive examples -->
 <script src="{{ asset('assets/libs/datatables.net-responsive/js/dataTables.responsive.min.js') }}"></script>
 <script src="{{ asset('assets/libs/datatables.net-responsive-bs4/js/responsive.bootstrap4.min.js') }}"></script>
 <script src="{{ asset('assets/js/pages/datatables.init.js') }}"></script>
-<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.10.0/js/bootstrap-datepicker.min.js">
-</script>
-
 <script>
     let mainTable;
 
         mainTable = $('#datatable').DataTable({
-            ajax: "{{ route('return-barang') }}",
-            SUPP
+            ajax: "{{ route('pemakaian-sparepart') }}",
             ordering: false,
             columns: [{
-                    data: "mutasi_id"
+                    data: "no_spart"
                 },
                 {
                     data: "tgl",
@@ -49,6 +36,12 @@ Return Barang
                     }
                 },
                 {
+                    data: "nama"
+                },
+                {
+                    data: "ket"
+                },
+                {
                     data: "action"
                 }
             ],
@@ -57,7 +50,7 @@ Return Barang
 
         $('#datatable').on('click', '.btn-detail', function() {
             let selectedData = mainTable.row($(this).closest('tr')).data();
-            $("#id-kirim-btg").text(selectedData.mutasi_id);
+            $("#id-spart").text(selectedData.no_spart);
 
             if ($.fn.DataTable.isDataTable('#detail-datatable')) {
                 $('#detail-datatable').DataTable().destroy();
@@ -67,9 +60,9 @@ Return Barang
                 serverSide: true,
                 ajax: {
                     type: "GET",
-                    url: "{{ route('return-barang.detail') }}",
+                    url: "{{ route('pemakaian-sparepart.detail') }}",
                     data: {
-                        mutasi_id: selectedData.mutasi_id
+                        no_spart: selectedData.no_spart
                     }
                 },
                 lengthMenu: [5],
@@ -78,16 +71,7 @@ Return Barang
                         render: (data, type, row, meta) => meta.row + 1
                     },
                     {
-                        data: 'nm_brg',
-                        // render: function(data, type, row) {
-                        //     return row.tr_trmsup_detail[0].barang.nm_brg;
-                        // }
-                    },
-                    {
-                        data: 'spek',
-                        // render: function(data, type, row) {
-                        //     return row.tr_trmsup_detail[0].barang.nm_brg;
-                        // }
+                        data: 'spek'
                     },
                     {
                         data: 'qty',
@@ -114,7 +98,7 @@ Return Barang
 <div class="row">
     <div class="col-12">
         <div class="page-title-box d-sm-flex align-items-center justify-content-between">
-            <h4 class="mb-sm-0 font-size-18">Return Barang </h4>
+            <h4 class="mb-sm-0 font-size-18">Pemakaian Spare Part</h4>
         </div>
     </div>
 </div>
@@ -125,16 +109,17 @@ Return Barang
         <div class="card">
             <div class="card-body">
                 <div class="d-flex justify-content-end mb-2">
-                    <a href="{{ route('return-barang.create') }}" class="btn btn-primary my-2">
-                        <i class="bx bx-plus-circle align-middle me-2 font-size-18"></i> Tambah
-                    </a>
+                    <a href="{{ route('pemakaian-sparepart.create') }}" class="btn btn-primary my-2"><i
+                            class="bx bx-plus-circle align-middle me-2 font-size-18"></i> Tambah</a>
                 </div>
                 <div class="table-responsive">
                     <table id="datatable" class="table align-middle table-nowrap">
                         <thead class="table-light">
                             <tr>
-                                <th>No. Return</th>
-                                <th>Tanggal Return</th>
+                                <th>No. Dokumen</th>
+                                <th>Tanggal Pemakaian</th>
+                                <th>Nama Mesin</th>
+                                <th>Keterangan</th>
                                 <th>Action</th>
                             </tr>
                         </thead>
@@ -147,32 +132,34 @@ Return Barang
     </div>
 </div>
 
-<div class="modal modal-md fade" id="detailModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+<div class="modal modal-lg fade" id="detailModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h3 class="modal-title fw-bolder" id="exampleModalLabel">Detail Barang - <span id="id-kirim-btg"></span>
-                </h3>
+                <h4 class="modal-title fw-bolder" id="exampleModalLabel">Detail Barang - <span id="id-spart"></span>
+                </h4>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <table class="table table-bordered dt-responsive nowrap w-100" id="detail-datatable">
-                    <thead class="table-light">
-                        <tr>
-                            <th>No</th>
-                            <th>Nama Barang</th>
-                            <th>Spek</th>
-                            <th>Qty</th>
-                            <th>Satuan</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                    </tbody>
-                </table>
+                <div class="table-responsive">
+                    <table class="table align-middle table-nowrap" id="detail-datatable">
+                        <thead class="table-light">
+                            <tr>
+                                <th>No</th>
+                                <th>Nama Barang</th>
+                                <th>Qty</th>
+                                <th>Satuan</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </div>
 </div>
+
 
 @if (session()->has('success'))
 <script src="{{ asset('assets/libs/sweetalert2/sweetalert2.min.js') }}"></script>

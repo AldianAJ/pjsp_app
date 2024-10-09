@@ -41,6 +41,9 @@ Tambah Return Barang
                             render: (data, type, row, meta) => meta.row + 1
                         },
                         {
+                            data: "nm_brg"
+                        },
+                        {
                             data: "spek"
                         },
                         {
@@ -57,8 +60,6 @@ Tambah Return Barang
 
                 $('#dataSpek').modal('show');
             });
-
-
 
             window.showQtyModal = function(brg_id, nm_brg, satuan1, satuan2, konversi1, spek_id, spek) {
                 const modal = document.getElementById('qtyModal');
@@ -313,6 +314,7 @@ Tambah Return Barang
                                     <tr>
                                         <th>No</th>
                                         <th>Nama Barang</th>
+                                        <th>Spek</th>
                                         <th>Satuan</th>
                                         <th>Action</th>
                                     </tr>
