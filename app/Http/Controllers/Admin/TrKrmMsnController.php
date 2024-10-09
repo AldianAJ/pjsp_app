@@ -231,6 +231,12 @@ class TrKrmMsnController extends Controller
                         'qty' => $item['qty'],
                         'qty_std' => $item['qty_std']
                     ]);
+                    $keluar = $item['qty'];
+                    $data_stok = TrStok::where('doc_id', $no_mutasi);
+                    $data_stok->update([
+                        'keluar' => $keluar,
+                        'cek' => 1,
+                    ]);
                     $responseMessage = 'Data ' . $nama . ' berhasil diubah. Menjadi Qty : ' . $item['qty'];
                 }
             }
