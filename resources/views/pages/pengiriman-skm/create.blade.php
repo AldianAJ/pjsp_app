@@ -52,13 +52,13 @@ Tambah Pengiriman ke Mesin
                             render: (data, type, row) => `<button type="button" class="btn btn-primary font-size-14 waves-effect waves-light" onclick="showQtyModal('${row.brg_id}', '${row.nm_brg}', '${row.satuan1}', '${row.satuan2}', '${row.konversi1}', '${row.spek_id}', '${row.spek}')">
                                 Pilih
                                 </button>`
-                            }
-                        ],
-                    });
-
-                    $('#dataBarang').modal('hide');
-                    $('#dataSpek').modal('show');
+                        }
+                    ],
                 });
+
+                $('#dataBarang').modal('hide');
+                $('#dataSpek').modal('show');
+            });
 
             $('input[name="tgl"]').on('change', function() {
                 const selectedDate = $(this).val();
@@ -103,6 +103,7 @@ Tambah Pengiriman ke Mesin
 
             window.showQtyModal = function(brg_id, nm_brg, satuan1, satuan2, konversi1, spek_id, spek) {
                 const modal = document.getElementById('qtyModal');
+                const msn_trgt_id = document.getElementById('msn_trgt_id').value
                 document.getElementById('modal-brg-id').value = brg_id;
                 document.getElementById('modal-nm-brg').value = nm_brg;
                 document.getElementById('modal-qty-beli').value = '';
@@ -110,7 +111,8 @@ Tambah Pengiriman ke Mesin
                 document.getElementById('modal-qty-std').value = '';
                 document.getElementById('modal-konversi1').value = konversi1;
                 document.getElementById('modal-satuan2').innerText = satuan2;
-                document.getElementById('modal-ket').value = spek;
+                document.getElementById('modal-ket').value = msn_trgt_id;
+                // document.getElementById('modal-ket').value = spek;
                 document.getElementById('modal-spek-id').value = spek_id;
 
                 $('#dataSpek').modal('hide');
@@ -235,44 +237,80 @@ Tambah Pengiriman ke Mesin
             $('#dataMesin').modal('hide');
         }
 
-        function pilihTgl(){
+        function pilihTgl() {
             const selectedDate = document.getElementById('tgl').value;
 
             if ($.fn.DataTable.isDataTable('#datatable-machines')) {
-                    $('#datatable-machines').DataTable().clear().destroy();
-                }
+                $('#datatable-machines').DataTable().clear().destroy();
+            }
 
-                $('#datatable-machines').DataTable({
-                    ajax: {
-                        url: "{{ route('pengiriman-skm.create') }}",
-                        data: {
-                            type: 'machines',
-                            date: selectedDate,
-                        }
+            $('#datatable-machines').DataTable({
+                ajax: {
+                    url: "{{ route('pengiriman-skm.create') }}",
+                    data: {
+                        type: 'machines',
+                        date: selectedDate,
+                    }
+                },
+                columns: [{
+                        data: null,
+                        render: (data, type, row, meta) => meta.row + 1
                     },
-                    columns: [{
-                            data: null,
-                            render: (data, type, row, meta) => meta.row + 1
-                        },
-                        {
-                            data: "shift"
-                        },
-                        {
-                            data: "nama"
-                        },
-                        {
-                            data: null,
-                            render: (data, type, row) => `
+                    {
+                        data: "shift"
+                    },
+                    {
+                        data: "nama"
+                    },
+                    {
+                        data: null,
+                        render: (data, type, row) => `
                         <button type="button" class="btn btn-primary font-size-14 waves-effect waves-light" onclick="select('${row.msn_trgt_id}', '${row.mesin_id}')">
                         Pilih
                     </button>`
-                        }
-                    ]
-                });
+                    }
+                ]
+            });
 
-                $('#dataMesin').modal('show');
+            $('#dataMesin').modal('show');
         }
 
+        // Fungsi untuk memuat opsi dari server
+        async function loadOptions() {
+            try {
+                // Mengambil data dari server menggunakan fetch API
+                const tgl = document.getElementById('tgl').value;
+                const response = await fetch('{{ route('pengiriman-skm.create') }}?tgl=' + tgl);
+                const optionsData = await response.json();
+
+                // Mendapatkan elemen select
+                const select = document.getElementById('gdg_tujuan');
+
+                // Mengosongkan opsi sebelumnya (jika ada)
+                select.innerHTML = '<option value="">-- Pilih Mesin Tujuan --</option>';
+
+                // Looping data dari server dan menambahkan opsi ke select
+                optionsData.forEach(option => {
+                    const newOption = document.createElement('option');
+                    // document.getElementById('msn_trgt_id').value = option.msn_trgt_id;
+                    newOption.value =  option.mesin_id; // Nilai untuk setiap option (misalnya, ID)
+                    newOption.text = '(Shift ' + option.shift + ') ' + option.nama; // Teks yang akan ditampilkan
+                    newOption.setAttribute('data-msn_trgt_id', option.msn_trgt_id);
+                    select.add(newOption);
+                });
+            } catch (error) {
+                console.error('Error fetching data:', error);
+            }
+        }
+
+        function getMsnTrgtId() {
+            const selectedOption = document.getElementById('gdg_tujuan');
+            const msnTrgtId = selectedOption.options[selectedOption.selectedIndex].dataset.msn_trgt_id;
+            document.getElementById('msn_trgt_id').value = msnTrgtId;
+        }
+
+        // Memanggil loadOptions saat halaman pertama kali dimuat
+        document.addEventListener('DOMContentLoaded', loadOptions);
 </script>
 @endpush
 
@@ -316,19 +354,17 @@ Tambah Pengiriman ke Mesin
                     </div> --}}
                     <div class="form-group mt-3">
                         <label for="tgl">Tanggal</label>
-                        <div class="input-group">
-                            <div class="col-xl-10 me-2">
-                                <input type="date" class="form-control" name="tgl" id="tgl"
-                                    value="{{ old('tgl', \Carbon\Carbon::now()->format('Y-m-d')) }}" required>
-                            </div>
-                            <button type="button" class="btn btn-primary btn-sm me-2"
-                                onclick="pilihTgl()">Pilih</button>
-                        </div>
+                        <input type="date" class="form-control" name="tgl" id="tgl"
+                            value="{{ old('tgl', \Carbon\Carbon::now()->format('Y-m-d')) }}" required>
                     </div>
                     <input type="hidden" name="msn_trgt_id" id="msn_trgt_id" value="">
                     <div class="form-group mt-3">
                         <label for="gdg_asal">Gudang Asal :</label>
-                        <select name="gdg_asal" id="gdg_asal" style="width: 100%"
+                        <input type="text" class="form-control" name="gudang" id="gudang"
+                            value="{{ $gudangs[0]->nama }}" readonly>
+                        <input type="hidden" class="form-control" name="gdg_asal" id="gdg_asal" value="{{ $gudang_id }}"
+                            readonly>
+                        {{-- <select name="gdg_asal" id="gdg_asal" style="width: 100%"
                             class="form-control @error('gdg_asal') is-invalid @enderror" style="width: 100%;" required>
                             <option value="{{ $gudang_id }}" selected>{{ $gudangs[0]->nama }}</option>
                             @foreach ($mesins as $mesin)
@@ -336,7 +372,7 @@ Tambah Pengiriman ke Mesin
                                 {{ $mesin->nama }}
                             </option>
                             @endforeach
-                        </select>
+                        </select> --}}
                         @error('gdg_asal')
                         <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
@@ -345,14 +381,14 @@ Tambah Pengiriman ke Mesin
                     <div class="form-group mt-3">
                         <label for="gdg_tujuan">Mesin Tujuan :</label>
                         <select name="gdg_tujuan" id="gdg_tujuan" style="width: 100%"
-                            class="form-control @error('gdg_tujuan') is-invalid @enderror" style="width: 100%;"
-                            required>
-                            <option value="">-- Pilih Mesin Tujuan --</option>
-                            @foreach ($mesins as $mesin)
+                            class="form-control @error('gdg_tujuan') is-invalid @enderror" style="width: 100%;" required
+                            onchange="getMsnTrgtId()">
+                            <option value="">-- Memuat Mesin --</option>
+                            {{-- @foreach ($mesins as $mesin)
                             <option value="{{ $mesin->mesin_id }}">
                                 {{ $mesin->nama }}
                             </option>
-                            @endforeach
+                            @endforeach --}}
                         </select>
                         @error('gdg_tujuan')
                         <div class="invalid-feedback">{{ $message }}</div>
@@ -484,7 +520,7 @@ Tambah Pengiriman ke Mesin
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="dataSpekLabel">Data Spesifikasi</h5>
+                <h5 class="modal-title" id="dataSpekLabel">Data Barang</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">

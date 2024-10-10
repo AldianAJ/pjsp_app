@@ -69,6 +69,20 @@ class TrKrmMsnController extends Controller
             ->value('gudang_id');
         $gudangs = Gudang::where('gudang_id', $gudang_id)->where('jenis', 2)->where('status', 0)->get();
 
+        if ($request->has('tgl')) {
+            $date = $request->tgl;
+            $machines = DB::table('tr_target_mesin as a')
+                ->join('tr_target_shift as b', 'a.shift_id', '=', 'b.shift_id')
+                ->join('tr_target_harian as c', 'b.harian_id', '=', 'c.harian_id')
+                ->join('m_mesin as d', 'a.mesin_id', '=', 'd.mesin_id')
+                ->select('a.msn_trgt_id', 'd.nama', 'b.shift', 'c.tgl', 'a.mesin_id')
+                ->where('tgl', $date)
+                ->where('a.status', 0)
+                ->get();
+
+            return response()->json($machines);
+        };
+
         if ($request->ajax()) {
             $type = $request->input('type');
 
