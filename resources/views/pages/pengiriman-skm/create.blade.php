@@ -61,44 +61,12 @@ Tambah Pengiriman ke Mesin
             });
 
             $('input[name="tgl"]').on('change', function() {
-                const selectedDate = $(this).val();
+                // Mendapatkan elemen select
+                const select = document.getElementById('gdg_tujuan');
 
-                if ($.fn.DataTable.isDataTable('#datatable-machines')) {
-                    $('#datatable-machines').DataTable().clear().destroy();
-                }
-
-                $('#datatable-machines').DataTable({
-                    ajax: {
-                        url: "{{ route('pengiriman-skm.create') }}",
-                        data: {
-                            type: 'machines',
-                            date: selectedDate,
-                        }
-                    },
-                    orderprocessing: true,
-                    ordering: false,
-                    columns: [{
-                            data: null,
-                            render: (data, type, row, meta) => meta.row + 1
-                        },
-                        {
-                            data: "shift"
-                        },
-                        {
-                            data: "nama"
-                        },
-                        {
-                            data: null,
-                            render: (data, type, row) => `
-                        <button type="button" class="btn btn-primary font-size-14 waves-effect waves-light" onclick="select('${row.msn_trgt_id}','${row.mesin_id}')">
-                        Pilih
-                    </button>`
-                        }
-                    ]
-                });
-
-                $('#dataMesin').modal('show');
-
+                // Mengosongkan opsi sebelumnya (jika ada)
+                select.innerHTML = '<option value="">-- Memuat Mesin --</option>';
+                loadOptions();
             });
 
             window.showQtyModal = function(brg_id, nm_brg, satuan1, satuan2, konversi1, spek_id, spek) {
@@ -235,44 +203,6 @@ Tambah Pengiriman ke Mesin
             document.getElementById('gdg_tujuan').value = gdg_tujuan;
 
             $('#dataMesin').modal('hide');
-        }
-
-        function pilihTgl() {
-            const selectedDate = document.getElementById('tgl').value;
-
-            if ($.fn.DataTable.isDataTable('#datatable-machines')) {
-                $('#datatable-machines').DataTable().clear().destroy();
-            }
-
-            $('#datatable-machines').DataTable({
-                ajax: {
-                    url: "{{ route('pengiriman-skm.create') }}",
-                    data: {
-                        type: 'machines',
-                        date: selectedDate,
-                    }
-                },
-                columns: [{
-                        data: null,
-                        render: (data, type, row, meta) => meta.row + 1
-                    },
-                    {
-                        data: "shift"
-                    },
-                    {
-                        data: "nama"
-                    },
-                    {
-                        data: null,
-                        render: (data, type, row) => `
-                        <button type="button" class="btn btn-primary font-size-14 waves-effect waves-light" onclick="select('${row.msn_trgt_id}', '${row.mesin_id}')">
-                        Pilih
-                    </button>`
-                    }
-                ]
-            });
-
-            $('#dataMesin').modal('show');
         }
 
         // Fungsi untuk memuat opsi dari server
