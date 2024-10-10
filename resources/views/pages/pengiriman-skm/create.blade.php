@@ -56,7 +56,6 @@ Tambah Pengiriman ke Mesin
                     ],
                 });
 
-                $('#dataBarang').modal('hide');
                 $('#dataSpek').modal('show');
             });
 
@@ -84,7 +83,6 @@ Tambah Pengiriman ke Mesin
                 document.getElementById('modal-spek-id').value = spek_id;
 
                 $('#dataSpek').modal('hide');
-                $('#dataBarang').modal('hide');
                 new bootstrap.Modal(modal).show();
             };
 
@@ -197,13 +195,6 @@ Tambah Pengiriman ke Mesin
                 saveButton.disabled = selectedItems.length === 0;
             }
         });
-
-        function select(msn_trgt_id, gdg_tujuan) {
-            document.getElementById('msn_trgt_id').value = msn_trgt_id;
-            document.getElementById('gdg_tujuan').value = gdg_tujuan;
-
-            $('#dataMesin').modal('hide');
-        }
 
         // Fungsi untuk memuat opsi dari server
         async function loadOptions() {
@@ -341,107 +332,6 @@ Tambah Pengiriman ke Mesin
         <button type="button" class="btn btn-dark waves-effect waves-light" id="showDataBarangButton">
             <i class="bx bx-plus-circle align-middle me-2 font-size-18"></i>Tambah Data Barang
         </button>
-    </div>
-</div>
-
-<div class="modal fade" id="dataShift" tabindex="-1" role="dialog" aria-labelledby="shiftModalLabel" aria-hidden="true">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="shiftModalLabel">Pilih Shift</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <div class="row">
-                    <div class="col-sm-12">
-                        <div class="table-responsive">
-                            <table id="datatable-shifts" class="table align-middle table-nowrap">
-                                <thead class="table-light">
-                                    <tr>
-                                        <th>No</th>
-                                        <th>Shift</th>
-                                        <th>Action</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
-            </div>
-        </div>
-    </div>
-</div>
-
-<div class="modal fade" id="dataMesin" tabindex="-1" role="dialog" aria-labelledby="machineModalLabel"
-    aria-hidden="true">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="machineModalLabel">Pilih Mesin</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <div class="row">
-                    <div class="col-sm-12">
-                        <div class="table-responsive">
-                            <table id="datatable-machines" class="table align-middle table-nowrap">
-                                <thead class="table-light">
-                                    <tr>
-                                        <th>No</th>
-                                        <th>Shift</th>
-                                        <th>Mesin</th>
-                                        <th>Action</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
-            </div>
-        </div>
-    </div>
-</div>
-
-<div class="modal fade" id="dataBarang" tabindex="-1" role="dialog" aria-labelledby="dataModalLabel" aria-hidden="true">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="dataModalLabel">Data Barang</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <div class="row">
-                    <div class="col-sm-12">
-                        <div class="table-responsive">
-                            <table id="datatable-barang" class="table align-middle table-nowrap">
-                                <thead class="table-light">
-                                    <tr>
-                                        <th>No</th>
-                                        <th>Nama Barang</th>
-                                        <th>Action</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Selesai</button>
-            </div>
-        </div>
     </div>
 </div>
 

@@ -86,14 +86,7 @@ class TrKrmMsnController extends Controller
         if ($request->ajax()) {
             $type = $request->input('type');
 
-            if ($type == 'barangs') {
-
-                $barangs = Barang::where('status', 0)
-                    ->orderBy('brg_id', 'asc')
-                    ->get();
-
-                return DataTables::of($barangs)->make(true);
-            } elseif ($type == 'speks') {
+            if ($type == 'speks') {
                 $speks = DB::table('m_brg_spek as a')
                     ->join('m_brg as b', 'a.brg_id', '=', 'b.brg_id')
                     ->select('b.brg_id', 'b.nm_brg', 'a.satuan1', 'a.satuan2', 'a.konversi1', 'a.spek_id', 'a.spek')
@@ -101,27 +94,6 @@ class TrKrmMsnController extends Controller
                     ->get();
 
                 return DataTables::of($speks)->make(true);
-            } elseif ($type == 'shifts') {
-                $date = $request->input('date');
-                $harian = DB::table('tr_target_harian')->where('tgl', $date)->first();
-
-                $shifts = DB::table('tr_target_shift')
-                    ->select('shift_id', 'shift')
-                    ->where('harian_id', $harian->harian_id)->get();
-
-                return DataTables::of($shifts)->make(true);
-            } elseif ($type == 'machines') {
-                $date = $request->input('date');
-                $machines = DB::table('tr_target_mesin as a')
-                    ->join('tr_target_shift as b', 'a.shift_id', '=', 'b.shift_id')
-                    ->join('tr_target_harian as c', 'b.harian_id', '=', 'c.harian_id')
-                    ->join('m_mesin as d', 'a.mesin_id', '=', 'd.mesin_id')
-                    ->select('a.msn_trgt_id', 'd.nama', 'b.shift', 'c.tgl', 'a.mesin_id')
-                    ->where('tgl', $date)
-                    ->where('a.status', 0)
-                    ->get();
-
-                return DataTables::of($machines)->make(true);
             }
         }
         return view('pages.pengiriman-skm.create', compact('user', 'users', 'mesins', 'gudangs', 'gudang_id'));
