@@ -348,6 +348,12 @@
                         <span key="t-terima">Terima Barang</span>
                     </a>
                 </li>
+                <li>
+                    <a href="{{ route('pengiriman-skm') }}" class="waves-effect">
+                        <i class="bx bxs-duplicate"></i>
+                        <span key="t-kirim-skm">Kirim ke Mesin</span>
+                    </a>
+                </li>
                 <li class="menu-title" key="t-history">Riwayat</li>
                 <li>
                     <a href="{{ route('permintaan-skm.history') }}" class="waves-effect">
