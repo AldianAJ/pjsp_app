@@ -215,7 +215,7 @@ class TrKrmMsnController extends Controller
                     $nama = BarangSpek::where('spek_id', $item['spek_id'])->value('spek');
                     $data_tr_mutasi_detail->update([
                         'qty' => $item['qty'],
-                        'qty_std' => $item['qty_std']
+                        'qty_std' => $item['qty_std'],
                     ]);
                     $keluar = $item['qty'];
                     $data_stok = TrStok::where('doc_id', $no_mutasi);
@@ -231,6 +231,12 @@ class TrKrmMsnController extends Controller
             $data_tr_mutasi->update([
                 'tgl' => $request->tgl,
             ]);
+            $data_tr_mutasi_detail = TrMutasiDetail::where('mutasi_id', operator: $no_mutasi)
+                ->update([
+                    'gdg_tujuan' => $request->gdg_tujuan,
+                    'ket' => $request->msn_trgt_id,
+                ]);
+
             $responseMessage = 'Data transaksi berhasil diubah.';
         }
         return response()->json(['success' => true, 'message' => $responseMessage], 200);

@@ -20,6 +20,7 @@ Pengiriman ke Mesin
         ajax: "{{ route('pengiriman-skm') }}",
         processing: true,
         ordering: false,
+        bDestroy: true,
         columns: [{
                 data: "mutasi_id",
             },

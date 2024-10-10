@@ -19,201 +19,244 @@ Edit Pengiriman Batangan
 
 <script>
     $(document).ready(function() {
-        var mutasi_id = "{{ $mutasi_id }}";
-        var dataTableInitialized = false;
+            var mutasi_id = "{{ $mutasi_id }}";
+            var dataTableInitialized = false;
 
-        function initializeDataTable() {
-            $('#datatable-detail').DataTable({
-                ajax: {
-                    url: "{{ url('pengiriman-skm/edit') }}/" + mutasi_id,
-                },
-                lengthMenu: [5],
-                columns: [{
-                        data: null,
-                        render: (data, type, row, meta) => meta.row + 1
+            function initializeDataTable() {
+                $('#datatable-detail').DataTable({
+                    ajax: {
+                        url: "{{ url('pengiriman-skm/edit') }}/" + mutasi_id,
                     },
-                    {
-                        data: "nm_brg",
-                    },
-                    {
-                        data: "qty",
-                        render: function(data, type, row) {
-                            return `
+                    lengthMenu: [5],
+                    columns: [{
+                            data: null,
+                            render: (data, type, row, meta) => meta.row + 1
+                        },
+                        {
+                            data: "nm_brg",
+                        },
+                        {
+                            data: "qty",
+                            render: function(data, type, row) {
+                                return `
                                 <span class="qty-value" style="width: 5.5rem;">${data}</span>
                                 <input type="text" inputmode="numeric" class="form-control qty-input d-none" style="width: 5.5rem;" value="${data}">
                             `;
-                        }
-                    },
-                    {
-                        data: "satuan",
-                    },
-                    {
-                        data: "qty_std",
-                        render: function(data, type, row) {
-                            return `
+                            }
+                        },
+                        {
+                            data: "satuan",
+                        },
+                        {
+                            data: "qty_std",
+                            render: function(data, type, row) {
+                                return `
                                 <span class="qty-value-konversi" style="width: 5.5rem;">${data}</span>
                                 <input type="text" inputmode="numeric" class="form-control qty-input-konversi d-none" style="width: 5.5rem;" value="${data}">
                             `;
-                        }
-                    },
-                    {
-                        data: "satuan_std"
-                    },
-                    {
-                        data: null,
-                        render: function(data, type, row) {
-                            return `
+                            }
+                        },
+                        {
+                            data: "satuan_std"
+                        },
+                        {
+                            data: null,
+                            render: function(data, type, row) {
+                                return `
                                 <button class="btn btn-success waves-effect waves-light edit-btn"><i class="bx bx-edit align-middle font-size-14"></i> Edit</button>
                                 <button class="btn btn-danger waves-effect waves-light cancel-btn d-none"><i class="bx bx-x-circle align-middle font-size-14"></i> Batal</button>
                                 <button class="btn btn-primary waves-effect waves-light save-btn d-none"><i class="bx bx-save align-middle font-size-14"></i> Simpan</button>
                             `;
+                            }
                         }
+                    ],
+                    rowCallback: function(row, data) {
+                        $(row).attr('data-spek-id', data.spek_id);
+                        $(row).data('konversi1', data.konversi1);
                     }
-                ],
-                rowCallback: function(row, data) {
-                    $(row).attr('data-spek-id', data.spek_id);
-                    $(row).data('konversi1', data.konversi1);
-                }
-            });
-        }
-
-        $('#showDataBarangButton').on('click', function() {
-            $('#editDataBarangModal').modal('show');
-
-            if (!dataTableInitialized) {
-                initializeDataTable();
-                dataTableInitialized = true;
-            }
-        });
-
-        $('#editDataBarangModal').on('click', '.edit-btn', function() {
-            var $row = $(this).closest('tr');
-            var konversi = parseFloat($row.data('konversi1'));
-
-            $row.find('.qty-value').addClass('d-none');
-            $row.find('.qty-value-konversi').addClass('d-none');
-            $row.find('.qty-input').removeClass('d-none');
-            $row.find('.qty-input-konversi').removeClass('d-none');
-            $(this).addClass('d-none');
-            $row.find('.save-btn').removeClass('d-none');
-            $row.find('.cancel-btn').removeClass('d-none');
-
-            $row.find('.qty-input').on('keyup', function() {
-                var qtyBeli = parseFloat($(this).val()) || 0;
-                var qtyStd = qtyBeli * konversi;
-                $row.find('.qty-input-konversi').val(qtyStd);
-            });
-
-            $row.find('.qty-input-konversi').on('keyup', function() {
-                var qtyStd = parseFloat($(this).val()) || 0;
-                var qtyBeli = qtyStd / konversi;
-                $row.find('.qty-input').val(qtyBeli);
-            });
-        });
-
-        $('#editDataBarangModal').on('click', '.save-btn', function() {
-            var $row = $(this).closest('tr');
-            var qtyInput = $row.find('.qty-input');
-            var qtyInputKonversi = $row.find('.qty-input-konversi');
-
-            var qty = parseFloat(qtyInput.val());
-            var qty_std = parseFloat(qtyInputKonversi.val());
-            var spek_id = $row.data('spek-id');
-
-            $.ajax({
-                url: "{{ route('pengiriman-skm.update', ['no_krmmsn' => $mutasi_id]) }}",
-                method: 'POST',
-                data: {
-                    _token: "{{ csrf_token() }}",
-                    mutasi_id: "{{ $mutasi_id }}",
-                    items: [{
-                        spek_id: spek_id,
-                        qty: qty,
-                        qty_std: qty_std
-                    }]
-                },
-                success: function(response) {
-                    $row.find('.qty-value').text(qty).removeClass('d-none');
-                    $row.find('.qty-value-konversi').text(qty_std).removeClass('d-none');
-                    qtyInput.addClass('d-none');
-                    qtyInputKonversi.addClass('d-none');
-                    $row.find('.save-btn').addClass('d-none');
-                    $row.find('.edit-btn').removeClass('d-none');
-                    $row.find('.cancel-btn').addClass('d-none');
-                    Swal.fire({
-                        toast: true,
-                        position: 'top-right',
-                        icon: response.success ? 'success' : 'error',
-                        title: response.message,
-                        showConfirmButton: false,
-                        timer: 5000
-                    });
-                },
-            });
-        });
-
-        $('#editDataBarangModal').on('click', '.cancel-btn', function() {
-            var $row = $(this).closest('tr');
-            var QtyBeli = $row.find('.qty-value').text();
-            var QtyStd = $row.find('.qty-value-konversi').text();
-            $row.find('.qty-value').text(QtyBeli).removeClass('d-none');
-            $row.find('.qty-value-konversi').text(QtyStd).removeClass('d-none');
-            $row.find('.qty-input').addClass('d-none');
-            $row.find('.qty-input-konversi').addClass('d-none');
-            $(this).addClass('d-none');
-            $row.find('.save-btn').addClass('d-none');
-            $row.find('.edit-btn').removeClass('d-none');
-        });
-
-        function checkFormChanges() {
-            let isChanged = false;
-
-            $('#updateForm input, #updateForm select').each(function() {
-                if ($(this).is(':visible') && $(this).data('original-value') !== $(this).val()) {
-                    isChanged = true;
-                }
-            });
-        }
-
-        $('#updateForm input, #updateForm select').each(function() {
-            $(this).data('original-value', $(this).val());
-        });
-
-        $('#updateForm input, #updateForm select').on('input change', checkFormChanges);
-    });
-
-    document.getElementById('updateForm').addEventListener('submit', function(e) {
-        e.preventDefault();
-
-        var form = this;
-        var formData = new FormData(form);
-
-        fetch(form.action, {
-            method: 'POST',
-            body: formData,
-            headers: {
-                'X-CSRF-TOKEN': document.querySelector('input[name="_token"]').value
-            }
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Berhasil',
-                    text: data.message,
-                    timer: 2000,
-                    showConfirmButton: false,
-                    toast: true,
-                    position: 'top-right'
-                }).then(() => {
-                    window.location.href = "{{ route('pengiriman-skm') }}";
                 });
             }
-        });
-    });
-</script>
 
+            $('#showDataBarangButton').on('click', function() {
+                $('#editDataBarangModal').modal('show');
+
+                if (!dataTableInitialized) {
+                    initializeDataTable();
+                    dataTableInitialized = true;
+                }
+            });
+
+            $('#editDataBarangModal').on('click', '.edit-btn', function() {
+                var $row = $(this).closest('tr');
+                var konversi = parseFloat($row.data('konversi1'));
+
+                $row.find('.qty-value').addClass('d-none');
+                $row.find('.qty-value-konversi').addClass('d-none');
+                $row.find('.qty-input').removeClass('d-none');
+                $row.find('.qty-input-konversi').removeClass('d-none');
+                $(this).addClass('d-none');
+                $row.find('.save-btn').removeClass('d-none');
+                $row.find('.cancel-btn').removeClass('d-none');
+
+                $row.find('.qty-input').on('keyup', function() {
+                    var qtyBeli = parseFloat($(this).val()) || 0;
+                    var qtyStd = qtyBeli * konversi;
+                    $row.find('.qty-input-konversi').val(qtyStd);
+                });
+
+                $row.find('.qty-input-konversi').on('keyup', function() {
+                    var qtyStd = parseFloat($(this).val()) || 0;
+                    var qtyBeli = qtyStd / konversi;
+                    $row.find('.qty-input').val(qtyBeli);
+                });
+            });
+
+            $('#editDataBarangModal').on('click', '.save-btn', function() {
+                var $row = $(this).closest('tr');
+                var qtyInput = $row.find('.qty-input');
+                var qtyInputKonversi = $row.find('.qty-input-konversi');
+
+                var qty = parseFloat(qtyInput.val());
+                var qty_std = parseFloat(qtyInputKonversi.val());
+                var spek_id = $row.data('spek-id');
+
+                $.ajax({
+                    url: "{{ route('pengiriman-skm.update', ['no_krmmsn' => $mutasi_id]) }}",
+                    method: 'POST',
+                    data: {
+                        _token: "{{ csrf_token() }}",
+                        mutasi_id: "{{ $mutasi_id }}",
+                        items: [{
+                            spek_id: spek_id,
+                            qty: qty,
+                            qty_std: qty_std,
+                        }]
+                    },
+                    success: function(response) {
+                        $row.find('.qty-value').text(qty).removeClass('d-none');
+                        $row.find('.qty-value-konversi').text(qty_std).removeClass('d-none');
+                        qtyInput.addClass('d-none');
+                        qtyInputKonversi.addClass('d-none');
+                        $row.find('.save-btn').addClass('d-none');
+                        $row.find('.edit-btn').removeClass('d-none');
+                        $row.find('.cancel-btn').addClass('d-none');
+                        Swal.fire({
+                            toast: true,
+                            position: 'top-right',
+                            icon: response.success ? 'success' : 'error',
+                            title: response.message,
+                            showConfirmButton: false,
+                            timer: 5000
+                        });
+                    },
+                });
+            });
+
+            $('#editDataBarangModal').on('click', '.cancel-btn', function() {
+                var $row = $(this).closest('tr');
+                var QtyBeli = $row.find('.qty-value').text();
+                var QtyStd = $row.find('.qty-value-konversi').text();
+                $row.find('.qty-value').text(QtyBeli).removeClass('d-none');
+                $row.find('.qty-value-konversi').text(QtyStd).removeClass('d-none');
+                $row.find('.qty-input').addClass('d-none');
+                $row.find('.qty-input-konversi').addClass('d-none');
+                $(this).addClass('d-none');
+                $row.find('.save-btn').addClass('d-none');
+                $row.find('.edit-btn').removeClass('d-none');
+            });
+
+            function checkFormChanges() {
+                let isChanged = false;
+
+                $('#updateForm input, #updateForm select').each(function() {
+                    if ($(this).is(':visible') && $(this).data('original-value') !== $(this).val()) {
+                        isChanged = true;
+                    }
+                });
+            }
+
+            $('#updateForm input, #updateForm select').each(function() {
+                $(this).data('original-value', $(this).val());
+            });
+
+            $('#updateForm input, #updateForm select').on('input change', checkFormChanges);
+        });
+
+        document.getElementById('updateForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            var form = this;
+            var formData = new FormData(form);
+
+            fetch(form.action, {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('input[name="_token"]').value
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Berhasil',
+                            text: data.message,
+                            timer: 2000,
+                            showConfirmButton: false,
+                            toast: true,
+                            position: 'top-right'
+                        }).then(() => {
+                            window.location.href = "{{ route('pengiriman-skm') }}";
+                        });
+                    }
+                });
+        });
+        // Fungsi untuk memuat opsi dari server
+        async function loadOptions() {
+            try {
+                // Mengambil data dari server menggunakan fetch API
+                const tgl = document.getElementById('tgl').value;
+                const response = await fetch('{{ route('pengiriman-skm.create') }}?tgl=' + tgl);
+                const optionsData = await response.json();
+
+                // Mendapatkan elemen select
+                const select = document.getElementById('gdg_tujuan');
+
+                // Mengosongkan opsi sebelumnya (jika ada)
+                select.innerHTML = '<option value="">-- Pilih Mesin Tujuan --</option>';
+
+                // Looping data dari server dan menambahkan opsi ke select
+                optionsData.forEach(option => {
+                    const newOption = document.createElement('option');
+                    // document.getElementById('msn_trgt_id').value = option.msn_trgt_id;
+                    newOption.value = option.mesin_id; // Nilai untuk setiap option (misalnya, ID)
+                    newOption.text = '(Shift ' + option.shift + ') ' + option
+                    .nama; // Teks yang akan ditampilkan
+                    newOption.setAttribute('data-msn_trgt_id', option.msn_trgt_id);
+
+                    // Jika opsi ini adalah yang terpilih, tambahkan atribut 'selected'
+                    if (option.mesin_id == '{{ $gdg_tujuan }}') {
+                        newOption.selected = true;
+                        document.getElementById('msn_trgt_id').value = option.msn_trgt_id;
+                    }
+
+                    select.add(newOption);
+                });
+            } catch (error) {
+                console.error('Error fetching data:', error);
+            }
+        }
+
+        function getMsnTrgtId() {
+            const selectedOption = document.getElementById('gdg_tujuan');
+            const msnTrgtId = selectedOption.options[selectedOption.selectedIndex].dataset.msn_trgt_id;
+            document.getElementById('msn_trgt_id').value = msnTrgtId;
+        }
+
+        // Memanggil loadOptions saat halaman pertama kali dimuat
+        document.addEventListener('DOMContentLoaded', loadOptions);
+</script>
 @endpush
 
 @section('content')
@@ -255,9 +298,11 @@ Edit Pengiriman Batangan
                             readonly>
                     </div>
                     <div class="form-group mt-3">
-                        <label for="tgl">Tanggal Mutasi :</label>
-                        <input type="date" class="form-control" name="tgl" value="{{ $tgl }}" required>
+                        <label for="tgl">Tanggal :</label>
+                        <input type="date" class="form-control" id="tgl" name="tgl" value="{{ $tgl }}" required
+                            readonly>
                     </div>
+                    <input type="hidden" name="msn_trgt_id" id="msn_trgt_id" value="">
                     <div class="form-group mt-3">
                         <label for="gdg_asal">Gudang Asal :</label>
                         <input type="text" class="form-control" name="gudang" id="gudang"
@@ -272,15 +317,15 @@ Edit Pengiriman Batangan
                     <div class="form-group mt-3">
                         <label for="gdg_tujuan">Mesin Tujuan :</label>
                         <select name="gdg_tujuan" id="gdg_tujuan" style="width: 100%"
-                            class="form-control @error('gdg_tujuan') is-invalid @enderror" style="width: 100%;"
-                            required>
-                            <option value="">-- Pilih Mesin Tujuan --</option>
-                            @foreach ($mesins as $mesin)
+                            class="form-control @error('gdg_tujuan') is-invalid @enderror" style="width: 100%;" required
+                            onchange="getMsnTrgtId()">
+                            <option value="">-- Memuat Mesin --</option>
+                            {{-- @foreach ($mesins as $mesin)
                             <option value="{{ $mesin->mesin_id }}" {{ $gdg_tujuan==$mesin->mesin_id ? 'selected' : ''
                                 }}>
                                 {{ $mesin->nama }}
                             </option>
-                            @endforeach
+                            @endforeach --}}
                         </select>
                         @error('gdg_tujuan')
                         <div class="invalid-feedback">{{ $message }}</div>
